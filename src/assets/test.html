@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      @font-face {
+        font-family: "NotoSansJP Regular";
+        src: local("NotoSansJP Regular"),
+        url("/NotoSansJP-Regular.otf") format("opentype")
+        url("./fonts/NotoSansJP-Regular.otf") format("opentype");
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "NotoSansJP-Regular";
+        src: local("NotoSansJP-Regular"),
+        url("/NotoSansJP-Regular.otf") format("opentype"),
+        url("./fonts/NotoSansJP-Regular.otf") format("opentype");;
+        font-weight: normal;
+        font-style: normal;
+      }
+      * { font-family:NotoSansJP Regular, NotoSansJP-Regular; }
+      html { background-color: #f6f6f6; width: 100vw; margin: 0; padding: 0; }
+      body { background-color: #f6f6f6; width: 100%; margin: 0; padding: 0; }
+      img { max-width: 100%; height: auto; }
+      header, main { padding: .5rem 1.5rem; background-color:#fff; }
+      header { margin: 0 2rem; color: #f00; background-image: url("../../assets/logo.png"); }
+      main { margin: 0 2rem 2rem 2rem; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>test</h1>
+      <h4>heyhey</h4>
+    </header>
+    <main>
+      <p>In this example, the user's local copy of "Helvetica Neue Bold" is used; if the user does not have that font installed (two different names are tried), then the downloadable font named "MgOpenModernaBold.ttf" is used instead:</p>
+      <p>日本語</p>
+      <img src="./logo.png">
+    </main>
+  </body>
+</html>

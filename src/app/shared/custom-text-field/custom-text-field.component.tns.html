@@ -1,0 +1,21 @@
+<AbsoluteLayout (tap)="focusProxy()" [class.debug-border]="debugBorder">
+  <FlexboxLayout style="background-color:#fff; width:100%; height:100%;"
+    flexDirection="row"
+    justifyContent="space-between"
+    alignItems="center">
+    <Label [text]="placeholder" class="p-x-10 bg-clear" style="color:#999; text-align:left;"
+      [class.debug-border]="debugBorder"></Label>
+    <Label text="&#xe930;" class="p-x-20 icon bg-clear" style="color:#1f977c; text-align:right;"
+      [class.debug-border]="debugBorder"></Label>
+  </FlexboxLayout>
+  <GridLayout class="bg-clear form" columns="*,50" width="100%" height="100%">
+    <TextField col="0" class="input" virticalAlignment="bottom"
+      style="background-color:transparent; padding:0 5; width:100%; height:100%;"
+      [class.debug-border]="debugBorder"
+      (focus)="onFocus()"
+      (returnPress)="onDoneAction($event)"></TextField>
+    <Label col="1" class="bg-clear p-0 m-0" height="100%"
+      [class.debug-border]="debugBorder"
+      (tap)="onIconTapAction()"></Label>
+  </GridLayout>
+</AbsoluteLayout>

@@ -1,0 +1,206 @@
+GridLayout + TextField {
+  margin-top: 8;
+}
+
+.page {
+  background-color: $theme-bg-secondary;
+}
+
+
+// forms
+input[type="text"],
+TextField,
+TextField.input,
+.form > .input {
+  background-color: #ffffff;
+  margin-bottom: 8;
+}
+
+// button
+.btn {
+  &.btn-mg-wide {
+    margin-left: 90;
+    margin-right: 90;
+  }
+
+  &.btn-mg-narrow {
+    margin-left: 105;
+    margin-right: 105;
+  }
+
+  &.btn-white {
+    background-color: #fff;
+    border-color: #fff;
+    color: #000;
+
+    &.btn-active:highlighted {
+      background-color: darken(#fff, 30%);
+      border-color: darken(#fff, 30%);
+    }
+  }
+
+  &.btn-circle {
+    border-radius: 40;
+  }
+}
+
+.btn-primary {
+  &:highlighted {
+    background-color: lighten($theme-bg-primary, 10%);
+    border-color: lighten($theme-bg-primary, 10%);
+  }
+
+  &.btn-black {
+    background-color: #000;
+
+    &.btn-active:highlighted {
+      background-color: lighten(#000, 46%);
+      border-color: lighten(#000, 46%);
+    }
+  }
+}
+
+.fab-btn {
+  width: 60;
+  height: 60;
+  vertical-align: bottom;
+  margin: 0;
+}
+
+// background
+.bg-transparent,
+.bg-clear {
+  background-color: transparent;
+}
+
+.bg-theme,
+.bf-theme-primary {
+  background-color: $theme-bg-primary;
+}
+
+.bg-theme-secondary {
+  background-color: $theme-bg-secondary;
+}
+
+.bg-white {
+  background-color: #fff;
+}
+
+.bg-bubble {
+  background-color: #dfedea;
+}
+
+// text
+.text-white {
+  color: #fff;
+}
+
+.text-theme,
+.text-theme-primary {
+  color: $theme-color;
+}
+
+.text-dim {
+  color: #aaaaaa;
+}
+
+// borders
+.debug-border,
+.debugBorder {
+  border-width: 1;
+  border-color: #f00;
+}
+
+.bottom-border-white {
+  border-bottom-color: #fff;
+  border-bottom-width: 2;
+}
+
+.bottom-border-theme {
+  border-bottom-color: $theme-color;
+  border-bottom-width: 2;
+}
+
+.bottom-border-clear {
+  border-bottom-color: transparent;
+  border-bottom-width: 2;
+}
+
+
+// --
+// **-like
+// as component
+// --
+.input-like {
+  background-color: #fff;
+  padding: $input-like-padding;
+
+  // SEE: https://github.com/NativeScript/NativeScript/issues/6781
+  align-items: flex-start;
+  // --
+  justify-content: space-between;
+
+  * {
+    flex-shrink: 1;
+    text-align: right;
+  }
+
+  .label-left {
+    padding-right: 5;
+    flex-shrink: 0;
+    text-align: left;
+    align-self: flex-start;
+  }
+
+  .label-right {
+    padding-left: 5;
+    flex-shrink: 0;
+    vertical-align: center;
+    text-align: center;
+    align-self: center;
+  }
+
+  .icon {
+    font-size: 18;
+    font-weight: 700;
+    color: $theme-color;
+    text-align: center;
+    align-self: center;
+  }
+}
+
+.radio-like {
+  background-color: transparent;
+
+  .item,
+  .input-like {
+    &[col='0'] {
+      margin-right: 5;
+    }
+    &[col='1'] {
+      margin-left: 5;
+    }
+  }
+}
+
+.label-like {
+  border-radius: 4;
+  border-width: 0;
+  padding: $label-padding;
+  font-size: 10;
+  line-height: 1;
+
+  &.label-theme {
+    background-color: $theme-color;
+    color: #fff;
+  }
+}
+
+
+// utils
+.util-anchor-full {
+  background-color: transparent;
+  border-color: transparent;
+  width: 100%;
+  height: 100%;
+}

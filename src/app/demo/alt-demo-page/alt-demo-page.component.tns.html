@@ -1,0 +1,11 @@
+<DockLayout stretchLasthChild="true">
+  <StackLayout dock="top">
+    <CustomActionBar [title]="title"></CustomActionBar>
+  </StackLayout>
+  <StackLayout>
+    <FAB #floatingButton
+      (tap)="onFabTap()"
+      class="fab-btn" icon="~/assets/fabtn-plus.png" backgroundColor="#1f977c"></FAB>
+    <Button (tap)="onNextTap()" text="alt-demo-page works!" class="btn btn-primary"></Button>
+  </StackLayout>
+</DockLayout>

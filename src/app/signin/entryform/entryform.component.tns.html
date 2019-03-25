@@ -1,0 +1,29 @@
+<DockLayout stretchLasthChild="true" class="bg-theme-secondary">
+  <StackLayout dock="top">
+    <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="&#xe988;" (onAprove)="login()"></CustomActionBar>
+  </StackLayout>
+  <PreviousNextView>
+    <ScrollView>
+      <StackLayout orientation="vertical" class="p-15 form">
+        <TextField
+          class="input"
+          keyboardType="email"
+          [(ngModel)]="username"
+          hint="ユーザーネーム"></TextField>
+        <TextField
+          col="0"
+          class="input"
+          secure="true"
+          [(ngModel)]="password"
+          hint="パスワード"></TextField>
+        <TextField
+          col="0"
+          class="input"
+          secure="true"
+          [(ngModel)]="password_confirm"
+          hint="パスワードを再入力"></TextField>
+        <Label text="パスワードを忘れた？" class="h3 m-y-10 p-10 text-center text-theme" [nsRouterLink]="['velification']"></Label>
+      </StackLayout>
+    </ScrollView>
+  </PreviousNextView>
+</DockLayout>
