@@ -8,6 +8,8 @@ import { MessageRootComponent } from './message-root/message-root.component';
 
 import { NativeScriptUIListViewModule } from 'nativescript-ui-listview/angular';
 
+import { MomentModule } from 'ngx-moment';
+
 import { SharedModule } from '../../shared/shared.module';
 
 import { ThreadEditorComponent } from './thread-editor/thread-editor.component';
@@ -22,6 +24,7 @@ import { MessageDetailComponent } from './message-detail/message-detail.componen
     NativeScriptFormsModule,
     NativeScriptUIListViewModule,
     SharedModule,
+    MomentModule,
   ],
   schemas: [NO_ERRORS_SCHEMA],
   entryComponents: [

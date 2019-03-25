@@ -1,4 +1,4 @@
-<AbsoluteLayout>
+<AbsoluteLayout #topicDetail>
   <StackLayout #sizeAnchor class="util-anchor-full"></StackLayout>
 
   <ScrollView width="100%" height="100%">
@@ -10,15 +10,17 @@
         <GridLayout rows="60,60,60*"
           style="background:linear-gradient(rgba(0,0,0,.65), rgba(0,0,0,.05), rgba(0,0,0,.65))">
           <StackLayout row="0" class="bg-clear">
-            <CustomActionBar leftIcon="&#xe92f;" colorScheme="white"
+            <CustomActionBar colorScheme="white"
+              leftIcon="{{ (isPreview && isCreated) ? '&#xea02;' : '&#xe92f;' }}"
               rightIcon="{{ topic.own ? '&#xe9c4;' : '' }}"
+              (onCancel)="cancelAction()"
               (onAprove)="openEditDialog()"></CustomActionBar>
           </StackLayout>
           <StackLayout row="2" class="p-x-15 p-y-10">
             <GridLayout columns="auto" rows="auto">
               <Label text="{{ topic.type }}" class="label-like label-theme"></Label>
             </GridLayout>
-            <Label text="{{ topic.title }}" textWrap="true" class="h2 text-white m-y-10" android:style="padding-top:-10"></Label>
+            <Label text="{{ topic.title }}" textWrap="true" class="typo-section-heading text-white m-y-10" android:style="padding-top:-10"></Label>
           </StackLayout>
         </GridLayout>
       </GridLayout>
@@ -27,10 +29,10 @@
         <StackLayout orientation="horizontal" row="0"
           (tap)="openProfileDialog(topic.createdBy.id)">
           <Image src="{{ topic.createdBy.avatarUrl || '~/assets/placeholder__user@2x.png' }}"
-            stretch="aspectFill" height="20" width="20" style="border-radius:10;"></Image>
-          <Label text="{{ topic.createdBy.username }}" class="bg-clear m-l-5"></Label>
+            stretch="aspectFill" height="18" width="18" style="border-radius:10;"></Image>
+          <Label text="{{ topic.createdBy.username }}" class="typo-list-small font-weight-bold m-l-5"></Label>
         </StackLayout>
-        <FlexboxLayout row="1"
+        <FlexboxLayout row="1" class="typo-list-small"
           flexWrap="wrap"
           flexDirectoin="column">
           <Label verticalAlignment="center" class="m-r-10">
@@ -55,9 +57,7 @@
         <StackLayout row="2" class="hr-light m-x-15 m-t-10"></StackLayout>
       </GridLayout>
       <StackLayout class="p-x-15" style="margin-bottom:120;">
-        <!-- TODO: -->
-        <!-- <Label textWrap="true" class="page bg-white" style="font-size:16;" text="{{ topic.description }}"></Label> -->
-        <Label textWrap="true" class="page bg-white" style="font-size:16;" text="The order of route configuration matters. The router accepts the first route that matches a navigation request path. When all routes were in one AppRoutingModule, you put the default and wildcard routes last, after the /heroes route, so that the router had a chance to match a URL to the /heroes route before hitting the wildcard route and navigating to 'Page not found'.The routes are no longer in one file. They are distributed across two modules, AppRoutingModule and HeroesRoutingModule.Each routing module augments the route configuration in the order of import. If you list AppRoutingModule first, the wildcard route will be registered before the hero routes. The wildcard route—which matches every URL—will intercept the attempt to navigate to a hero route."></Label>
+        <Label textWrap="true" class="typo-page bg-white" text="{{ topic.description }} The order of route configuration matters. The router accepts the first route that matches a navigation request path. When all routes were in one AppRoutingModule, you put the default and wildcard routes last, after the /heroes route, so that the router had a chance to match a URL to the /heroes route before hitting the wildcard route and navigating to 'Page not found'.The routes are no longer in one file. They are distributed across two modules, AppRoutingModule and HeroesRoutingModule.Each routing module augments the route configuration in the order of import. If you list AppRoutingModule first, the wildcard route will be registered before the hero routes. The wildcard route—which matches every URL—will intercept the attempt to navigate to a hero route."></Label>
       </StackLayout>
     </StackLayout>
   </ScrollView>
@@ -71,14 +71,12 @@
   </GridLayout>
 
   <!-- // -->
-  <FlexboxLayout #overlayButtonContainerForPreview
-    flexDirection="column"
-    class="bg-theme p-x-15 p-y-10" width="100%"
-    visibility="{{ isPreview ? 'visible' : 'collapse' }}">
-    <Label class="text-center text-white" text="この内容でよろしいですか？"></Label>
-    <StackLayout orientation="horizontal">
-      <Button class="btn btn-rounded-lg" text="キャンセル"></Button>
-      <Button class="btn btn-rounded-lg" text="OK"></Button>
-    </StackLayout>
-  </FlexboxLayout>
+  <GridLayout #overlayButtonContainerForPreview
+    rows="*" width="100%">
+    <CustomSnackbarLike #snackBar
+      approveMessage="この内容で作成しますか？"
+      (onCancel)="cancelConfirm()"
+      (onApprove)="onConfirm()"
+      (onClose)="forceClose()"></CustomSnackbarLike>
+  </GridLayout>
 </AbsoluteLayout>

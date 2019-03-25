@@ -32,7 +32,7 @@ export class NavfooterComponent implements OnInit, OnDestroy {
           this.navMode = 'default';
         } else if (this.router.url.indexOf('userpage:point') >= 0) {
           this._navActive = 'point';
-          this.navMode = 'default';
+          this.navMode = (this.router.url.match(/\/select|send|confirm/)) ? 'dm' : 'default';
         } else if (this.router.url.indexOf('userpage:message') >= 0) {
           //
           this._navActive = 'message';

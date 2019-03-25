@@ -1,7 +1,7 @@
 <DockLayout #pointSender width="100%" height="100%">
   <StackLayout dock="top" class="bg-theme-secondary" height="60">
     <CustomActionBar [title]="title" leftIcon="&#xea02;"
-      [cancelAction]="[closeModal, pointSender]"></CustomActionBar>
+      (onCancel)="closeAction(pointSender)"></CustomActionBar>
   </StackLayout>
   <RadListView class="bg-theme-secondary"
     (itemTap)="onItemTap($event)"
@@ -10,14 +10,15 @@
       <!-- // item -->
       <StackLayout class="bg-theme-secondary">
         <CardView margin="1 20" elevation="5" class="bg-white">
-          <StackLayout class="bg-clear">
-            <GridLayout columns="80,*,60" rows="90" class="bg-clear">
-              <Image col="0" class="m-x-10" style="border-radius:80;" stretch="aspectFill" width="60" height="60"
+          <StackLayout height="90">
+            <GridLayout columns="80,*,60" rows="*" class="p-15">
+              <Image col="0" class="m-r-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60"
                 src="{{ item.avatarUrl || '~/assets/placeholder__user.png' }}"></Image>
-              <StackLayout col="1" orientation="horizontal" class="p-10">
-                <Label class="h3" text="{{ item.username }}" virticalAlignment="stretch"></Label>
-              </StackLayout>
-              <Label col="2" class="h2 p-10 icon text-theme" text="&#xe930;" style="vertical-align:center;"></Label>
+              <FlexboxLayout col="1" width="100%">
+                <Label class="typo-list-heading" text="{{ item.username }}" alignSelf="center"></Label>
+              </FlexboxLayout>
+              <Label col="2" class="h2 p-10 icon text-theme" text="&#xe930;"
+                style="vertical-align:center; text-align:right;"></Label>
             </GridLayout>
           </StackLayout>
         </CardView>

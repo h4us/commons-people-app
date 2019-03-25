@@ -11,17 +11,17 @@
         [items]="currentList">
         <ng-template tkListItemTemplate let-item="item" let-i="index">
           <!-- // item -->
-          <StackLayout class="m-x-15 bg-white" style="border-top-color:#f6f6f6; border-top-width:1;">
-            <GridLayout columns="80,*,60" rows="90" class="bg-clear">
-              <Image col="0" class="m-x-10" style="border-radius:80;" stretch="aspectFill" width="60" height="60"
+          <StackLayout class="m-x-15 bg-white" height="90" style="border-top-color:#f6f6f6; border-top-width:1;">
+            <GridLayout columns="80,*,60" rows="*" class="p-0">
+              <Image col="0" class="m-r-15 m-y-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60"
                 src="{{ item.remitter.avatarUrl || '~/assets/placeholder__user.png' }}"></Image>
-              <FlexboxLayout col="1" flexDirection="column" height="100%" class="m-x-5 m-y-0 p-0">
-                <Label text="{{ item.remitter.username }}" class="m-0 p-0"></Label>
-                <Label text="{{ item.description }}" class="m-0 p-0"></Label>
-                <Label class="m-0 p-0">
+              <FlexboxLayout col="1" flexDirection="column" justifyContent="center">
+                <Label text="{{ item.remitter.username }}" class="typo-list-heading"></Label>
+                <Label text="{{ item.description }}" class="typo-list-preview" android:style="margin-top:-14;"></Label>
+                <Label class="typo-label" android:style="margin-top:-14;">
                   <FormattedString>
                     <Span text="&#xe939;" class="icon text-theme" style="vertical-align:center;"></Span>
-                    <Span text=" {{ item.createdAt }}"></Span>
+                    <Span text=" {{ item.createdAt | amLocal | amTimeAgo }}"></Span>
                   </FormattedString>
                 </Label>
               </FlexboxLayout>
@@ -51,5 +51,5 @@
 
   <FAB #floatingButton
     (tap)="onFabTap()"
-    class="fab-btn" icon="~/assets/fabtn-plus.png" backgroundColor="#1f977c"></FAB>
+    class="fab-btn" icon="~/assets/fbtn-card-arrow-72x72.png" backgroundColor="#1f977c"></FAB>
 </AbsoluteLayout>

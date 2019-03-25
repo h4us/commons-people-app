@@ -8,6 +8,8 @@ import { NativeScriptFormsModule } from 'nativescript-angular/forms';
 import { NativeScriptUIListViewModule } from 'nativescript-ui-listview/angular';
 import { NativeScriptUIDataFormModule } from 'nativescript-ui-dataform/angular';
 
+import { MomentModule } from 'ngx-moment';
+
 import { SharedModule } from '../../shared/shared.module';
 
 import { PointRootComponent } from './point-root/point-root.component';
@@ -30,6 +32,7 @@ import { PointSenderConfirmComponent } from './point-sender/point-sender-confirm
     NativeScriptUIListViewModule,
     NativeScriptUIDataFormModule,
     ReactiveFormsModule,
+    MomentModule,
     SharedModule,
   ],
   schemas: [NO_ERRORS_SCHEMA],

@@ -41,9 +41,8 @@ export class TopicEditorEntryComponent implements OnInit {
   title: string = "トピックを作成";
 
   bottomSize: number = 0;
-  topicData: TopicData = new TopicData();
   tForm: FormGroup;
-  selectedType: string = 'DO';
+  selectedType: string = 'GIVE';
   selectedPhoto: ImageAsset;
   imagePickerContext: ImagePicker;
 
@@ -56,14 +55,13 @@ export class TopicEditorEntryComponent implements OnInit {
   ) {
     page.actionBarHidden = true;
 
+    tvService.resetData();
     this.tForm = tvService.sendForm;
-    this.tForm.reset();
     this.imagePickerContext = imagepicker.create({ mode: 'single' });
   }
 
   ngOnInit() {
-    this.topicData.type = 'DO';
-    this.topicData.communityId = this.userService.currentCommunityId;
+    this.tForm.patchValue({ type: 'GIVE', communityId: this.userService.currentCommunityId });
     this.bottomSize = layout.toDeviceIndependentPixels(screen.mainScreen.heightPixels - (screen.mainScreen.scale * (screen.mainScreen.scale > 2 ? 260 : 180)));
     this.onValidate();
   }
@@ -82,6 +80,7 @@ export class TopicEditorEntryComponent implements OnInit {
 
   toSelect(key: string) {
     this.selectedType = key;
+    this.tForm.patchValue({ type: key });
   }
 
   photoDialog() {
@@ -94,15 +93,15 @@ export class TopicEditorEntryComponent implements OnInit {
         'Edit Photo'
       ]
     }).then((which: string) => {
-      console.log(which);
       // Select from image picker
       if (which === 'Choose Photo') {
         this.imagePickerContext
           .authorize()
           .then(() => this.imagePickerContext.present())
           .then((selection) => {
-            selection.forEach((selected: any) => {
+            selection.forEach((selected: ImageAsset) => {
               this.selectedPhoto = selected;
+              this.tvService.sendToAsset = selected;
             });
           })
           .catch((err: any) => console.log(err));
@@ -113,9 +112,11 @@ export class TopicEditorEntryComponent implements OnInit {
         camera.requestPermissions()
           .then(
             () => {
-              camera.takePicture()
-                .then((imageAsset: any) => {
+              camera.takePicture({ width: 600, height: 600, keepAspectRatio: true })
+              // camera.takePicture()
+                .then((imageAsset: ImageAsset) => {
                   this.selectedPhoto = imageAsset;
+                  this.tvService.sendToAsset = imageAsset;
                 })
                 .catch((err) => console.error(err));
             },
@@ -131,8 +132,7 @@ export class TopicEditorEntryComponent implements OnInit {
   }
 
   onValidate() {
-    console.log(this.tForm.value);
-    return this.tForm.get('title').valid;
+    return this.tForm.valid;
   }
 
   getCurrent(key): any {
@@ -141,7 +141,6 @@ export class TopicEditorEntryComponent implements OnInit {
   }
 
   preview() {
-    console.log(this.tForm.value);
     this.routerExt.navigate([{
       outlets: {
         topiceditor: ['community', 'topic', 'preview']

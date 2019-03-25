@@ -68,13 +68,15 @@ export class PointSenderCommitComponent implements OnInit {
     const currentOutlet = this.aRoute.outlet;
     const outletParam = {};
 
-    console.log(this.sendData, this.points, this.currentCommunity);
-
     if (currentOutlet == 'pointsender') {
       outletParam[currentOutlet] = ['point', 'confirm', this.sendToUser.id];
-    } else {
+    } else if (currentOutlet == 'topicowner') {
       outletParam[currentOutlet] = [
         'community', 'topic', 'owner', this.sendToUser.id, 'send-confirm'
+      ];
+    } else {
+      outletParam[currentOutlet] = [
+        'point', 'confirm', this.sendToUser.id
       ];
     }
 

@@ -9,7 +9,7 @@
         <Label class="h3" text="タイプ"></Label>
         <GridLayout columns="*,*" rows="50*" class="radio-like m-b-30">
           <FlexboxLayout col="0" class="input-like"
-            (tap)="toSelect('DO')">
+            (tap)="toSelect('GIVE')">
             <Label text="できる"></Label>
             <Label class="label-right icon"
               text="{{ selectedType != 'WANT' ? '&#xe92c;' : '&#xe937;' }}"></Label>
@@ -66,6 +66,7 @@
     </ScrollView>
 
     <FlexboxLayout [top]="bottomSize" class="p-15 bg-clear" width="100%" height="120"
+      [visibility]="onValidate() ? 'visible' : 'collapse'"
       flexDirection="row"
       justifyContent="space-around"
       alignContent="space-around"

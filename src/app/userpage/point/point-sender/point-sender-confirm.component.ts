@@ -14,6 +14,8 @@ import { Page } from 'tns-core-modules/ui/page';
 
 import { UserService, User } from '../../../user.service';
 
+import { SnackbarLikeComponent } from '../../../shared/snackbar-like/snackbar-like.component';
+
 @Component({
   selector: 'app-point-sender-confirm',
   templateUrl: './point-sender-confirm.component.html',
@@ -29,6 +31,7 @@ export class PointSenderConfirmComponent implements OnInit {
 
   @ViewChild('overlayButtonContainerForPreview') ovBcPrevRef: ElementRef;
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
+  @ViewChild('snackBar') snackBar: SnackbarLikeComponent;
   ovBcPrev: FlexboxLayout;
   anchor: StackLayout;
 
@@ -71,4 +74,19 @@ export class PointSenderConfirmComponent implements OnInit {
       AbsoluteLayout.setTop(this.ovBcPrev, aH - (this.ovBcPrev.getMeasuredHeight() / screen.mainScreen.scale));
     }, 100);
   }
+
+  // TODO:
+  checkShown() {
+    setTimeout(() => {
+      const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
+      AbsoluteLayout.setTop(this.ovBcPrev, aH - (this.ovBcPrev.getMeasuredHeight() / screen.mainScreen.scale));
+    }, 30);
+  }
+  cancelConfirm() {
+    this.routerExt.backToPreviousPage();
+  }
+  forceClose() {
+    this.snackBar.isShown = false;
+  }
+  // --
 }

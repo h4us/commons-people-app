@@ -8,15 +8,15 @@
       <StackLayout class="bg-theme-secondary">
         <Label class="h3 m-x-15 m-y-10" text="{{ currentCommunity?.name }}"></Label>
         <CardView margin="1 15" elevation="5" class="bg-white">
-          <FlexboxLayout class="p-x-15 p-y-10 bg-white"
+          <FlexboxLayout class="p-15 bg-white" height="90"
             flexWrap="wrap"
             flexDirectoin="column"
             alignItems="center"
             justifyContent="space-between">
             <Image src="{{ sendTouser?.avatarUrl || '~/assets/placeholder__user.png' }}"
               stretch="aspectFill" height="60" width="60" style="border-radius:80;"></Image>
-            <Label flexGrow="240" class="m-l-10 font-weight-bold" text="{{ sendToUser?.username || '-' }}"></Label>
-            <Label>
+            <Label flexGrow="240" class="m-l-15 typo-list-heading" text="{{ sendToUser?.username || '-' }}"></Label>
+            <Label class="typo-label">
               <FormattedString>
                 <Span text="{{ tokenSymbol }}" class="text-theme"></Span>
                 <Span text=" {{ points }}"></Span>
@@ -28,13 +28,25 @@
     </ScrollView>
   </DockLayout>
 
-  <FlexboxLayout #overlayButtonContainerForPreview
-    flexDirection="column"
-    class="bg-theme p-x-15 p-y-10" width="100%">
-    <Label class="text-center text-white" text="この内容でよろしいですか？"></Label>
-    <StackLayout orientation="horizontal">
-      <Button class="btn btn-rounded-lg" text="キャンセル"></Button>
-      <Button class="btn btn-rounded-lg" text="OK"></Button>
-    </StackLayout>
-  </FlexboxLayout>
+  <GridLayout #overlayButtonContainerForPreview
+    rows="*" width="100%">
+    <CustomSnackbarLike #snackBar
+      approveMessage="この内容でよろしいですか？"
+      doneMessage="ポイントを送信しました"
+      (onCancel)="cancelConfirm()"
+      (onApprove)="checkShown()"
+      (onClose)="forceClose()"></CustomSnackbarLike>
+  </GridLayout>
+
+  <!-- <FlexboxLayout #overlayButtonContainerForPreview
+       flexDirection="column"
+       class="bg-theme p-x-15 p-y-10" width="100%">
+       <Label class="text-center text-white" text="この内容でよろしいですか？"></Label>
+       <GridLayout columns="*,*", row="auto">
+       <Button col="0" class="btn btn-white btn-rounded-lg" text="キャンセル"
+       (tap)="false"></Button>
+       <Button col="1" class="btn btn-black btn-rounded-lg" text="OK"
+       (tap)="false"></Button>
+       </GridLayout>
+       </FlexboxLayout> -->
 </AbsoluteLayout>

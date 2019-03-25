@@ -9,15 +9,16 @@
         <!-- // item -->
         <StackLayout class="bg-theme-secondary">
           <CardView margin="1 20" elevation="5" class="bg-white">
-            <StackLayout class="bg-clear">
-              <GridLayout columns="80,*,60" rows="90" class="bg-clear">
-                <Image col="0" class="m-x-10" style="border-radius:80;" stretch="aspectFill" width="60" height="60"
+            <StackLayout height="90">
+              <GridLayout columns="80,*,60" rows="*" class="p-15">
+                <Image col="0" class="m-r-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60"
                   src="{{ item.photoUrl || '~/assets/placeholder__group.png' }}"></Image>
-                <StackLayout col="1" class="p-10">
-                  <Label class="font-weight-bold" text="{{ item.title }}"></Label>
-                  <Label text="{{ item.lastMessage.text }}" android:style="margin-top:-10;"></Label>
+                <StackLayout col="1" verticalAlignment="center">
+                  <Label class="typo-list-heading" text="{{ item.title }}"></Label>
+                  <Label class="typo-list-preview" text="{{ item.lastMessage.text }}" android:style="margin-top:-10;"></Label>
                 </StackLayout>
-                <Label col="2" class="p-10" text="{{ item.lastMessage.createdAt }}" style="vertical-align:top;"></Label>
+                <Label col="2" class="typo-list-date" style="vertical-align:top; text-align:right;"
+                  text="{{ item.lastMessage.createdAt | amLocal | amDateFormat: 'HH:mm' }}"></Label>
               </GridLayout>
             </StackLayout>
           </CardView>
@@ -68,5 +69,5 @@
     left="-200"
     top="-200"
     (tap)="onFabTap('thread-new')"
-    class="fab-btn" icon="~/assets/fabtn-plus.png" backgroundColor="#1f977c"></FAB>
+    class="fab-btn" icon="~/assets/fabtn-plus-72x72.png" backgroundColor="#1f977c"></FAB>
 </AbsoluteLayout>

@@ -125,6 +125,15 @@ const routes: Routes = [
         outlet: 'communityeditor',
       },
 
+      /*
+       * same url / multi outlet style
+       * ... it's ok?
+       */
+      {
+        path: 'point/select/:id',
+        component: PointSenderSelectComponent,
+        outlet: 'userpage',
+      },
       {
         path: 'point/select/:id',
         component: PointSenderSelectComponent,
@@ -134,14 +143,27 @@ const routes: Routes = [
       {
         path: 'point/send/:id',
         component: PointSenderCommitComponent,
+        outlet: 'userpage',
+      },
+      {
+        path: 'point/send/:id',
+        component: PointSenderCommitComponent,
         outlet: 'pointsender',
       },
 
       {
         path: 'point/confirm/:id',
         component: PointSenderConfirmComponent,
+        outlet: 'userpage',
+      },
+      {
+        path: 'point/confirm/:id',
+        component: PointSenderConfirmComponent,
         outlet: 'pointsender',
       },
+      /*
+       * --
+       */
 
       {
         path: 'community/topic/new',

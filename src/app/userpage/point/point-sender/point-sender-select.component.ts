@@ -47,18 +47,41 @@ export class PointSenderSelectComponent implements OnInit {
       });
   }
 
-  closeModal(layout: AbsoluteLayout | DockLayout) {
-    layout.closeModal();
+  closeAction(layout: AbsoluteLayout | DockLayout) {
+    const currentOutlet = this.aRoute.outlet;
+
+    if (currentOutlet == 'pointsender') {
+      layout.closeModal();
+    } else {
+      this.routerExt.backToPreviousPage();
+    }
   }
 
   onItemTap(args: ListViewEventData) {
     const tItem = args.view.bindingContext;
 
+    // this.routerExt.navigate([{
+    //   outlets: {
+    //     // pointsender: ['point', 'send', this.selected, tItem.id]
+    //     pointsender: ['point', 'send', tItem.id]
+    //   }
+    // }], { relativeTo: this.aRoute.parent });
+
+    const currentOutlet = this.aRoute.outlet;
+    const outletParam = {};
+
+    if (currentOutlet == 'pointsender') {
+      outletParam[currentOutlet] = ['point', 'send', tItem.id];
+    } else {
+      outletParam[currentOutlet] = [
+        'point', 'send', tItem.id
+      ];
+    }
+
     this.routerExt.navigate([{
-      outlets: {
-        // pointsender: ['point', 'send', this.selected, tItem.id]
-        pointsender: ['point', 'send', tItem.id]
-      }
-    }], { relativeTo: this.aRoute.parent });
+      outlets: outletParam,
+    }], {
+      relativeTo: this.aRoute.parent,
+    });
   }
 }

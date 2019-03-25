@@ -14,6 +14,8 @@ TextField.input,
 .form > .input {
   background-color: #ffffff;
   margin-bottom: 8;
+  font-size: $theme-fs-medium;
+  padding: $input-like-padding;
 }
 
 // button
@@ -36,6 +38,17 @@ TextField.input,
     &.btn-active:highlighted {
       background-color: darken(#fff, 30%);
       border-color: darken(#fff, 30%);
+    }
+  }
+
+  &.btn-black {
+    background-color: #000;
+    border-color: #000;
+    color: #fff;
+
+    &.btn-active:highlighted {
+      background-color: darken(#fff, 70%);
+      border-color: darken(#fff, 70%);
     }
   }
 
@@ -90,9 +103,13 @@ TextField.input,
   background-color: #dfedea;
 }
 
-// text
+// text color
 .text-white {
   color: #fff;
+}
+
+.text-grey {
+  color: $theme-grey;
 }
 
 .text-theme,
@@ -143,6 +160,7 @@ TextField.input,
   * {
     flex-shrink: 1;
     text-align: right;
+    color: $theme-grey;
   }
 
   .label-left {
@@ -150,6 +168,8 @@ TextField.input,
     flex-shrink: 0;
     text-align: left;
     align-self: flex-start;
+    font-size: $theme-fs-medium;
+    color: #000;
   }
 
   .label-right {
@@ -158,6 +178,7 @@ TextField.input,
     vertical-align: center;
     text-align: center;
     align-self: center;
+    font-size: $theme-fs-medium;
   }
 
   .icon {
@@ -166,6 +187,7 @@ TextField.input,
     color: $theme-color;
     text-align: center;
     align-self: center;
+    font-size: $theme-fs-medium;
   }
 }
 
@@ -187,7 +209,7 @@ TextField.input,
   border-radius: 4;
   border-width: 0;
   padding: $label-padding;
-  font-size: 10;
+  font-size: $theme-fs-extra-small;
   line-height: 1;
 
   &.label-theme {
@@ -204,3 +226,56 @@ TextField.input,
   width: 100%;
   height: 100%;
 }
+
+
+// --
+.typo-annotation {
+  font-size: $theme-fs-extra-small;
+}
+
+//
+.typo-list-preview {
+  font-size: $theme-fs-small;
+  font-family: "NotoSansJP Light", "NotoSansJP-Light";
+}
+.typo-list-small,
+.typo-label {
+  font-size: $theme-fs-small;
+}
+
+//
+.typo-list-heading {
+  font-size: $theme-fs-medium;
+  font-family: "NotoSansJP Medium", "NotoSansJP-Medium";
+  font-weight: 500;
+}
+
+//
+.typo-page {
+  font-size: $theme-fs-large;
+  line-height: 1.75;
+  font-family: "NotoSansJP Light", "NotoSansJP-Light";
+}
+
+.typo-card-heading {
+  font-size: $theme-fs-large;
+  font-family: "NotoSansJP Medium", "NotoSansJP-Medium";
+  font-weight: 500;
+}
+
+//
+.typo-heading,
+.typo-section-heading {
+  font-size: $theme-fs-extra-large;
+  font-family: "NotoSansJP Medium", "NotoSansJP-Medium";
+  font-weight: 500;
+}
+
+//
+.typo-header {
+  font-size: $theme-fs-ultra-large;
+  line-height: 1.75;
+  font-weight: 700;
+}
+
+// --

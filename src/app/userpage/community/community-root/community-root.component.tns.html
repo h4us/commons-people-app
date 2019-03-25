@@ -14,26 +14,26 @@
               <Image left="0" top="0" src="{{ item.photoUrl || '~/assets/placeholder__topic@2x.png' }}" stretch="aspectFill" width="100%" height="100%"></Image>
               <Label left="10" top="10" class="label-like label-theme" text="{{ item.type }}"></Label>
             </AbsoluteLayout>
-            <Label class="h3 p-10" textWrap="true" text="{{ item.title }}"></Label>
+            <Label class="typo-card-heading p-10" textWrap="true" text="{{ item.title }}"></Label>
             <FlexboxLayout class="p-10 bg-white"
               flexWrap="wrap"
               flexDirectoin="column"
               justifyContent="space-between">
-              <StackLayout orientation="horizontal">
+              <StackLayout orientation="horizontal" class="typo-list-small">
                 <Image src="{{ item.createdBy.avatarUrl || '~/assets/placeholder__user@2x.png' }}"
-                  stretch="aspectFill" height="20" width="20" style="border-radius:10;"></Image>
+                  stretch="aspectFill" height="18" width="18" style="border-radius:10;"></Image>
                 <Label class="m-l-5 text-bold" text="{{ item.createdBy.username || '-' }}"></Label>
               </StackLayout>
               <WrapLayout>
-                <Label class="m-r-10">
+                <Label class="m-r-10 typo-list-small">
                   <FormattedString>
                     <Span text="{{ currentCommunity.tokenSymbol }}" class="text-theme"></Span>
                     <Span text=" {{ item.points }}"></Span>
                   </FormattedString>
                 </Label>
-                <StackLayout orientation="horizontal">
+                <StackLayout orientation="horizontal" class="typo-list-small">
                   <Label verticalAlignment="center" text="&#xe939;" class="icon text-theme-primary"></Label>
-                  <Label text=" {{ item.createdAt | amTimeAgo }}"></Label>
+                  <Label text=" {{ item.createdAt | amLocal | amTimeAgo }}"></Label>
                 </StackLayout>
               </WrapLayout>
             </FlexboxLayout>
@@ -48,8 +48,8 @@
           <StackLayout class="bg-clear">
             <GridLayout columns="*,60" rows="90" class="bg-clear">
               <StackLayout col="0" class="p-10">
-                <Label class="font-weight-bold" text="{{ item.title.rendered }}"></Label>
-                <Label text="{{ item.date }}"></Label>
+                <Label class="typo-list-heading" text="{{ item.title.rendered }}"></Label>
+                <Label class="typo-annotation text-grey" text="{{ item.date | amLocal | amDateFormat: 'YYYY.MM.DD' }}"></Label>
               </StackLayout>
               <Label col="1" class="h2 p-10 icon bg-clear" text="&#xe930;" color="#1f977c" style="vertical-align:center;"></Label>
             </GridLayout>
@@ -64,8 +64,8 @@
         <CardView margin="1 20" elevation="5" class="bg-white">
           <!-- <TextView class="p-x-10 p-y-15" editable="false" text="{{ item.description }}"></TextView> -->
           <!-- <HtmlView class="m-15" [html]="styled(item.description)"></HtmlView> -->
-          <GridLayout rows="*" padding="15" class="debug-border">
-            <Label class="debug-border" style="font-size:16; line-height:1.75;" textWrap="true" text="{{ item.description }}
+          <GridLayout rows="*" padding="15">
+            <Label class="typo-page" textWrap="true" text="{{ item.description }}
 The order of route configuration matters. The router accepts the first route that matches a navigation request path. When all routes were in one AppRoutingModule, you put the default and wildcard routes last, after the /heroes route, so that the router had a chance to match a URL to the /heroes route before hitting the wildcard route and navigating to 'Page not found'.The routes are no longer in one file. They are distributed across two modules, AppRoutingModule and HeroesRoutingModule.Each routing module augments the route configuration in the order of import. If you list AppRoutingModule first, the wildcard route will be registered before the hero routes. The wildcard route—which matches every URL—will intercept the attempt to navigate to a hero route."></Label>
           </GridLayout>
         </CardView>
@@ -87,7 +87,7 @@ The order of route configuration matters. The router accepts the first route tha
               src="{{ currentCommunity.photoUrl || '~/assets/placeholder__topic@2x.png' }}" stretch="aspectFill" width="100" height="100"
               style="border-radius:80; border-color:#fff; border-width:2;"></Image>
             <Label col="0" row="2"
-              class="h2 text-center text-white" [text]="currentCommunity.name" style="padding:0; margin:5 0;"></Label>
+              class="typo-header text-center text-white" [text]="currentCommunity.name" style="padding:0; margin:5 0;"></Label>
             <FlexboxLayout col="0" row="3"
               alignItems="center"
               justifyContent="center"
@@ -126,6 +126,6 @@ The order of route configuration matters. The router accepts the first route tha
     left="-200"
     top="-200"
     (tap)="onFabTap()"
-    class="fab-btn" icon="~/assets/fabtn-plus.png" backgroundColor="#1f977c"></FAB>
+    class="fab-btn" icon="~/assets/fabtn-plus-72x72.png" backgroundColor="#1f977c"></FAB>
   <!-- <ActivityIndicator busy="true"></ActivityIndicator> -->
 </AbsoluteLayout>

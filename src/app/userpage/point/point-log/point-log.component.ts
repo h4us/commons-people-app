@@ -1,4 +1,6 @@
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
 
@@ -30,7 +32,8 @@ export class PointLogComponent implements OnInit, AfterViewInit {
   anchor: StackLayout;
 
   constructor(
-    private router: RouterExtensions,
+    private routerExt: RouterExtensions,
+    private aRoute: ActivatedRoute,
     private pageRoute: PageRoute,
     private userService: UserService,
     private mProxy: ModalProxyService,
@@ -89,6 +92,9 @@ export class PointLogComponent implements OnInit, AfterViewInit {
   }
 
   onFabTap(args?: any) {
-    this.mProxy.request('send-point', { communityId: this.currentCommunity.id });
+    this.routerExt.navigate(['../../select', this.currentCommunity.id ], {
+      relativeTo: this.aRoute
+    });
+    // this.mProxy.request('send-point', { communityId: this.currentCommunity.id });
   }
 }

@@ -2,8 +2,10 @@ import { Injectable } from '@angular/core';
 import { Observable, Subject, forkJoin, from, of, zip } from 'rxjs';
 import { distinct, switchMap, map, mergeAll, filter } from 'rxjs/operators';
 
-// import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+
+import { ImageAsset } from 'tns-core-modules/image-asset';
+import { ImageSource } from 'tns-core-modules/image-source';
 
 import { SecureStorage } from 'nativescript-secure-storage';
 
@@ -39,7 +41,7 @@ export interface Topic {
   own: boolean;
   payable: boolean;
   createdAt: string;
-  photoUrl: string;
+  photoUrl: string | ImageAsset | ImageSource;
   type: string;
 };
 // --
@@ -194,6 +196,31 @@ export class UserService {
       return this.http.get(`${this.apiUrl}users?communityId=${t}${q}`);
     }
     // --
+  }
+
+  updateUserInfo(data: any, mode?: string): Observable<any> {
+    let ret: Observable<any>;
+    if (mode === 'status') {
+      ret = this.http.post(`${this.apiUrl}users/${this.user.id}/status`, data);
+    } else if (mode === 'username') {
+      ret = this.http.post(`${this.apiUrl}users/${this.user.id}/username`, data);
+    } else {
+      ret = this.http.post(`${this.apiUrl}users/${this.user.id}`, data);
+    }
+
+    return ret;
+  }
+
+  updateUserEmailAddress(data: any, mode?: string): Observable<any> {
+    // TODO:
+    let ret: Observable<any>;
+    return ret;
+  }
+
+  updateUserPassword(data: any, mode?: string): Observable<any> {
+    // TODO:
+    let ret: Observable<any>;
+    return ret;
   }
 
   /*

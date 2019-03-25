@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, FormBuilder, Validators, ValidatorFn } from '@angular/forms';
 
+import { ImageAsset } from 'tns-core-modules/image-asset';
+
 import { UserpageModule } from './userpage.module';
 
 @Injectable({
@@ -9,19 +11,32 @@ import { UserpageModule } from './userpage.module';
 export class TopicValidatorService {
   sendForm: FormGroup;
 
+  communityId: AbstractControl;
   title: AbstractControl;
   description: AbstractControl;
   points: AbstractControl;
   location: AbstractControl;
+  type: AbstractControl;
+
+  sendToAsset: ImageAsset;
 
   constructor(
     private formBuilder: FormBuilder
   ) {
     this.sendForm = this.formBuilder.group({
-      title: ['', [Validators.required, Validators.minLength(3)]],
+      communityId: [-1, [Validators.required, Validators.min(0)]],
+      title: ['', [Validators.required, Validators.minLength(1)]],
       description: ['', [Validators.required ]],
-      points: ['', [Validators.required ]],
-      location: ['', [Validators.required ]],
+      points: ['', [Validators.required]],
+      location: ['', [Validators.required]],
+      type: ['WANT', [Validators.required]],
     });
+
+    this.sendToAsset = null;
+  }
+
+  resetData() {
+    this.sendToAsset = null;
+    this.sendForm.reset();
   }
 }

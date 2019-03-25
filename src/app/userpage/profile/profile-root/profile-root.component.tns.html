@@ -69,20 +69,22 @@
       <ng-template ngFor let-item [ngForOf]="currentList" let-i="index">
         <StackLayout class="bg-theme-secondary">
           <CardView margin="1 0" elevation="5" backgroundColor="#fff">
-            <StackLayout class="bg-clear">
-              <GridLayout columns="80,*,60" rows="90" class="bg-clear">
-                <Image col="0" class="m-x-10" style="border-radius:80;" stretch="aspectFill" width="60" height="60"
+            <StackLayout height="90">
+              <GridLayout columns="80,*,60" rows="*" class="p-15">
+                <Image col="0" class="m-r-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60"
                   src="{{ item.photoUrl || '~/assets/placeholder__group.png' }}"></Image>
-                <StackLayout col="1" class="p-10 bg-clear">
-                  <Label text="{{ item.name }}"></Label>
-                  <Label android:style="margin-top:-10;">
+                <FlexboxLayout col="1" width="100%"
+                  flexDirection="column"
+                  justifyContent="space-around">
+                  <Label class="typo-list-heading" text="{{ item.name }}"></Label>
+                  <Label class="typo-label" android:style="margin-top:-14;">
                     <FormattedString>
                       <Span class="text-theme" text="{{ item.tokenSymbol }}"></Span>
-                      <Span text=" {{ item.point }}"></Span>
+                      <Span text=" {{ item.point ? item.point : 0 }}"></Span>
                     </FormattedString>
                   </Label>
-                </StackLayout>
-                <Label col="2" class="h2 p-10 icon text-theme" text="&#xe930;" style="vertical-align:center;"></Label>
+                </FlexboxLayout>
+                <Label col="2" class="h2 p-10 icon text-theme" text="&#xe930;" style="vertical-align:center; text-align:right;"></Label>
               </GridLayout>
             </StackLayout>
           </CardView>
