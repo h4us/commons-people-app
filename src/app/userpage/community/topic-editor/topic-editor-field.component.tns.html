@@ -1,0 +1,21 @@
+<GridLayout rows="80,*">
+  <StackLayout row="0" class="bg-theme-secondary">
+    <CustomActionBar [title]="title" leftIcon="&#xe92f;"></CustomActionBar>
+  </StackLayout>
+  <ScrollView row="1" width="100%" class="bg-theme-secondary">
+    <StackLayout orientation="vertical" class="p-15 form" [formGroup]="tForm">
+      <TextView *ngIf="field == 'title' || field == 'description'"
+        class="input"
+        [hint]="field"
+        [formControlName]="field"
+        (blur)="onValidate()"
+        (returnPress)="onValidate()"></TextView>
+      <TextField *ngIf="field != 'title' && field != 'description'"
+        class="input"
+        [hint]="field"
+        [formControlName]="field"
+        (blur)="onValidate()"
+        (returnPress)="onValidate()"></TextField>
+    </StackLayout>
+  </ScrollView>
+</GridLayout>

@@ -1,0 +1,56 @@
+/* Add mobile styles for the component here.  */
+/*
+@import "../../../../assets/scss/theme-variable";
+
+.input-like {
+  background-color: #fff;
+  padding: 10;
+
+  // SEE: https://github.com/NativeScript/NativeScript/issues/6781
+  align-items: flex-start;
+  // --
+  justify-content: space-between;
+
+  * {
+    flex-shrink: 1;
+    text-align: right;
+  }
+
+  .label-left {
+    padding-right: 5;
+    flex-shrink: 0;
+    text-align: left;
+    align-self: flex-start;
+  }
+
+  .label-right {
+    padding-left: 5;
+    flex-shrink: 0;
+    vertical-align: center;
+    text-align: center;
+    align-self: center;
+  }
+
+  .icon {
+    font-size: 18;
+    font-weight: 700;
+    color: $theme-color;
+    text-align: center;
+    align-self: center;
+  }
+}
+
+.radio-like {
+  background-color: transparent;
+
+  .item,
+  .input-like {
+    &[col='0'] {
+      margin-right: 5;
+    }
+    &[col='1'] {
+      margin-left: 5;
+    }
+  }
+}
+*/

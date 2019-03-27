@@ -1,0 +1,132 @@
+<AbsoluteLayout>
+  <StackLayout #sizeAnchor class="util-anchor-full"></StackLayout>
+
+  <RadListView left="0" top="0" width="100%" height="100%" class="bg-theme-secondary"
+    [items]="currentList"
+    [itemTemplateSelector]="templateSelector"
+    (itemTap)="onItemTap($event)">
+    <!-- // item type: topics -->
+    <ng-template tkTemplateKey="topics" let-item="item" let-i="index">
+      <StackLayout class="bg-theme-secondary">
+        <CardView margin="10 20" elevation="10" class="bg-white">
+          <StackLayout class="bg-clear">
+            <AbsoluteLayout height="160">
+              <Image left="0" top="0" stretch="aspectFill" width="100%" height="100%" loadMode="async"
+                src="{{ item.photoUrl || '~/assets/placeholder__topic@2x.png' }}" ></Image>
+              <Label left="10" top="10" class="label-like label-theme" text="{{ item.type }}"></Label>
+            </AbsoluteLayout>
+            <Label class="typo-card-heading p-10" textWrap="true" text="{{ item.title }}"></Label>
+            <FlexboxLayout class="p-10 bg-white"
+              flexWrap="wrap"
+              flexDirectoin="column"
+              justifyContent="space-between">
+              <StackLayout orientation="horizontal" class="typo-list-small">
+                <Image src="{{ item.createdBy.avatarUrl || '~/assets/placeholder__user@2x.png' }}"
+                  stretch="aspectFill" height="18" width="18" style="border-radius:10;"></Image>
+                <Label class="m-l-5 text-bold" text="{{ item.createdBy.username || '-' }}"></Label>
+              </StackLayout>
+              <WrapLayout>
+                <Label class="m-r-10 typo-list-small">
+                  <FormattedString>
+                    <Span text="{{ currentCommunity.tokenSymbol }}" class="text-theme"></Span>
+                    <Span text=" {{ item.points }}"></Span>
+                  </FormattedString>
+                </Label>
+                <StackLayout orientation="horizontal" class="typo-list-small">
+                  <Label verticalAlignment="center" text="&#xe939;" class="icon text-theme-primary"></Label>
+                  <Label text=" {{ item.createdAt | amLocal | amTimeAgo }}"></Label>
+                </StackLayout>
+              </WrapLayout>
+            </FlexboxLayout>
+          </StackLayout>
+        </CardView>
+      </StackLayout>
+    </ng-template>
+    <!-- // item type: news -->
+    <ng-template tkTemplateKey="news" let-item="item" let-i="index">
+      <StackLayout class="bg-theme-secondary">
+        <CardView margin="1 20" elevation="5" class="bg-white">
+          <StackLayout class="bg-clear">
+            <GridLayout columns="*,60" rows="90" class="bg-clear">
+              <StackLayout col="0" class="p-10">
+                <Label class="typo-list-heading" text="{{ item.title.rendered }}"></Label>
+                <Label class="typo-annotation text-grey" text="{{ item.date | amLocal | amDateFormat: 'YYYY.MM.DD' }}"></Label>
+              </StackLayout>
+              <Label col="1" class="h2 p-10 icon bg-clear" text="&#xe930;" color="#1f977c" style="vertical-align:center;"></Label>
+            </GridLayout>
+          </StackLayout>
+        </CardView>
+      </StackLayout>
+    </ng-template>
+    <!-- // item type: profile  -->
+    <!-- TODO: -->
+    <ng-template tkTemplateKey="profile" let-item="item" let-i="index">
+      <StackLayout class="bg-theme-secondary">
+        <CardView margin="1 20" elevation="5" class="bg-white">
+          <!-- <TextView class="p-x-10 p-y-15" editable="false" text="{{ item.description }}"></TextView> -->
+          <!-- <HtmlView class="m-15" [html]="styled(item.description)"></HtmlView> -->
+          <GridLayout rows="*" padding="15">
+            <Label class="typo-page" textWrap="true" text="{{ item.description }}
+The order of route configuration matters. The router accepts the first route that matches a navigation request path. When all routes were in one AppRoutingModule, you put the default and wildcard routes last, after the /heroes route, so that the router had a chance to match a URL to the /heroes route before hitting the wildcard route and navigating to 'Page not found'.The routes are no longer in one file. They are distributed across two modules, AppRoutingModule and HeroesRoutingModule.Each routing module augments the route configuration in the order of import. If you list AppRoutingModule first, the wildcard route will be registered before the hero routes. The wildcard route—which matches every URL—will intercept the attempt to navigate to a hero route."></Label>
+          </GridLayout>
+        </CardView>
+      </StackLayout>
+    </ng-template>
+
+    <ng-template tkListViewHeader>
+      <StackLayout class="bg-theme-secondary">
+        <GridLayout rows="*"
+          backgroundImage="{{ currentCommunity.coverPhotoUrl || '~/assets/placeholder__topic@2x.png' }}"
+          style="background-repeat: no-repeat; background-size:cover;">
+          <GridLayout cols="*" rows="70,120,*,*" height="300"
+            style="background:linear-gradient(rgba(0,0,0,.05), rgba(0,0,0,.65))">
+            <StackLayout row="0" width="100%" height="60" class="bg-clear">
+              <CustomActionBar leftIcon="" rightIcon="&#xe9cb;" colorScheme="white"
+                (onAprove)="onSwitchTap()"></CustomActionBar>
+            </StackLayout>
+            <Image col="0" row="1"
+              src="{{ currentCommunity.photoUrl || '~/assets/placeholder__topic@2x.png' }}" stretch="aspectFill" width="100" height="100"
+              style="border-radius:80; border-color:#fff; border-width:2;"></Image>
+            <Label col="0" row="2"
+              class="typo-header text-center text-white" [text]="currentCommunity.name" style="padding:0; margin:5 0;"></Label>
+            <FlexboxLayout col="0" row="3"
+              alignItems="center"
+              justifyContent="center"
+              style="padding:0; margin:0 0 5;">
+              <Label (tap)="onSwitchTab('topics')" class="h3 m-x-10 p-5 text-center text-white" text="トピック"
+                [class.bottom-border-white]="currentTab == 'topics'"></Label>
+              <Label (tap)="onSwitchTab('news')" class="h3 m-x-10 p-5 text-center text-white" text="お知らせ"
+                [class.bottom-border-white]="currentTab == 'news'"></Label>
+              <Label (tap)="onSwitchTab('profile')" class="h3 m-x-10 p-5 text-center text-white" text="プロフィール"
+                [class.bottom-border-white]="currentTab == 'profile'"></Label>
+            </FlexboxLayout>
+          </GridLayout>
+        </GridLayout>
+
+        <StackLayout class="m-x-20 m-t-30 m-b-15"
+          *ngIf="currentTab === 'topics'; else elseBlock">
+          <SearchboxLike
+            (onSearch)="searchAction()"></SearchboxLike>
+        </StackLayout>
+
+        <ng-template #elseBlock>
+          <StackLayout class="m-y-10 bg-theme-secondary" height="0"></StackLayout>
+        </ng-template>
+      </StackLayout>
+    </ng-template>
+
+    <ng-template tkListViewFooter>
+      <StackLayout class="p-10 bg-theme-secondary">
+        <Button *ngIf="currentTab != 'profile'"
+          class="btn btn-rounded-lg btn-primary btn-black" width="40%" text="さらに読む"></Button>
+      </StackLayout>
+    </ng-template>
+  </RadListView>
+
+  <FAB #floatingButton
+    left="-200"
+    top="-200"
+    (tap)="onFabTap()"
+    class="fab-btn" icon="~/assets/fabtn-plus-72x72.png" backgroundColor="#1f977c"></FAB>
+  <!-- <ActivityIndicator busy="true"></ActivityIndicator> -->
+</AbsoluteLayout>

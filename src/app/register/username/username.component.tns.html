@@ -1,0 +1,18 @@
+<DockLayout stretchLasthChild="true" class="bg-theme-secondary">
+  <StackLayout dock="top">
+    <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="&#xe92b;" (onAprove)="nextPage()"></CustomActionBar>
+  </StackLayout>
+  <PreviousNextView>
+    <ScrollView>
+      <StackLayout class="p-15 form" [formGroup]="rForm">
+        <HtmlView class="bg-clear" html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular;'>ユーザーネームを設定してください。<br>15文字以内、半角英数と記号（_）が使用できます。</p>"></HtmlView>
+        <TextField
+          class="input"
+          hint="username"
+          formControlName="username"
+          (blur)="onValidate()"
+          (returnPress)="onValidate()"></TextField>
+      </StackLayout>
+    </ScrollView>
+  </PreviousNextView>
+</DockLayout>

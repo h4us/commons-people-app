@@ -1,0 +1,24 @@
+<FlexboxLayout
+  flexDirection="column"
+  class="bg-theme p-x-15 p-y-10" width="100%"
+  visibility="{{ isShown ? 'visible' : 'collapse' }}">
+  <!-- // -->
+  <Label *ngIf="!isApproved; else elseBlock"
+    class="text-center text-white" [text]="approveMessage"></Label>
+  <ng-template #elseBlock>
+    <GridLayout columns="60,*,60" rows="*" height="60" class="p-y-5 bg-clear">
+      <Label col="1" class="text-center text-white" [text]="doneMessage"></Label>
+      <Label col="2" class="h2 p-l-15 p-r-10 p-y-10 text-center icon bg-clear text-white" style="vertical-align:center;" text="&#xea02;"
+        (tap)="afterClose()"></Label>
+    </GridLayout>
+  </ng-template>
+
+  <!-- // -->
+  <GridLayout *ngIf="!isApproved"
+    columns="*,*", row="auto">
+    <Button col="0" class="btn btn-white btn-rounded-lg" text="キャンセル"
+      (tap)="cancelOrBack()"></Button>
+    <Button col="1" class="btn btn-black btn-rounded-lg" text="OK"
+      (tap)="approveOrNext()"></Button>
+  </GridLayout>
+</FlexboxLayout>

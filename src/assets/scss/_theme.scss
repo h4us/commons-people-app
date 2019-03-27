@@ -1,0 +1,328 @@
+GridLayout + TextField {
+  margin-top: 8;
+}
+
+.page {
+  background-color: $theme-bg-secondary;
+}
+
+
+// forms
+input[type="text"],
+TextField,
+TextField.input,
+.form > .input {
+  background-color: #ffffff;
+  margin-bottom: 8;
+  font-size: $theme-fs-medium;
+  padding: $input-like-padding;
+}
+
+// button
+.btn {
+  &.btn-mg-wide {
+    margin-left: 90;
+    margin-right: 90;
+  }
+
+  &.btn-mg-narrow {
+    margin-left: 105;
+    margin-right: 105;
+  }
+
+  &.btn-white {
+    background-color: #fff;
+    border-color: #fff;
+    color: #000;
+
+    &.btn-active:highlighted {
+      background-color: darken(#fff, 30%);
+      border-color: darken(#fff, 30%);
+    }
+  }
+
+  &.btn-black {
+    background-color: #000;
+    border-color: #000;
+    color: #fff;
+
+    &.btn-active:highlighted {
+      background-color: darken(#fff, 70%);
+      border-color: darken(#fff, 70%);
+    }
+  }
+
+  &.btn-circle {
+    border-radius: 40;
+  }
+}
+
+.btn-primary {
+  &:highlighted {
+    background-color: lighten($theme-bg-primary, 10%);
+    border-color: lighten($theme-bg-primary, 10%);
+  }
+
+  &.btn-black {
+    background-color: #000;
+
+    &.btn-active:highlighted {
+      background-color: lighten(#000, 46%);
+      border-color: lighten(#000, 46%);
+    }
+  }
+}
+
+.fab-btn {
+  width: 60;
+  height: 60;
+  vertical-align: bottom;
+  margin: 0;
+}
+
+// background
+.bg-transparent,
+.bg-clear {
+  background-color: transparent;
+}
+
+.bg-theme,
+.bf-theme-primary {
+  background-color: $theme-bg-primary;
+}
+
+.bg-theme-secondary {
+  background-color: $theme-bg-secondary;
+}
+
+.bg-white {
+  background-color: #fff;
+}
+
+.bg-bubble {
+  background-color: #dfedea;
+}
+
+// text color
+.text-white {
+  color: #fff;
+}
+
+.text-grey {
+  color: $theme-grey;
+}
+
+.text-theme,
+.text-theme-primary {
+  color: $theme-color;
+}
+
+.text-dim {
+  color: #aaaaaa;
+}
+
+// borders
+.debug-border,
+.debugBorder {
+  border-width: 1;
+  border-color: #f00;
+}
+
+.bottom-border-white {
+  border-bottom-color: #fff;
+  border-bottom-width: 2;
+}
+
+.bottom-border-theme {
+  border-bottom-color: $theme-color;
+  border-bottom-width: 2;
+}
+
+.bottom-border-clear {
+  border-bottom-color: transparent;
+  border-bottom-width: 2;
+}
+
+
+// --
+// **-like
+// as component
+// --
+.input-like {
+  background-color: #fff;
+  padding: $input-like-padding;
+
+  // SEE: https://github.com/NativeScript/NativeScript/issues/6781
+  align-items: flex-start;
+  // --
+  justify-content: space-between;
+
+  * {
+    flex-shrink: 1;
+    text-align: right;
+    color: $theme-grey;
+  }
+
+  .label-left {
+    padding-right: 5;
+    flex-shrink: 0;
+    text-align: left;
+    align-self: flex-start;
+    font-size: $theme-fs-medium;
+    color: #000;
+  }
+
+  .label-right {
+    padding-left: 5;
+    flex-shrink: 0;
+    vertical-align: center;
+    text-align: center;
+    align-self: center;
+    font-size: $theme-fs-medium;
+  }
+
+  .icon {
+    font-size: 18;
+    font-weight: 700;
+    color: $theme-color;
+    text-align: center;
+    align-self: center;
+    font-size: $theme-fs-medium;
+  }
+}
+
+.radio-like {
+  background-color: transparent;
+
+  .item,
+  .input-like {
+    &[col='0'] {
+      margin-right: 5;
+    }
+    &[col='1'] {
+      margin-left: 5;
+    }
+  }
+}
+
+.label-like {
+  border-radius: 4;
+  border-width: 0;
+  padding: $label-padding;
+  font-size: $theme-fs-extra-small;
+  line-height: 1;
+
+  &.label-theme {
+    background-color: $theme-color;
+    color: #fff;
+  }
+}
+
+.searchbox-like-container {
+  .searchbox-like {
+    height: $searchbox-like-height;
+    background-color: #fff;
+    border-radius: $searchbox-like-height / 2;
+
+    > * {
+      font-size: $theme-fs-sb;
+      color: $theme-dim;
+    }
+
+    .left-label {
+      font-size: $theme-fs-sb-large;
+      color: $theme-grey;
+      text-align: left;
+      margin-left: $searchbox-like-spacing;
+      min-width: $theme-fs-sb-large * 2;
+    }
+
+    .right-label {
+      font-size: $theme-fs-sb-large;
+      color: $theme-color;
+      text-align: right;
+      margin-right: $searchbox-like-spacing;
+      min-width: $theme-fs-sb-large * 2;
+    }
+
+    .input {
+      background-color: transparent;
+      font-size: $theme-fs-sb;
+      padding: 0;
+      margin: 0;
+      line-height: 1;
+    }
+  }
+
+  .followContent {
+    color: $theme-color;
+    min-width: $theme-fs-sb-large * 5;
+
+    &.icon {
+      min-width: $theme-fs-sb-large * 2;
+      font-size: $theme-fs-sb-large * 1.2;
+    }
+  }
+}
+
+
+// utils
+.util-anchor-full {
+  background-color: transparent;
+  border-color: transparent;
+  width: 100%;
+  height: 100%;
+}
+
+
+// --
+.typo-annotation {
+  font-size: $theme-fs-extra-small;
+}
+
+//
+.typo-list-preview {
+  font-size: $theme-fs-small;
+  font-family: "NotoSansJP Light", "NotoSansJP-Light";
+}
+.typo-list-small,
+.typo-label {
+  font-size: $theme-fs-small;
+}
+
+//
+.typo-list-heading {
+  font-size: $theme-fs-medium;
+  font-family: "NotoSansJP Medium", "NotoSansJP-Medium";
+  font-weight: 500;
+}
+
+//
+.typo-page {
+  font-size: $theme-fs-large;
+  line-height: 1.75;
+  font-family: "NotoSansJP Light", "NotoSansJP-Light";
+}
+
+.typo-card-heading {
+  font-size: $theme-fs-large;
+  font-family: "NotoSansJP Medium", "NotoSansJP-Medium";
+  font-weight: 500;
+}
+
+//
+.typo-heading,
+.typo-section-heading {
+  font-size: $theme-fs-extra-large;
+  font-family: "NotoSansJP Medium", "NotoSansJP-Medium";
+  font-weight: 500;
+}
+
+//
+.typo-header {
+  font-size: $theme-fs-ultra-large;
+  line-height: 1.75;
+  font-weight: 700;
+}
+
+// --

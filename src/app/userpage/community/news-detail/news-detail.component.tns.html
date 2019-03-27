@@ -1,0 +1,8 @@
+<GridLayout rows="60,*">
+  <StackLayout row="0" class="bg-theme-secondary" height="60">
+    <CustomActionBar [title]="title" leftIcon="&#xe92f;"></CustomActionBar>
+  </StackLayout>
+  <!-- // TODO: -->
+  <WebViewExt #aWebView row="1" width="100%" (loaded)="onLoaded($event)" [src]="wrappedPost"></WebViewExt>
+  <!-- // -->
+</GridLayout>

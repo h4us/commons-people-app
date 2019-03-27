@@ -1,0 +1,11 @@
+.navfooter-nav {
+  background-color: #fff;
+
+  .nav-item {
+    background-color: transparent;
+
+    > * {
+      background-color: transparent;
+    }
+  }
+}

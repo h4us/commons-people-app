@@ -1,0 +1,53 @@
+<GridLayout row="*" class="bg-theme-secondary">
+  <ListView *ngIf="!allZero; else elseBlock"
+    class="p-y-15 bg-theme-secondary" left="0" top="0" width="100%" height="100%"
+    separatorColor="transparent"
+    [items]="currentList"
+    (itemTap)="onItemTap($event)">
+    <ng-template let-item="item" let-i="index">
+      <StackLayout class="bg-theme-seocndary">
+        <CardView margin="1 20" elevation="5" class="bg-white">
+          <StackLayout height="90">
+            <GridLayout columns="80,*,60" rows="*" class="p-15">
+              <Image col="0" class="m-r-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60"
+                src="{{ item.photoUrl || '~/assets/placeholder__group.png' }}"></Image>
+              <StackLayout col="1" verticalAlignment="center">
+                <Label class="typo-list-heading" text="{{ item.name }}"></Label>
+                <Label class="typo-label" android:style="margin-top:-10;">
+                  <FormattedString>
+                    <Span class="text-theme" text="{{ item.tokenSymbol }}"></Span>
+                    <Span text=" {{ item.point ? item.point : 0 }}"></Span>
+                  </FormattedString>
+                </Label>
+              </StackLayout>
+              <Label col="2" class="h2 p-10 icon text-theme" text="&#xe930;"
+                style="vertical-align:center; text-align:right"></Label>
+            </GridLayout>
+          </StackLayout>
+        </CardView>
+      </StackLayout>
+    </ng-template>
+  </ListView>
+
+  <ng-template #elseBlock>
+    <FlexboxLayout flexDirection="column"
+      alignItems="stretch"
+      justifyContent="center"
+      class="m-y-20">
+      <Image src="~/assets/no-point@2x.png" stretch="aspectFit"></Image>
+      <Label class="font-weight-bold text-center" text="ポイントがありません" style="font-size:20;"></Label>
+      <Label textWrap="true" class="text-center" text="コミュニティの活動に参加して獲得するか
+コミュニティのオーナーにお問い合わせください"></Label>
+      <StackLayout alignSelf="center">
+        <Button text="コミュニティをみる" class="btn btn-primary btn-rounded-lg" style="padding-left:15; padding-right:15;"
+          (tap)="gotoCommunity()"></Button>
+        <Button text="問い合わせる" class="btn btn-primary btn-rounded-lg btn-outline" style="padding-left:15; padding-right:15;"
+          (tap)="giveMePoint()"></Button>
+        <!-- // -->
+        <Label class="text-center h3" text="view test list"
+          (tap)="allZero = !allZero"></Label>
+        <!-- // -->
+      </StackLayout>
+    </FlexboxLayout>
+  </ng-template>
+</GridLayout>

@@ -1,0 +1,53 @@
+<DockLayout #communityList width="100%" height="100%">
+  <StackLayout dock="top" class="bg-theme-secondary" height="60">
+    <CustomActionBar *ngIf="mode == 'switch'; else elseBlock"
+      [title]="title" leftIcon="&#xea02;" rightIcon="&#xe9b1;"
+      [cancelAction]="[closeModal, communityList]"
+      (onAprove)="switchMode()"></CustomActionBar>
+    <ng-template #elseBlock>
+      <CustomActionBar [title]="title" leftIcon="&#xe92f;"></CustomActionBar>
+    </ng-template>
+  </StackLayout>
+  <RadListView class="bg-theme-secondary"
+    (itemTap)="onItemTap($event)"
+    [items]="currentList">
+    <ng-template tkListItemTemplate let-item="item" let-i="index">
+      <!-- // item -->
+      <StackLayout class="bg-theme-secondary">
+        <CardView margin="1 20" elevation="5" class="bg-white">
+          <StackLayout class="bg-clear">
+            <GridLayout columns="80,*,60" rows="90" class="bg-clear">
+              <Image col="0" class="m-x-10" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
+                src="{{ item.photoUrl || '~/assets/placeholder__group.png' }}"></Image>
+              <StackLayout col="1" orientation="horizontal" class="p-10">
+                <Label class="h3" text="{{ item.name }}" virticalAlignment="stretch"></Label>
+              </StackLayout>
+              <Label *ngIf="mode == 'switch'; else elseBlock2"
+                col="2" class="h2 p-10 icon"
+                [class.text-theme]="selected == item.id"
+                text="{{ selected == item.id ? '&#xe92c;' : '&#xe937;' }}" style="vertical-align:center;"></Label>
+              <ng-template #elseBlock2>
+                <Label col="2" class="h2 p-10 icon text-theme"
+                  text="{{ selectedList.indexOf(item.id) > -1 ? '&#xe92c;' : '&#xe930;' }}" style="vertical-align:center;"></Label>
+              </ng-template>
+            </GridLayout>
+          </StackLayout>
+        </CardView>
+      </StackLayout>
+    </ng-template>
+    <!-- // header -->
+    <ng-template tkListViewHeader>
+      <StackLayout class="m-x-20 m-t-30 m-b-15">
+        <SearchboxLike
+          placeholder="名前で絞り込む"
+          (onSearch)="false"></SearchboxLike>
+        <!-- <SearchboxLike
+             placeholder="名前で絞り込む"
+             followContent="キャンセル"
+             (onSearch)="false"
+             (onClear)="false"
+             (onCancel)="false"></SearchboxLike> -->
+      </StackLayout>
+    </ng-template>
+  </RadListView>
+</DockLayout>

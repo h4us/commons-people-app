@@ -1,0 +1,25 @@
+<DockLayout stretchLasthChild="true" class="bg-theme-secondary">
+  <StackLayout dock="top">
+    <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="&#xe92b;"
+      (onAprove)="submit()"></CustomActionBar>
+  </StackLayout>
+  <PreviousNextView>
+    <ScrollView row="1" width="100%" class="bg-theme-secondary">
+      <StackLayout orientation="vertical" class="p-15 form" [formGroup]="pForm">
+        <TextView *ngIf="field == 'status' || field == 'description'"
+          class="input"
+          [hint]="field"
+          [formControlName]="field"
+          (blur)="onValidate()"
+          (returnPress)="onValidate()"></TextView>
+        <TextField *ngIf="field != 'status' && field != 'description'"
+          class="input"
+          [hint]="field"
+          [formControlName]="field"
+          [secure]="field == 'password'"
+          (blur)="onValidate()"
+          (returnPress)="onValidate()"></TextField>
+      </StackLayout>
+    </ScrollView>
+  </PreviousNextView>
+</DockLayout>

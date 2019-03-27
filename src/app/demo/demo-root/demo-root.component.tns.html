@@ -1,0 +1,16 @@
+<GridLayout #demoroot rows="*,60">
+  <AbsoluteLayout row="0" width="100%" height="100%">
+    <!-- // -->
+    <StackLayout width="100%" height="100%">
+      <page-router-outlet name="extOutlet"></page-router-outlet>
+    </StackLayout>
+    <!-- // -->
+    <FAB #floatingButton
+      top="300"
+      (tap)="onFabTap()"
+      class="fab-btn" icon="~/assets/fabtn-plus.png" backgroundColor="#1f977c"></FAB>
+  </AbsoluteLayout>
+  <StackLayout row="1">
+    <app-navfooter></app-navfooter>
+  </StackLayout>
+</GridLayout>

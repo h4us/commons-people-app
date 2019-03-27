@@ -1,0 +1,19 @@
+<DockLayout #pointSender width="100%" height="100%">
+  <StackLayout dock="top" class="bg-theme-secondary" height="60">
+    <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="&#xe92b;"
+      (onAprove)="onConfirm()"></CustomActionBar>
+  </StackLayout>
+  <GridLayout columns="240*,100*" rows="*" class="p-15 bg-theme-secondary">
+    <StackLayout col="0" class="form"
+      [formGroup]="pForm">
+      <TextField formControlName="amount" keyboardType="number" class="input"></TextField>
+    </StackLayout>
+    <RadDataForm row="0" col="1"  class="bg-clear"
+      [source]="sendData"
+      (propertyCommitted)="onCommitted($event)">
+      <TKEntityProperty tkDataFormProperty name="tokens" displayName="" index="0" [valuesProvider]="tokens">
+        <TKPropertyEditor tkEntityPropertyEditor type="Picker"></TKPropertyEditor>
+      </TKEntityProperty>
+    </RadDataForm>
+  </GridLayout>
+</DockLayout>

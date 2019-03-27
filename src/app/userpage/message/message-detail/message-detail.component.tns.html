@@ -1,0 +1,50 @@
+<GridLayout rows="60,*,auto">
+  <StackLayout row="0" class="bg-theme-secondary" height="60">
+    <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="&#xea0a;"
+      (onAprove)="sendPoint()"></CustomActionBar>
+  </StackLayout>
+  <!-- // TODO: -->
+  <StackLayout row="1" class="bg-theme-secondary">
+    <RadListView #messageContainer width="100%" height="100%"
+      class="bg-clear"
+      [items]="messageLog"
+      (itemTap)="onItemTap($event)">
+      <ng-template tkListItemTemplate let-item="item" let-i="index">
+        <!-- // item -->
+        <StackLayout class="p-x-30 p-y-15 bg-theme-secondary">
+          <GridLayout *ngIf="(item.createdBy && (item.createdBy == user.id)); else elseBlock" columns="*" rows="*" class="bg-clear">
+            <StackLayout col="0" class="p-15 bg-bubble" style="border-radius:20;">
+              <HtmlView class="bg-clear" [html]="styled(item.text)"></HtmlView>
+            </StackLayout>
+          </GridLayout>
+          <ng-template #elseBlock>
+            <GridLayout columns="80,*" rows="*" class="bg-clear">
+              <Image col="0" class="m-x-10" style="border-radius:80;" stretch="aspectFill" width="60" height="60" verticalAlignment="top"
+                src="{{ item.photoUrl || '~/assets/placeholder__group.png' }}"></Image>
+              <StackLayout col="1" class="p-15 bg-white" style="border-radius:20;">
+                <HtmlView class="bg-clear" [html]="styled(item.text)"></HtmlView>
+              </StackLayout>
+            </GridLayout>
+          </ng-template>
+        </StackLayout>
+      </ng-template>
+      <!-- <ListViewStaggeredLayout tkListViewLayout scrollDirection="Vertical" spanCount="1"></ListViewStaggeredLayout> -->
+    </RadListView>
+  </StackLayout>
+  <!-- // -->
+  <StackLayout row="2">
+    <GridLayout columns="*,60" rosw="*" class="bg-white">
+      <StackLayout col="0" row="0" style="border-width:1; border-color:#c6c6c6; border-radius:35; padding:5 20; margin:10 5 10 15;">
+        <TextView [(ngModel)]="sendText" editable="true" style="border-color:transparent; background-color:transparent;"
+          ios:style="font-size:15;"
+          android:style="font-size:14;"
+          (textChange)="onTextChange($event)"
+          (focus)="onFocus($event)"></TextView>
+      </StackLayout>
+      <StackLayout col="1" row="0" orientation="horizontal" width="100%" height="60"
+        (tap)="sendMessage()">
+        <Label class="icon text-center text-theme h2 p-10" width="60" text="&#xe9c2;" verticalAlignment="center"></Label>
+      </StackLayout>
+    </GridLayout>
+  </StackLayout>
+</GridLayout>

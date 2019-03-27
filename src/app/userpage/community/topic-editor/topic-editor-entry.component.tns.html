@@ -1,0 +1,82 @@
+<DockLayout #topicEditor stretchLasthChild="true">
+  <StackLayout dock="top" class="bg-theme-secondary">
+    <CustomActionBar [title]="title" leftIcon="&#xea02;" [cancelAction]="[closeModal, topicEditor]"></CustomActionBar>
+  </StackLayout>
+  <AbsoluteLayout class="bg-theme-secondary">
+    <ScrollView width="100%" height="100%">
+      <StackLayout orientation="vertical" class="p-15" [formGroup]="tForm">
+        <!-- // -->
+        <Label class="h3" text="タイプ"></Label>
+        <GridLayout columns="*,*" rows="50*" class="radio-like m-b-30">
+          <FlexboxLayout col="0" class="input-like"
+            (tap)="toSelect('GIVE')">
+            <Label text="できる"></Label>
+            <Label class="label-right icon"
+              text="{{ selectedType != 'WANT' ? '&#xe92c;' : '&#xe937;' }}"></Label>
+          </FlexboxLayout>
+          <FlexboxLayout col="1" class="input-like"
+            (tap)="toSelect('WANT')">>
+            <Label text="ほしい"></Label>
+            <Label class="label-right icon"
+              text="{{ selectedType == 'WANT' ? '&#xe92c;' : '&#xe937;' }}" ></Label>
+          </FlexboxLayout>
+        </GridLayout>
+        <!-- // -->
+        <Label class="h3" text="概要"></Label>
+        <DockLayout class="input-like m-b-10"
+          stretchLasthChild="true"
+          (tap)="toEdit('title')">
+          <Label dock="left" class="label-left" text="タイトル"></Label>
+          <Label dock="right" class="icon label-right" text="&#xe930;"></Label>
+          <Label [text]="getCurrent('title')"></Label>
+        </DockLayout>
+        <DockLayout class="input-like m-b-10"
+          stretchLasthChild="true"
+          (tap)="toEdit('description')">
+          <Label dock="left" class="label-left" text="概要"></Label>
+          <Label dock="right" class="icon label-right" text="&#xe930;"></Label>
+          <Label [text]="getCurrent('description')"></Label>
+        </DockLayout>
+        <DockLayout class="input-like m-b-10"
+          stretchLasthChild="true"
+          (tap)="toEdit('points')">
+          <Label dock="left" class="label-left" text="ポイント"></Label>
+          <Label dock="right" class="icon label-right" text="&#xe930;"></Label>
+          <Label [text]="getCurrent('points')"></Label>
+        </DockLayout>
+        <DockLayout class="input-like m-b-10"
+          stretchLasthChild="true"
+          (tap)="toEdit('location')">
+          <Label dock="left" class="label-left" text="場所"></Label>
+          <Label dock="right" class="icon label-right" text="&#xe930;"></Label>
+          <Label [text]="getCurrent('location')"></Label>
+        </DockLayout>
+        <!-- // -->
+        <Label class="h3" text="写真"></Label>
+        <DockLayout class="input-like m-b-10"
+          stretchLasthChild="true"
+          (tap)="photoDialog()">
+          <Label dock="left" class="label-left" text="写真を追加"></Label>
+          <Label dock="right" class="icon label-right" text="&#xe930;"></Label>
+          <!-- // -->
+          <FlexboxLayout class="p-x-10"
+            flexDirection="column"
+            justifyContent="space-around">
+            <Image alignSelf="flex-end" stretch="aspectFill" width="28" height="28" [src]="selectedPhoto"></Image>
+          </FlexboxLayout>
+          <!-- // -->
+        </DockLayout>
+      </StackLayout>
+    </ScrollView>
+
+    <FlexboxLayout [top]="bottomSize" class="p-15 bg-clear" width="100%" height="120"
+      [visibility]="onValidate() ? 'visible' : 'collapse'"
+      flexDirection="row"
+      justifyContent="space-around"
+      alignContent="space-around"
+      alignItems="center">
+      <Button alignSelf="center" text="次へ" class="btn btn-primary btn-rounded-lg" width="50%"
+        (tap)="preview()"></Button>
+    </FlexboxLayout>
+  </AbsoluteLayout>
+</DockLayout>
