@@ -104,7 +104,7 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     const tItem = args.view.bindingContext;
 
     if (this.currentTab === 'topics') {
-      this.routerExt.navigate(['../community/topics', tItem.id], {
+      this.routerExt.navigate(['../community/topic', tItem.id], {
         relativeTo: this.aRoute
       });
     } else if (this.currentTab === 'news') {
@@ -133,6 +133,16 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
       ];
       AbsoluteLayout.setLeft(this.fbtnEl, -300);
     }
+  }
+
+  gotoTopicsSearch() {
+    this.routerExt.navigate(['./topics/search'], {
+      relativeTo: this.aRoute
+    });
+
+    // this.routerExt.navigate(['../community/topics/search'], {
+    //   relativeTo: this.aRoute
+    // });
   }
 
   onFabTap() {

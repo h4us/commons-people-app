@@ -11,6 +11,7 @@ import { NativeScriptUIListViewModule } from 'nativescript-ui-listview/angular';
 import { MomentModule } from 'ngx-moment';
 
 import { SharedModule } from '../../shared/shared.module';
+import { SharedModule as UserpageSharedModule } from '../shared/shared.module';
 
 import { ThreadEditorComponent } from './thread-editor/thread-editor.component';
 import { MessageEditorComponent } from './message-editor/message-editor.component';
@@ -24,6 +25,7 @@ import { MessageDetailComponent } from './message-detail/message-detail.componen
     NativeScriptFormsModule,
     NativeScriptUIListViewModule,
     SharedModule,
+    UserpageSharedModule,
     MomentModule,
   ],
   schemas: [NO_ERRORS_SCHEMA],

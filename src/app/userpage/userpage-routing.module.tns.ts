@@ -18,6 +18,7 @@ import { NewsDetailComponent } from './community/news-detail/news-detail.compone
 import { TopicEditorEntryComponent } from './community/topic-editor/topic-editor-entry.component';
 import { TopicEditorFieldComponent } from './community/topic-editor/topic-editor-field.component';
 import { TopicOwnerEntryComponent } from './community/topic-owner/topic-owner-entry.component';
+import { TopicSearchComponent } from './community/topic-search/topic-search.component';
 
 import { MessageRootComponent } from './message/message-root/message-root.component';
 import { MessageDetailComponent } from './message/message-detail/message-detail.component';
@@ -59,11 +60,11 @@ const routes: Routes = [
       },
 
       // --
-      // ? TODO: details..
+      // ? TODO: child routes..
       // --
       {
-        path: 'community/topics/:id',
-        component: TopicDetailComponent,
+        path: 'community/topics/search',
+        component: TopicSearchComponent,
         outlet: 'userpage',
       },
 
@@ -83,6 +84,12 @@ const routes: Routes = [
         path: 'community/topic/owner/:id/send-confirm',
         component: PointSenderConfirmComponent,
         outlet: 'topicowner',
+      },
+
+      {
+        path: 'community/topic/:id',
+        component: TopicDetailComponent,
+        outlet: 'userpage',
       },
 
       {

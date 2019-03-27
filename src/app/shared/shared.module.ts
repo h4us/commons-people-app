@@ -8,19 +8,16 @@ import { CommonModule } from '@angular/common';
 // } from './shared.common';
 import { NavfooterComponent } from './navfooter/navfooter.component';
 import { CustomActionBarComponent } from './custom-action-bar/custom-action-bar.component';
-import { CustomSearchBoxComponent } from './custom-search-box/custom-search-box.component';
-import { CustomTextFieldComponent } from './custom-text-field/custom-text-field.component';
 import { SnackbarLikeComponent } from './snackbar-like/snackbar-like.component';
-import { SearchboxLikeComponent } from './searchbox-like/searchbox-like.component';
 
 @NgModule({
-  declarations: [NavfooterComponent, CustomActionBarComponent, CustomSearchBoxComponent, CustomTextFieldComponent, SnackbarLikeComponent, SearchboxLikeComponent],
+  declarations: [NavfooterComponent, CustomActionBarComponent, SnackbarLikeComponent],
   providers: [
     // ...providerDeclarations
   ],
   imports: [
     CommonModule
   ],
-  exports: [NavfooterComponent, CustomActionBarComponent, CustomSearchBoxComponent, CustomTextFieldComponent, SnackbarLikeComponent, SearchboxLikeComponent]
+  exports: [NavfooterComponent, CustomActionBarComponent, SnackbarLikeComponent]
 })
 export class SharedModule { }

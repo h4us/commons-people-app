@@ -1,0 +1,62 @@
+<AbsoluteLayout>
+  <StackLayout #sizeAnchor class="util-anchor-full"></StackLayout>
+
+  <RadListView left="0" top="0" width="100%" height="100%" class="bg-theme-secondary"
+    [items]="currentList"
+    (itemTap)="onItemTap($event)">
+    <!-- // item type: topics -->
+    <ng-template tkListItemTemplate let-item="item" let-i="index">
+      <StackLayout class="bg-theme-secondary">
+        <CardView margin="10 20" elevation="10" class="bg-white">
+          <StackLayout class="bg-clear">
+            <AbsoluteLayout height="160">
+              <Image left="0" top="0" stretch="aspectFill" width="100%" height="100%" loadMode="async"
+                src="{{ item.photoUrl || '~/assets/placeholder__topic@2x.png' }}" ></Image>
+              <Label left="10" top="10" class="label-like label-theme" text="{{ item.type }}"></Label>
+            </AbsoluteLayout>
+            <Label class="typo-card-heading p-10" textWrap="true" text="{{ item.title }}"></Label>
+            <FlexboxLayout class="p-10 bg-white"
+              flexWrap="wrap"
+              flexDirectoin="column"
+              justifyContent="space-between">
+              <StackLayout orientation="horizontal" class="typo-list-small">
+                <Image src="{{ item.createdBy.avatarUrl || '~/assets/placeholder__user@2x.png' }}"
+                  stretch="aspectFill" height="18" width="18" style="border-radius:10;"></Image>
+                <Label class="m-l-5 text-bold" text="{{ item.createdBy.username || '-' }}"></Label>
+              </StackLayout>
+              <WrapLayout>
+                <Label class="m-r-10 typo-list-small">
+                  <FormattedString>
+                    <Span text="{{ currentCommunity?.tokenSymbol }}" class="text-theme"></Span>
+                    <Span text=" {{ item.points }}"></Span>
+                  </FormattedString>
+                </Label>
+                <StackLayout orientation="horizontal" class="typo-list-small">
+                  <Label verticalAlignment="center" text="&#xe939;" class="icon text-theme-primary"></Label>
+                  <Label text=" {{ item.createdAt | amLocal | amTimeAgo }}"></Label>
+                </StackLayout>
+              </WrapLayout>
+            </FlexboxLayout>
+          </StackLayout>
+        </CardView>
+      </StackLayout>
+    </ng-template>
+
+    <ng-template tkListViewHeader>
+      <StackLayout class="bg-theme-secondary" padding="20 20 15">
+        <CustomSearchbox
+          placeholder=""
+          followContent="キャンセル"
+          (onSearch)="searchAction($event)"
+          (onCancel)="cancelAction()"></CustomSearchbox>
+      </StackLayout>
+    </ng-template>
+
+    <!-- <ng-template tkListViewFooter>
+         <StackLayout class="p-10 bg-theme-secondary">
+         <Button *ngIf="currentTab != 'profile'"
+         class="btn btn-rounded-lg btn-primary btn-black" width="40%" text="さらに読む"></Button>
+         </StackLayout>
+         </ng-template> -->
+  </RadListView>
+</AbsoluteLayout>

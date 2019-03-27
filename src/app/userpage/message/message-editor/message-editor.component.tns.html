@@ -28,11 +28,17 @@
     </ng-template>
     <!-- // header -->
     <ng-template tkListViewHeader>
-      <GridLayout columns="*" padding="20 15 15">
-        <StackLayout col="0" height="60">
-          <CustomSearchBox></CustomSearchBox>
-        </StackLayout>
-      </GridLayout>
+      <StackLayout padding="20 20 25">
+        <SearchboxLike
+          placeholder="名前で絞り込む"
+          (onSearch)="false"></SearchboxLike>
+        <!-- <SearchboxLike
+             placeholder="名前で絞り込む"
+             followContent="キャンセル"
+             (onSearch)="false"
+             (onClear)="false"
+             (onCancel)="false"></SearchboxLike> -->
+      </StackLayout>
     </ng-template>
   </RadListView>
 </DockLayout>

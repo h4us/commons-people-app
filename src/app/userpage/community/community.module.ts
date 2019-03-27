@@ -9,9 +9,10 @@ import { NewsDetailComponent } from './news-detail/news-detail.component';
 import { TopicEditorComponent } from './topic-editor/topic-editor.component';
 import { CommunityListComponent } from './community-list/community-list.component';
 import { TopicOwnerComponent } from './topic-owner/topic-owner.component';
+import { TopicSearchComponent } from './topic-search/topic-search.component';
 
 @NgModule({
-  declarations: [CommunityRootComponent, TopicDetailComponent, NewsDetailComponent, TopicEditorComponent, CommunityListComponent, TopicOwnerComponent],
+  declarations: [CommunityRootComponent, TopicDetailComponent, NewsDetailComponent, TopicEditorComponent, CommunityListComponent, TopicOwnerComponent, TopicSearchComponent],
   imports: [
     CommonModule,
     CommunityRoutingModule

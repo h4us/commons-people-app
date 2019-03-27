@@ -11,6 +11,7 @@ import { NativeScriptUIDataFormModule } from 'nativescript-ui-dataform/angular';
 import { MomentModule } from 'ngx-moment';
 
 import { SharedModule } from '../../shared/shared.module';
+import { SharedModule as UserpageSharedModule } from '../shared/shared.module';
 
 import { PointRootComponent } from './point-root/point-root.component';
 import { PointLogComponent } from './point-log/point-log.component';
@@ -33,6 +34,7 @@ import { PointSenderConfirmComponent } from './point-sender/point-sender-confirm
     NativeScriptUIDataFormModule,
     ReactiveFormsModule,
     MomentModule,
+    UserpageSharedModule,
     SharedModule,
   ],
   schemas: [NO_ERRORS_SCHEMA],

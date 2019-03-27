@@ -223,7 +223,6 @@ TextField.input,
     height: $searchbox-like-height;
     background-color: #fff;
     border-radius: $searchbox-like-height / 2;
-    padding: $searchbox-like-padding;
 
     > * {
       font-size: $theme-fs-sb;
@@ -234,7 +233,7 @@ TextField.input,
       font-size: $theme-fs-sb-large;
       color: $theme-grey;
       text-align: left;
-      padding: ((($searchbox-like-height - $theme-fs-sb-large) / 2) - 2) 0;
+      margin-left: $searchbox-like-spacing;
       min-width: $theme-fs-sb-large * 2;
     }
 
@@ -242,17 +241,25 @@ TextField.input,
       font-size: $theme-fs-sb-large;
       color: $theme-color;
       text-align: right;
-      padding: ((($searchbox-like-height - $theme-fs-sb-large) / 2) - 2) 0;
+      margin-right: $searchbox-like-spacing;
       min-width: $theme-fs-sb-large * 2;
+    }
+
+    .input {
+      background-color: transparent;
+      font-size: $theme-fs-sb;
+      padding: 0;
+      margin: 0;
+      line-height: 1;
     }
   }
 
   .followContent {
     color: $theme-color;
-    min-width: 80;
+    min-width: $theme-fs-sb-large * 5;
 
     &.icon {
-      min-width: 40;
+      min-width: $theme-fs-sb-large * 2;
       font-size: $theme-fs-sb-large * 1.2;
     }
   }

@@ -40,10 +40,13 @@
       <StackLayout class="m-x-20 m-t-30 m-b-15">
         <SearchboxLike
           placeholder="名前で絞り込む"
-          followContent="キャンセル"
-          (onSearch)="onSwitchTab('ptofile')"
-          (onClear)="false"
-          (onCancel)="false"></SearchboxLike>
+          (onSearch)="false"></SearchboxLike>
+        <!-- <SearchboxLike
+             placeholder="名前で絞り込む"
+             followContent="キャンセル"
+             (onSearch)="false"
+             (onClear)="false"
+             (onCancel)="false"></SearchboxLike> -->
       </StackLayout>
     </ng-template>
   </RadListView>

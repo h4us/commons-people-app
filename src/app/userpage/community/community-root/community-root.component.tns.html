@@ -105,7 +105,8 @@ The order of route configuration matters. The router accepts the first route tha
 
         <StackLayout class="m-x-20 m-t-30 m-b-15"
           *ngIf="currentTab === 'topics'; else elseBlock">
-          <SearchboxLike></SearchboxLike>
+          <SearchboxLike
+            (onSearch)="gotoTopicsSearch()"></SearchboxLike>
         </StackLayout>
 
         <ng-template #elseBlock>

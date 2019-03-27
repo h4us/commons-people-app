@@ -4,6 +4,7 @@ import { UserpageRoutingModule } from './userpage-routing.module';
 import { NativeScriptCommonModule } from 'nativescript-angular/common';
 
 import { SharedModule } from '../shared/shared.module';
+import { SharedModule as UserpageSharedModule } from './shared/shared.module';
 
 import { CommunityModule } from './community/community.module';
 import { PointModule } from './point/point.module';
@@ -31,7 +32,11 @@ import { UserpageRootComponent } from './userpage-root/userpage-root.component';
     ProfileModule,
     MessageModule,
     //
+    UserpageSharedModule,
+    //
     SharedModule,
+  ],
+  exports:[
   ],
   entryComponents: [
   ],

@@ -78,7 +78,13 @@ export class UserpageRootComponent implements OnInit {
           options.context = data[1];
         }
         this.modalService.showModal(PointSenderComponent, options);
+      } else if (data === 'search' || (data instanceof Array && data.length > 0 && data[0] === 'search' )) {
+        if (data instanceof Array && data.length > 1) {
+          options.context = data[1];
+        }
+        this.modalService.showModal(PointSenderComponent, options);
       }
+
     });
   }
 

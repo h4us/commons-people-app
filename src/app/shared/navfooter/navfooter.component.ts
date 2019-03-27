@@ -26,21 +26,32 @@ export class NavfooterComponent implements OnInit, OnDestroy {
 
     // TODO:
     this._subs = this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        console.log('nav start ->', this.router.url)
+      }
+
       if (event instanceof NavigationEnd) {
-        if (this.router.url.indexOf('userpage:community') >= 0) {
-          this._navActive = 'community';
-          this.navMode = 'default';
-        } else if (this.router.url.indexOf('userpage:point') >= 0) {
-          this._navActive = 'point';
-          this.navMode = (this.router.url.match(/\/select|send|confirm/)) ? 'dm' : 'default';
-        } else if (this.router.url.indexOf('userpage:message') >= 0) {
-          //
-          this._navActive = 'message';
-          this.navMode = (this.router.url.indexOf('/log') >= 0) ? 'dm' : 'default';
-          //
-        } else if (this.router.url.indexOf('userpage:profile') >= 0) {
-          this._navActive = 'profile';
-          this.navMode = 'default';
+        //
+        console.log('nav end ->', this.router.url);
+        //
+        if (this.router.url.match(/.*\/search/)) {
+          this.navMode = 'dm';
+        } else {
+          if (this.router.url.indexOf('userpage:community') >= 0) {
+            this._navActive = 'community';
+            this.navMode = 'default';
+          } else if (this.router.url.indexOf('userpage:point') >= 0) {
+            this._navActive = 'point';
+            this.navMode = (this.router.url.match(/\/select|send|confirm/)) ? 'dm' : 'default';
+          } else if (this.router.url.indexOf('userpage:message') >= 0) {
+            //
+            this._navActive = 'message';
+            this.navMode = (this.router.url.indexOf('/log') >= 0) ? 'dm' : 'default';
+            //
+          } else if (this.router.url.indexOf('userpage:profile') >= 0) {
+            this._navActive = 'profile';
+            this.navMode = 'default';
+          }
         }
       }
     });

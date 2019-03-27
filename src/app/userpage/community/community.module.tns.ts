@@ -15,6 +15,7 @@ import { MomentModule } from 'ngx-moment';
 
 import { SharedModule } from '../../shared/shared.module';
 
+import { SharedModule as UserpageSharedModule } from '../shared/shared.module';
 import { CommunityRootComponent } from './community-root/community-root.component';
 import { CommunityListComponent } from './community-list/community-list.component';
 import { CommunityListEditComponent } from './community-list/community-list-edit.component';
@@ -24,6 +25,7 @@ import { TopicDetailComponent } from './topic-detail/topic-detail.component';
 import { TopicEditorComponent } from './topic-editor/topic-editor.component';
 import { TopicEditorEntryComponent } from './topic-editor/topic-editor-entry.component';
 import { TopicEditorFieldComponent } from './topic-editor/topic-editor-field.component';
+import { TopicSearchComponent } from './topic-search/topic-search.component';
 
 import { TopicOwnerComponent } from './topic-owner/topic-owner.component';
 import { TopicOwnerEntryComponent } from './topic-owner/topic-owner-entry.component';
@@ -34,7 +36,7 @@ import { NewsDetailComponent } from './news-detail/news-detail.component';
   declarations: [
     CommunityRootComponent, CommunityListComponent, CommunityListEditComponent,
     TopicDetailComponent,
-    TopicEditorComponent, TopicEditorEntryComponent, TopicEditorFieldComponent,
+    TopicEditorComponent, TopicEditorEntryComponent, TopicEditorFieldComponent, TopicSearchComponent,
     TopicOwnerComponent, TopicOwnerEntryComponent,
     NewsDetailComponent,
   ],
@@ -46,6 +48,7 @@ import { NewsDetailComponent } from './news-detail/news-detail.component';
     NativeScriptUIDataFormModule,
     ReactiveFormsModule,
     WebViewExtModule,
+    UserpageSharedModule,
     SharedModule,
     MomentModule,
   ],
