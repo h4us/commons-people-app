@@ -13,8 +13,10 @@ import { MessageModule } from './message/message.module';
 import { ModalProxyService } from './modal-proxy.service';
 import { MessageProxyService } from './message-proxy.service';
 import { NewsService } from './news.service';
+
 import { TopicValidatorService } from './topic-validator.service';
 import { ProfileValidatorService } from './profile-validator.service';
+import { PointValidatorService } from './point-validator.service';
 
 import { UserpageRootComponent } from './userpage-root/userpage-root.component';
 
@@ -39,6 +41,7 @@ import { UserpageRootComponent } from './userpage-root/userpage-root.component';
     NewsService,
     TopicValidatorService,
     ProfileValidatorService,
+    PointValidatorService,
   ],
   schemas: [NO_ERRORS_SCHEMA]
 })

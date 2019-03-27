@@ -17,7 +17,7 @@
         <CardView margin="1 20" elevation="5" class="bg-white">
           <StackLayout class="bg-clear">
             <GridLayout columns="80,*,60" rows="90" class="bg-clear">
-              <Image col="0" class="m-x-10" style="border-radius:80;" stretch="aspectFill" width="60" height="60"
+              <Image col="0" class="m-x-10" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
                 src="{{ item.photoUrl || '~/assets/placeholder__group.png' }}"></Image>
               <StackLayout col="1" orientation="horizontal" class="p-10">
                 <Label class="h3" text="{{ item.name }}" virticalAlignment="stretch"></Label>
@@ -37,10 +37,13 @@
     </ng-template>
     <!-- // header -->
     <ng-template tkListViewHeader>
-      <StackLayout class="m-15" height="60">
-        <PreviousNextView>
-          <CustomSearchBox></CustomSearchBox>
-        </PreviousNextView>
+      <StackLayout class="m-x-20 m-t-30 m-b-15">
+        <SearchboxLike
+          placeholder="名前で絞り込む"
+          followContent="キャンセル"
+          (onSearch)="onSwitchTab('ptofile')"
+          (onClear)="false"
+          (onCancel)="false"></SearchboxLike>
       </StackLayout>
     </ng-template>
   </RadListView>

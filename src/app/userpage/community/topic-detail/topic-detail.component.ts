@@ -16,6 +16,7 @@ import { ImageAsset } from 'tns-core-modules/image-asset';
 import * as fs from 'tns-core-modules/file-system';
 import * as bgHttp from 'nativescript-background-http';
 
+import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 import { ModalProxyService } from '../../modal-proxy.service';
@@ -76,19 +77,21 @@ export class TopicDetailComponent implements OnInit, AfterViewInit {
 
           this.snackBar.isShown = false;
         } else {
-          // TODO:
           this.topic = this.tvService.sendForm.value;
           this.topic.createdBy = this.userService.getCurrentUser();
-          this.topic.createdAt = new Date().toString();
-          if (this.tvService.sendToAsset) {
+          this.topic.createdAt = this.tvService.originalCreated;
+
+          if (this.tvService.originalPhoto) {
+            this.topic.photoUrl = this.tvService.originalPhoto;
+          } else if (this.tvService.sendToAsset) {
             let source = new ImageSource();
             source.fromAsset(this.tvService.sendToAsset)
               .then((source: ImageSource) => {
-                // this.topic.photoUrl = `url(data:image/png;base64,${source.toBase64String('png', 10)})`;
                 const success: boolean = source.saveToFile(`${this.docPath}/topic-photo.png`, 'png');
                 this.topic.photoUrl = `${this.docPath}/topic-photo.png`;
               })
           }
+
           this.community = this.userService.getCommunity();
           //
           this.session = bgHttp.session('image-upload');
@@ -133,7 +136,9 @@ export class TopicDetailComponent implements OnInit, AfterViewInit {
   }
 
   openEditDialog() {
-    this.mProxy.request('topic', { edit: this.topic.id });
+    if (!this.isPreview) {
+      this.mProxy.request('topic', { edit: this.topic });
+    }
   }
 
   cancelAction() {
@@ -150,7 +155,14 @@ export class TopicDetailComponent implements OnInit, AfterViewInit {
   // TODO:
   onConfirm() {
     if (this.tvService.sendForm.valid) {
-      this.userService.createTopic(this.tvService.sendForm.value).subscribe((ret) => {
+      let req: Observable<any>;
+      if (this.tvService.editTo) {
+        req = this.userService.updateTopic(this.tvService.editTo, this.tvService.sendForm.value)
+      } else {
+        req = this.userService.createTopic(this.tvService.sendForm.value);
+      }
+
+      req.subscribe((ret) => {
         console.log('created new topic', ret);
 
         if (this.tvService.sendToAsset && this.topic.photoUrl) {
@@ -181,6 +193,7 @@ export class TopicDetailComponent implements OnInit, AfterViewInit {
         this.isCreated = true;
       });
     } else {
+      //
       console.log('validation error')
     }
 

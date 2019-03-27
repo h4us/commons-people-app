@@ -257,7 +257,7 @@ export class UserService {
 
   // TODO:
   updateCommunities(communities: Array<number>): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users/${this.user.id}/communities`, {
+    return this.http.post(`${this.apiUrl}users/${this.user.id}/communities`, {
       communityList: communities
     });
   }
@@ -293,6 +293,10 @@ export class UserService {
 
   createTopic(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}ads`, data);
+  }
+
+  updateTopic(id:number, data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}ads/${id}`, data);
   }
 
   /*
@@ -333,7 +337,7 @@ export class UserService {
     let ret: Observable<any>;
 
     if (updateNow) {
-      ret = this.http.get(`${this.apiUrl}/balance?communityId=${t}`);
+      ret = this.http.get(`${this.apiUrl}balance?communityId=${t}`);
     } else {
       let c = this.user.balanceList.filter((el) => el.communityId == t);
       c = (c && c.length > 0) ? c[0] : null;
@@ -348,28 +352,32 @@ export class UserService {
 
   getTransactions(targetCommunity?: number): Observable<any> {
     const t: number = targetCommunity || this._currentCommunityId;
-    return this.http.get(`${this.apiUrl}/transactions?communityId=${t}`);
+    return this.http.get(`${this.apiUrl}transactions?communityId=${t}`);
+  }
+
+  createTransactions(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}transactions`, data);
   }
 
   /*
    * profiles
    */
   updateProfile(key:any, data:any): Observable<any> {
-    let ret: Observable<any> = this.http.post(`${this.apiUrl}/users/${this.user.id}`, data);
+    let ret: Observable<any> = this.http.post(`${this.apiUrl}users/${this.user.id}`, data);
 
     if (key === 'status') {
-      ret = this.http.post(`${this.apiUrl}/users/${this.user.id}/status`, data);
+      ret = this.http.post(`${this.apiUrl}users/${this.user.id}/status`, data);
     } else if (key === 'avatarUrl') {
       // TODO:
-      ret = this.http.post(`${this.apiUrl}/users/${this.user.id}/avatar`, data, {
+      ret = this.http.post(`${this.apiUrl}users/${this.user.id}/avatar`, data, {
         headers: new HttpHeaders({ 'Content-Type': 'multipart/form-data' })
       });
     } else if (key === 'emailAddress') {
       // TODO:
-      ret = this.http.post(`${this.apiUrl}/users/${this.user.id}/emailaddress`, data);
+      ret = this.http.post(`${this.apiUrl}users/${this.user.id}/emailaddress`, data);
     } else if (key === 'password') {
       // TODO:
-      ret = this.http.post(`${this.apiUrl}/users/${this.user.id}/password`, data);
+      ret = this.http.post(`${this.apiUrl}users/${this.user.id}/password`, data);
     }
 
     return ret;

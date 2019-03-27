@@ -10,7 +10,7 @@ import { ListViewEventData } from 'nativescript-ui-listview';
 import * as imagepicker from 'nativescript-imagepicker';
 import { ImagePicker } from 'nativescript-imagepicker';
 import * as camera from 'nativescript-camera';
-import { Image } from 'tns-core-modules/ui/image';
+// import { Image } from 'tns-core-modules/ui/image';
 import { ImageSource } from 'tns-core-modules/image-source';
 import { ImageAsset } from 'tns-core-modules/image-asset';
 import * as fs from 'tns-core-modules/file-system';

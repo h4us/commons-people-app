@@ -1,8 +1,9 @@
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { FormGroup } from '@angular/forms'
 
 import { switchMap } from 'rxjs/operators';
 
-import { ActivatedRoute } from '@angular/router';
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 
 import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout';
@@ -13,6 +14,7 @@ import { layout } from 'tns-core-modules/utils/utils';
 import { Page } from 'tns-core-modules/ui/page';
 
 import { UserService, User } from '../../../user.service';
+import { PointValidatorService } from '../../point-validator.service';
 
 import { SnackbarLikeComponent } from '../../../shared/snackbar-like/snackbar-like.component';
 
@@ -29,9 +31,14 @@ export class PointSenderConfirmComponent implements OnInit {
   tokenSymbol: string = '';
   points: number = 0;
 
+  pForm: FormGroup;
+  transactionDone: boolean = false;
+
+  @ViewChild('pointSenderConfirm') rootLayoutRef: ElementRef;
   @ViewChild('overlayButtonContainerForPreview') ovBcPrevRef: ElementRef;
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
   @ViewChild('snackBar') snackBar: SnackbarLikeComponent;
+  rootLayout: AbsoluteLayout;
   ovBcPrev: FlexboxLayout;
   anchor: StackLayout;
 
@@ -41,8 +48,11 @@ export class PointSenderConfirmComponent implements OnInit {
     private pageRoute: PageRoute,
     private routerExt: RouterExtensions,
     private userService: UserService,
+    private pvService: PointValidatorService,
   ) {
     page.actionBarHidden = true;
+
+    this.pForm = pvService.sendForm;
   }
 
   ngOnInit() {
@@ -62,9 +72,11 @@ export class PointSenderConfirmComponent implements OnInit {
         this.tokenSymbol = <string>params.tokenSymbol;
         this.currentCommunity = this.userService.getCommunityByToken(this.tokenSymbol);
       });
+    // --
 
     this.ovBcPrev = <FlexboxLayout>this.ovBcPrevRef.nativeElement;
     this.anchor = <StackLayout>this.anchorRef.nativeElement;
+    this.rootLayout = <AbsoluteLayout>this.rootLayoutRef.nativeElement;
   }
 
   ngAfterViewInit() {
@@ -75,17 +87,65 @@ export class PointSenderConfirmComponent implements OnInit {
     }, 100);
   }
 
+  cancelAction() {
+    const currentOutlet = this.aRoute.outlet;
+
+    if (this.transactionDone) {
+      if (currentOutlet == 'userpage') {
+        this.routerExt.navigate([{
+          outlets: { userpage: ['point'] },
+        }], {
+          relativeTo: this.aRoute.parent,
+        });
+      } else {
+        this.rootLayout.closeModal();
+      }
+    } else {
+      this.routerExt.backToPreviousPage();
+    }
+  }
+
   // TODO:
-  checkShown() {
+  onConfirm() {
+    const currentOutlet = this.aRoute.outlet;
+    const outletParam = {};
+
+    console.log('from?', currentOutlet);
+
+    // TODO:
+    this.userService.createTransactions(this.pForm.value).subscribe(
+      (res) => {
+        console.log(res);
+      },
+      (err) => {
+        console.error('error status ->' , err);
+      });
+
+    this.transactionDone = true;
+
+    if (currentOutlet == 'userpage') {
+      this.routerExt.navigate([{
+        outlets: { userpage: ['point'] },
+      }], {
+        relativeTo: this.aRoute.parent,
+      });
+    } else {
+      this.rootLayout.closeModal();
+    }
+    // --
+
     setTimeout(() => {
       const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
       AbsoluteLayout.setTop(this.ovBcPrev, aH - (this.ovBcPrev.getMeasuredHeight() / screen.mainScreen.scale));
     }, 30);
   }
+
   cancelConfirm() {
     this.routerExt.backToPreviousPage();
   }
+
   forceClose() {
+    //
     this.snackBar.isShown = false;
   }
   // --

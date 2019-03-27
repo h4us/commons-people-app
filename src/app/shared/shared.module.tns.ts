@@ -5,13 +5,14 @@ import { CustomActionBarComponent } from './custom-action-bar/custom-action-bar.
 import { CustomSearchBoxComponent } from './custom-search-box/custom-search-box.component';
 import { CustomTextFieldComponent } from './custom-text-field/custom-text-field.component';
 import { SnackbarLikeComponent } from './snackbar-like/snackbar-like.component';
+import { SearchboxLikeComponent } from './searchbox-like/searchbox-like.component';
 
 @NgModule({
-  declarations: [NavfooterComponent, CustomActionBarComponent, CustomSearchBoxComponent, CustomTextFieldComponent, SnackbarLikeComponent],
+  declarations: [NavfooterComponent, CustomActionBarComponent, CustomSearchBoxComponent, CustomTextFieldComponent, SnackbarLikeComponent, SearchboxLikeComponent],
   imports: [
     NativeScriptCommonModule
   ],
   schemas: [NO_ERRORS_SCHEMA],
-  exports: [NavfooterComponent, CustomActionBarComponent, CustomSearchBoxComponent, CustomTextFieldComponent, SnackbarLikeComponent]
+  exports: [NavfooterComponent, CustomActionBarComponent, CustomSearchBoxComponent, CustomTextFieldComponent, SnackbarLikeComponent, SearchboxLikeComponent]
 })
 export class SharedModule { }

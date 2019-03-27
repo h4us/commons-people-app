@@ -13,7 +13,7 @@
           <!-- // item -->
           <StackLayout class="m-x-15 bg-white" height="90" style="border-top-color:#f6f6f6; border-top-width:1;">
             <GridLayout columns="80,*,60" rows="*" class="p-0">
-              <Image col="0" class="m-r-15 m-y-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60"
+              <Image col="0" class="m-r-15 m-y-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
                 src="{{ item.remitter.avatarUrl || '~/assets/placeholder__user.png' }}"></Image>
               <FlexboxLayout col="1" flexDirection="column" justifyContent="center">
                 <Label text="{{ item.remitter.username }}" class="typo-list-heading"></Label>

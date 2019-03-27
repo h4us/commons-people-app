@@ -21,7 +21,6 @@ export class CustomSearchBoxComponent implements OnInit {
   }
 
   onClearAction() {
-    console.log('do Clear');
     this.onClear.emit('search bar clear');
   }
 

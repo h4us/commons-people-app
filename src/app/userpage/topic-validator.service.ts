@@ -18,7 +18,12 @@ export class TopicValidatorService {
   location: AbstractControl;
   type: AbstractControl;
 
+  //
   sendToAsset: ImageAsset;
+  editTo: number;
+  originalCreated: string;
+  originalPhoto: string;
+  //
 
   constructor(
     private formBuilder: FormBuilder
@@ -31,11 +36,12 @@ export class TopicValidatorService {
       location: ['', [Validators.required]],
       type: ['WANT', [Validators.required]],
     });
-
-    this.sendToAsset = null;
   }
 
   resetData() {
+    this.editTo = null;
+    this.originalCreated = null;
+    this.originalPhoto = null;
     this.sendToAsset = null;
     this.sendForm.reset();
   }

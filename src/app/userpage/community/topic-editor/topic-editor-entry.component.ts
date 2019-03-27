@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup } from '@angular/forms'
 
 import { RouterExtensions } from 'nativescript-angular/router';
@@ -12,25 +12,11 @@ import { action } from 'tns-core-modules/ui/dialogs';
 import * as imagepicker from 'nativescript-imagepicker';
 import { ImagePicker } from 'nativescript-imagepicker';
 import * as camera from 'nativescript-camera';
-import { Image } from 'tns-core-modules/ui/image';
+import { ImageSource } from 'tns-core-modules/image-source';
 import { ImageAsset } from 'tns-core-modules/image-asset';
 
 import { UserService } from '../../../user.service';
 import { TopicValidatorService } from '../../topic-validator.service';
-
-// TODO:
-export class TopicData {
-  communityId: number;
-  title: string;
-  description: string;
-  points: number;
-  location: string;
-  type: string;
-
-  constructor () {
-  }
-}
-// --
 
 @Component({
   selector: 'app-topic-editor-entry',
@@ -38,30 +24,39 @@ export class TopicData {
   styleUrls: ['./topic-editor.component.scss']
 })
 export class TopicEditorEntryComponent implements OnInit {
-  title: string = "トピックを作成";
+  title: string = "トピックを編集";
 
   bottomSize: number = 0;
   tForm: FormGroup;
   selectedType: string = 'GIVE';
-  selectedPhoto: ImageAsset;
+  selectedPhoto: ImageAsset | string;
   imagePickerContext: ImagePicker;
 
   constructor(
     private page: Page,
     private routerExt: RouterExtensions,
     private aRoute: ActivatedRoute,
+    private router: Router,
     private userService: UserService,
     private tvService: TopicValidatorService,
   ) {
     page.actionBarHidden = true;
 
-    tvService.resetData();
     this.tForm = tvService.sendForm;
     this.imagePickerContext = imagepicker.create({ mode: 'single' });
   }
 
   ngOnInit() {
-    this.tForm.patchValue({ type: 'GIVE', communityId: this.userService.currentCommunityId });
+    if (this.router.url.indexOf('topic/new') > -1) {
+      this.tForm.patchValue({ type: 'GIVE', communityId: this.userService.currentCommunityId });
+      this.title = "トピックを作成";
+    } else {
+      console.log(this.tvService.originalPhoto, this.tvService.originalCreated);
+      if (this.tvService.originalPhoto) {
+        this.selectedPhoto = this.tvService.originalPhoto;
+      }
+    }
+
     this.bottomSize = layout.toDeviceIndependentPixels(screen.mainScreen.heightPixels - (screen.mainScreen.scale * (screen.mainScreen.scale > 2 ? 260 : 180)));
     this.onValidate();
   }

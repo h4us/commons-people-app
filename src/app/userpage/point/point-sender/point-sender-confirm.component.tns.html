@@ -1,8 +1,9 @@
-<AbsoluteLayout>
+<AbsoluteLayout #pointSenderConfirm>
   <StackLayout #sizeAnchor class="util-anchor-full"></StackLayout>
   <DockLayout width="100%" height="100%">
     <StackLayout dock="top" class="bg-theme-secondary" height="60">
-      <CustomActionBar [title]="title" leftIcon="&#xe92f;"></CustomActionBar>
+      <CustomActionBar [title]="title" leftIcon="&#xe92f;"
+        (onCancel)="cancelAction()"></CustomActionBar>
     </StackLayout>
     <ScrollView>
       <StackLayout class="bg-theme-secondary">
@@ -34,19 +35,7 @@
       approveMessage="この内容でよろしいですか？"
       doneMessage="ポイントを送信しました"
       (onCancel)="cancelConfirm()"
-      (onApprove)="checkShown()"
+      (onApprove)="onConfirm()"
       (onClose)="forceClose()"></CustomSnackbarLike>
   </GridLayout>
-
-  <!-- <FlexboxLayout #overlayButtonContainerForPreview
-       flexDirection="column"
-       class="bg-theme p-x-15 p-y-10" width="100%">
-       <Label class="text-center text-white" text="この内容でよろしいですか？"></Label>
-       <GridLayout columns="*,*", row="auto">
-       <Button col="0" class="btn btn-white btn-rounded-lg" text="キャンセル"
-       (tap)="false"></Button>
-       <Button col="1" class="btn btn-black btn-rounded-lg" text="OK"
-       (tap)="false"></Button>
-       </GridLayout>
-       </FlexboxLayout> -->
 </AbsoluteLayout>

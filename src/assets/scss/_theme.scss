@@ -218,6 +218,46 @@ TextField.input,
   }
 }
 
+.searchbox-like-container {
+  .searchbox-like {
+    height: $searchbox-like-height;
+    background-color: #fff;
+    border-radius: $searchbox-like-height / 2;
+    padding: $searchbox-like-padding;
+
+    > * {
+      font-size: $theme-fs-sb;
+      color: $theme-dim;
+    }
+
+    .left-label {
+      font-size: $theme-fs-sb-large;
+      color: $theme-grey;
+      text-align: left;
+      padding: ((($searchbox-like-height - $theme-fs-sb-large) / 2) - 2) 0;
+      min-width: $theme-fs-sb-large * 2;
+    }
+
+    .right-label {
+      font-size: $theme-fs-sb-large;
+      color: $theme-color;
+      text-align: right;
+      padding: ((($searchbox-like-height - $theme-fs-sb-large) / 2) - 2) 0;
+      min-width: $theme-fs-sb-large * 2;
+    }
+  }
+
+  .followContent {
+    color: $theme-color;
+    min-width: 80;
+
+    &.icon {
+      min-width: 40;
+      font-size: $theme-fs-sb-large * 1.2;
+    }
+  }
+}
+
 
 // utils
 .util-anchor-full {

@@ -58,9 +58,13 @@
           (tap)="photoDialog()">
           <Label dock="left" class="label-left" text="写真を追加"></Label>
           <Label dock="right" class="icon label-right" text="&#xe930;"></Label>
-          <StackLayout class="p-x-10">
-            <Image horizontalAlignment="right" stretch="aspectFill" width="40" height="40" [src]="selectedPhoto"></Image>
-          </StackLayout>
+          <!-- // -->
+          <FlexboxLayout class="p-x-10"
+            flexDirection="column"
+            justifyContent="space-around">
+            <Image alignSelf="flex-end" stretch="aspectFill" width="28" height="28" [src]="selectedPhoto"></Image>
+          </FlexboxLayout>
+          <!-- // -->
         </DockLayout>
       </StackLayout>
     </ScrollView>

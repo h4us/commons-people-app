@@ -20,10 +20,11 @@ import { CommunityListComponent } from './community-list/community-list.componen
 import { CommunityListEditComponent } from './community-list/community-list-edit.component';
 
 import { TopicDetailComponent } from './topic-detail/topic-detail.component';
+
 import { TopicEditorComponent } from './topic-editor/topic-editor.component';
 import { TopicEditorEntryComponent } from './topic-editor/topic-editor-entry.component';
-import { TopicEditorEditComponent } from './topic-editor/topic-editor-edit.component';
 import { TopicEditorFieldComponent } from './topic-editor/topic-editor-field.component';
+
 import { TopicOwnerComponent } from './topic-owner/topic-owner.component';
 import { TopicOwnerEntryComponent } from './topic-owner/topic-owner-entry.component';
 
@@ -33,7 +34,7 @@ import { NewsDetailComponent } from './news-detail/news-detail.component';
   declarations: [
     CommunityRootComponent, CommunityListComponent, CommunityListEditComponent,
     TopicDetailComponent,
-    TopicEditorComponent, TopicEditorEntryComponent, TopicEditorEditComponent, TopicEditorFieldComponent,
+    TopicEditorComponent, TopicEditorEntryComponent, TopicEditorFieldComponent,
     TopicOwnerComponent, TopicOwnerEntryComponent,
     NewsDetailComponent,
   ],

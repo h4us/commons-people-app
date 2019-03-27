@@ -16,7 +16,6 @@ import { CommunityListEditComponent } from './community/community-list/community
 import { TopicDetailComponent } from './community/topic-detail/topic-detail.component';
 import { NewsDetailComponent } from './community/news-detail/news-detail.component';
 import { TopicEditorEntryComponent } from './community/topic-editor/topic-editor-entry.component';
-import { TopicEditorEditComponent } from './community/topic-editor/topic-editor-edit.component';
 import { TopicEditorFieldComponent } from './community/topic-editor/topic-editor-field.component';
 import { TopicOwnerEntryComponent } from './community/topic-owner/topic-owner-entry.component';
 
@@ -173,7 +172,7 @@ const routes: Routes = [
 
       {
         path: 'community/topic/edit',
-        component: TopicEditorEditComponent,
+        component: TopicEditorEntryComponent,
         outlet: 'topiceditor',
       },
 

@@ -11,7 +11,8 @@
         <CardView margin="10 20" elevation="10" class="bg-white">
           <StackLayout class="bg-clear">
             <AbsoluteLayout height="160">
-              <Image left="0" top="0" src="{{ item.photoUrl || '~/assets/placeholder__topic@2x.png' }}" stretch="aspectFill" width="100%" height="100%"></Image>
+              <Image left="0" top="0" stretch="aspectFill" width="100%" height="100%" loadMode="async"
+                src="{{ item.photoUrl || '~/assets/placeholder__topic@2x.png' }}" ></Image>
               <Label left="10" top="10" class="label-like label-theme" text="{{ item.type }}"></Label>
             </AbsoluteLayout>
             <Label class="typo-card-heading p-10" textWrap="true" text="{{ item.title }}"></Label>
@@ -102,12 +103,11 @@ The order of route configuration matters. The router accepts the first route tha
           </GridLayout>
         </GridLayout>
 
-        <StackLayout class="m-x-20 m-t-30 m-b-15 bg-theme-secondary" height="60"
+        <StackLayout class="m-x-20 m-t-30 m-b-15"
           *ngIf="currentTab === 'topics'; else elseBlock">
-          <PreviousNextView>
-            <CustomSearchBox></CustomSearchBox>
-          </PreviousNextView>
+          <SearchboxLike></SearchboxLike>
         </StackLayout>
+
         <ng-template #elseBlock>
           <StackLayout class="m-y-10 bg-theme-secondary" height="0"></StackLayout>
         </ng-template>

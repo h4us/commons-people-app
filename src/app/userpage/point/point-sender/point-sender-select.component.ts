@@ -23,6 +23,7 @@ export class PointSenderSelectComponent implements OnInit {
 
   selected: number;
   currentList: any[] = [];
+  isModal: boolean = false;
 
   constructor(
     private page: Page,
@@ -45,6 +46,8 @@ export class PointSenderSelectComponent implements OnInit {
       .forEach((params) => {
         this.selected = <number>params.id;
       });
+
+    this.isModal = (this.aRoute.outlet != 'userpage');
   }
 
   closeAction(layout: AbsoluteLayout | DockLayout) {
