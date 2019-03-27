@@ -24,6 +24,7 @@ export class PointSenderSelectComponent implements OnInit {
   selected: number;
   currentList: any[] = [];
   isModal: boolean = false;
+  selectionState: string = 'default';
 
   constructor(
     private page: Page,
@@ -36,10 +37,15 @@ export class PointSenderSelectComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userService.searchUsers(this.userService.currentCommunityId)
-      .subscribe((data: any) => {
-        this.currentList = data;
-      });
+    // TODO:
+    if (this.aRoute.snapshot.url.filter((el) => el.path == 'search').length > 0) {
+      this.selectionState = 'search';
+    } else {
+      this.userService.searchUsers(this.userService.currentCommunityId)
+        .subscribe((data: any) => {
+          this.currentList = data;
+        });
+    }
 
     this.pageRoute.activatedRoute
       .pipe(switchMap((aRoute) => aRoute.params))
@@ -50,7 +56,7 @@ export class PointSenderSelectComponent implements OnInit {
     this.isModal = (this.aRoute.outlet != 'userpage');
   }
 
-  closeAction(layout: AbsoluteLayout | DockLayout) {
+  closeAction(layout?: AbsoluteLayout | DockLayout) {
     const currentOutlet = this.aRoute.outlet;
 
     if (currentOutlet == 'pointsender') {
@@ -60,15 +66,36 @@ export class PointSenderSelectComponent implements OnInit {
     }
   }
 
+  searchAction(e?: any) {
+    const currentOutlet = this.aRoute.outlet;
+    const outletParam = {};
+
+    if (this.selectionState == 'default') {
+      if (currentOutlet == 'pointsender') {
+        outletParam[currentOutlet] = ['point', 'search'];
+      } else {
+        outletParam[currentOutlet] = [
+          'point', 'search'
+        ];
+      }
+
+      this.routerExt.navigate([{
+        outlets: outletParam,
+      }], {
+        relativeTo: this.aRoute.parent,
+      });
+    } else {
+      if (e && e.search) {
+        this.userService.searchUsers(this.userService.currentCommunityId, encodeURI(e.search))
+          .subscribe((data: any) => {
+            this.currentList = data;
+          });
+      }
+    }
+  }
+
   onItemTap(args: ListViewEventData) {
     const tItem = args.view.bindingContext;
-
-    // this.routerExt.navigate([{
-    //   outlets: {
-    //     // pointsender: ['point', 'send', this.selected, tItem.id]
-    //     pointsender: ['point', 'send', tItem.id]
-    //   }
-    // }], { relativeTo: this.aRoute.parent });
 
     const currentOutlet = this.aRoute.outlet;
     const outletParam = {};

@@ -107,7 +107,14 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
     this.messageService.fetchThreads(this.currentCommunityId);
   }
 
-  onFabTap(name?: string) {
-    this.mProxy.request(name ? name : 'message');
+  modalAction(name?: string) {
+    this.mProxy.request(name ? name : 'thread-edit');
   }
+
+  searchAction() {
+    this.routerExt.navigate(['../message/search'], {
+      relativeTo: this.aRoute
+    });
+  }
+
 }

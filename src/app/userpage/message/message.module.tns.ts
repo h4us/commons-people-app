@@ -16,9 +16,10 @@ import { SharedModule as UserpageSharedModule } from '../shared/shared.module';
 import { ThreadEditorComponent } from './thread-editor/thread-editor.component';
 import { MessageEditorComponent } from './message-editor/message-editor.component';
 import { MessageDetailComponent } from './message-detail/message-detail.component';
+import { MessageSearchComponent } from './message-search/message-search.component';
 
 @NgModule({
-  declarations: [MessageRootComponent, ThreadEditorComponent, MessageEditorComponent, MessageDetailComponent],
+  declarations: [MessageRootComponent, ThreadEditorComponent, MessageEditorComponent, MessageDetailComponent, MessageSearchComponent],
   imports: [
     MessageRoutingModule,
     NativeScriptCommonModule,

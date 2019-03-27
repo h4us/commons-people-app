@@ -45,10 +45,10 @@
     <ng-template tkListViewHeader>
       <StackLayout class="bg-theme-secondary" padding="20 20 15">
         <CustomSearchbox
-          placeholder=""
+          placeholder="トピックを検索"
           followContent="キャンセル"
           (onSearch)="searchAction($event)"
-          (onCancel)="cancelAction()"></CustomSearchbox>
+          (onTapFollowContent)="cancelAction()"></CustomSearchbox>
       </StackLayout>
     </ng-template>
 

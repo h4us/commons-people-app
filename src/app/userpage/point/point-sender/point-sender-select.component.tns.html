@@ -27,15 +27,17 @@
     <!-- // header -->
     <ng-template tkListViewHeader>
       <StackLayout padding="20 20 25">
-        <SearchboxLike
-          placeholder="名前で絞り込む"
-          (onSearch)="false"></SearchboxLike>
-        <!-- <SearchboxLike
-             placeholder="名前で絞り込む"
-             followContent="キャンセル"
-             (onSearch)="onSwitchTab('ptofile')"
-             (onClear)="false"
-             (onCancel)="false"></SearchboxLike> -->
+        <SearchboxLike *ngIf="selectionState == 'default'; else isSearchState"
+          placeholder="ユーザー名で絞り込む"
+          (onSearch)="searchAction()"></SearchboxLike>
+        <ng-template #isSearchState>
+          <CustomSearchbox
+            placeholder="ユーザー名で絞り込む"
+            followContent="キャンセル"
+            (onTapFollowContent)="closeAction()"
+            (onSearch)="searchAction($event)">
+          </CustomSearchbox>
+        </ng-template>
       </StackLayout>
     </ng-template>
   </RadListView>

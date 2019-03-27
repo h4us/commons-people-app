@@ -53,6 +53,29 @@ export class MessageProxyService {
     );
   }
 
+  searchThreads(input: any, targetCommunity?: number) {
+    // TODO:
+    let source: Observable<any>;
+    if (targetCommunity) {
+      source = this.userService.getMessageThreads(input).pipe(
+        map((el: any) => {
+          return el.filter((iel) => (iel.communityId == targetCommunity) || (typeof iel.ad == 'undefined' && !iel.group))
+        })
+      );
+    } else {
+      source = this.userService.getMessageThreads(input);
+    }
+
+    source.subscribe(
+      (data) => {
+        this._activeThreads = data;
+        this.threadsSource.next(data);
+      },
+      (err) => console.error(err),
+      () => { console.log('get threads'); }
+    );
+  }
+
   fetchMessages(id?: number) {
     const dest: number = id ? id : this._currentThreadId;
     if (dest > -1) {

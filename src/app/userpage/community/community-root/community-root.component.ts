@@ -135,7 +135,7 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     }
   }
 
-  gotoTopicsSearch() {
+  searchAction() {
     this.routerExt.navigate(['./topics/search'], {
       relativeTo: this.aRoute
     });

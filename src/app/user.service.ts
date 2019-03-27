@@ -314,8 +314,26 @@ export class UserService {
     return this.http.post(`${this.apiUrl}message-threads/for-ad/${id}`, { userId: id });
   }
 
-  getMessageThreads(): Observable<any> {
-    return this.http.get(`${this.apiUrl}message-threads`);
+  getMessageThreads(filters?: any): Observable<any> {
+    let params = [];
+    let ret: Observable<any> = of([]);
+
+    if (filters) {
+      if (filters.memberFilter) {
+        params.push(`memberFilter=${filters.memberFilter}`)
+      }
+      if (filters.messageFilter) {
+        params.push(`messageFilter=${filters.messageFilter}`)
+      }
+    }
+
+    if (params.length > 0) {
+      ret =this.http.get(`${this.apiUrl}message-threads?${params.join('&')}`);
+    } else {
+      ret =this.http.get(`${this.apiUrl}message-threads`);
+    }
+
+    return ret;
   }
 
   getMessages(id: number): Observable<any> {

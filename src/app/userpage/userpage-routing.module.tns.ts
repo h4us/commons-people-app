@@ -22,6 +22,7 @@ import { TopicSearchComponent } from './community/topic-search/topic-search.comp
 
 import { MessageRootComponent } from './message/message-root/message-root.component';
 import { MessageDetailComponent } from './message/message-detail/message-detail.component';
+import { MessageSearchComponent } from './message/message-search/message-search.component';
 
 import { ProfileRootComponent } from './profile/profile-root/profile-root.component';
 import { ProfileEditorComponent } from './profile/profile-editor/profile-editor.component';
@@ -99,6 +100,12 @@ const routes: Routes = [
       },
 
       {
+        path:'message/search',
+        component: MessageSearchComponent,
+        outlet: 'userpage'
+      },
+
+      {
         path:'message/log/:id',
         component: MessageDetailComponent,
         outlet: 'userpage'
@@ -135,6 +142,17 @@ const routes: Routes = [
        * same url / multi outlet style
        * ... it's ok?
        */
+      {
+        path: 'point/search',
+        component: PointSenderSelectComponent,
+        outlet: 'userpage',
+      },
+      {
+        path: 'point/search',
+        component: PointSenderSelectComponent,
+        outlet: 'pointsender',
+      },
+
       {
         path: 'point/select/:id',
         component: PointSenderSelectComponent,

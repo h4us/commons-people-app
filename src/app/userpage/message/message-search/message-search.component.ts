@@ -1,11 +1,10 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, ViewContainerRef } from '@angular/core';
-import { ActivatedRoute, ActivatedRouteSnapshot, Router } from '@angular/router';
+import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, ViewContainerRef } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+
+import { Subscription } from 'rxjs';
+
 import { RouterExtensions } from 'nativescript-angular/router';
 
-import { Subscription, Subject, of, from } from 'rxjs';
-import { switchMap, mergeMap } from 'rxjs/operators'
-
-import { map } from 'rxjs/operators';
 import { Page } from 'tns-core-modules/ui/page';
 import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
 import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout';
@@ -14,20 +13,20 @@ import { layout } from 'tns-core-modules/utils/utils';
 
 import { ListViewEventData } from 'nativescript-ui-listview';
 
-import { UserService } from '../../../user.service';
+import { UserService, User } from '../../../user.service';
+import { MessageProxyService } from '../../message-proxy.service';
 
 @Component({
-  selector: 'app-topic-search',
-  templateUrl: './topic-search.component.html',
-  styleUrls: ['./topic-search.component.scss']
+  selector: 'app-message-search',
+  templateUrl: './message-search.component.html',
+  styleUrls: ['./message-search.component.scss']
 })
-export class TopicSearchComponent implements OnInit, AfterViewInit {
-
-  currentCommunity: any;
-  currentList: any[] = [];
-
-  // private _subs: Subscription;
-  // private _sub = new Subject<any>();
+export class MessageSearchComponent implements OnInit, OnDestroy, AfterViewInit {
+  currentList: any[];
+  user: User;
+  currentCommunityId: number;
+  filterBy: string = 'member';
+  msgSubscription: Subscription;
 
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
   anchor: StackLayout;
@@ -36,17 +35,23 @@ export class TopicSearchComponent implements OnInit, AfterViewInit {
     private routerExt: RouterExtensions,
     private aRoute: ActivatedRoute,
     private userService: UserService,
+    private messageService: MessageProxyService,
     private page: Page,
   ) {
     page.actionBarHidden = true;
   }
 
-  //
   ngOnInit() {
-    this.anchor = <StackLayout>this.anchorRef.nativeElement;
-  }
+    this.user = this.userService.getCurrentUser();
+    this.currentCommunityId = this.userService.currentCommunityId;
 
-  ngOnDestroy() {
+    //
+    this.msgSubscription = this.messageService.activeThreads$.subscribe(
+      (data) => { this.currentList = data; }
+    );
+    // this.messageService.fetchThreads(this.currentCommunityId);
+
+    this.anchor = <StackLayout>this.anchorRef.nativeElement;
   }
 
   ngAfterViewInit() {
@@ -60,17 +65,25 @@ export class TopicSearchComponent implements OnInit, AfterViewInit {
     // }, 100);
   }
 
+  ngOnDestroy() {
+    this.msgSubscription.unsubscribe();
+  }
+
   onItemTap(args: ListViewEventData) {
     const tItem = args.view.bindingContext;
 
     // this.routerExt.navigateByUrl(`/user;clearHistory=true/(userpage:community/topic/${tItem.id})`);
-    // ..
+    // ...
     this.routerExt.navigate([{
       outlets: {
-        userpage: (['community', 'topic', tItem.id])
+        userpage: (['message', 'log', tItem.id])
       }
     }], { relativeTo: this.aRoute.parent });
-    //
+  }
+
+  onNavItemTap(args: any) {
+    const tItem = args;
+    this.filterBy = args;
   }
 
   cancelAction() {
@@ -78,11 +91,12 @@ export class TopicSearchComponent implements OnInit, AfterViewInit {
   }
 
   searchAction(e: any) {
+    // this.messageService.fetchThreads(this.currentCommunityId);
     if (e.search) {
-      this.userService.getTopics(this.userService.currentCommunityId, encodeURI(e.search)).subscribe((data: any) => {
-        console.log(data);
-        this.currentList = data;
-      });
+      const t = `${this.filterBy}Filter`;
+      this.messageService.searchThreads(
+        { [t]: encodeURI(e.search) }
+      );
     }
   }
 }

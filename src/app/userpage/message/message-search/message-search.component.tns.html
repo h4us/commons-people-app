@@ -1,8 +1,8 @@
 <AbsoluteLayout>
   <StackLayout #sizeAnchor class="util-anchor-full"></StackLayout>
 
-  <GridLayout rows="*" width="100%" height="100%" class="bg-theme-secondary" style="padding-top:58;">
-    <RadListView row="0" class="p-y-15 bg-clear"
+  <GridLayout rows="*" width="100%" height="100%" class="bg-theme-secondary">
+    <RadListView row="0" class="bg-clear"
       [items]="currentList"
       (itemTap)="onItemTap($event)">
       <ng-template tkListItemTemplate let-item="item" let-i="index">
@@ -26,33 +26,29 @@
       </ng-template>
       <!-- // header -->
       <ng-template tkListViewHeader>
-        <StackLayout padding="15 20">
-          <SearchboxLike
-            placeholder="検索"
-            followContent="&#xe997;"
-            followIsIcon="true"
-            (onSearch)="searchAction()"
-            (onTapFollowContent)="modalAction()"></SearchboxLike>
+        <StackLayout>
+          <StackLayout padding="15 20">
+            <CustomSearchbox
+              placeholder="メッセージを検索"
+              followContent="キャンセル"
+              (onSearch)="searchAction($event)"
+              (onTapFollowContent)="cancelAction()"></CustomSearchbox>
+          </StackLayout>
+          <!-- // -->
+          <StackLayout orientation="horizontal" width="100%" height="58" class="bg-white m-b-15 p-x-15">
+            <ScrollView orientation="horizontal">
+              <StackLayout orientation="horizontal">
+                <Label text="メンバー" padding="5 20" class="bg-clear" virticalAlignment="bottom"
+                  [ngClass]="{ 'bottom-border-theme': filterBy == 'member' , 'bottom-border-clear': filterBy != 'member' }"
+                  (tap)="onNavItemTap('member')"></Label>
+                <Label text="メッセージ" padding="5 20" class="bg-clear" virticalAlignment="bottom"
+                  [ngClass]="{ 'bottom-border-theme': filterBy != 'member' , 'bottom-border-clear': filterBy == 'member' }"
+                  (tap)="onNavItemTap('message')"></Label>
+              </StackLayout>
+            </ScrollView>
+          </StackLayout>
         </StackLayout>
       </ng-template>
     </RadListView>
   </GridLayout>
-
-  <StackLayout orientation="horizontal" width="100%" height="58"  class="bg-white">
-    <ScrollView orientation="horizontal">
-      <StackLayout orientation="horizontal">
-        <ng-template ngFor let-item [ngForOf]="navList" let-i="index">
-          <Label text="{{ item.name }}" padding="5 20" class="bg-clear" virticalAlignment="bottom"
-            [ngClass]="{ 'bottom-border-theme': currentCommunityId == item.id, 'bottom-border-clear': currentCommunityId != item.id }"
-            (tap)="onNavItemTap(item)"></Label>
-        </ng-template>
-      </StackLayout>
-    </ScrollView>
-  </StackLayout>
-
-  <FAB #floatingButton
-    left="-200"
-    top="-200"
-    (tap)="modalAction('thread-new')"
-    class="fab-btn" icon="~/assets/fabtn-plus-72x72.png" backgroundColor="#1f977c"></FAB>
 </AbsoluteLayout>
