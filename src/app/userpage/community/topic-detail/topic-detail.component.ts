@@ -81,22 +81,27 @@ export class TopicDetailComponent implements OnInit, AfterViewInit {
           this.topic.createdBy = this.userService.getCurrentUser();
           this.topic.createdAt = this.tvService.originalCreated;
 
-          if (this.tvService.originalPhoto) {
-            this.topic.photoUrl = this.tvService.originalPhoto;
-          } else if (this.tvService.sendToAsset) {
-            let source = new ImageSource();
-            source.fromAsset(this.tvService.sendToAsset)
-              .then((source: ImageSource) => {
-                const success: boolean = source.saveToFile(`${this.docPath}/topic-photo.png`, 'png');
-                this.topic.photoUrl = `${this.docPath}/topic-photo.png`;
-              })
-          }
-
-          this.community = this.userService.getCommunity();
-          //
           this.session = bgHttp.session('image-upload');
           this.docPath = fs.path.normalize(`${fs.knownFolders.documents().path}`);
           this.tasks = [];
+
+          if (this.tvService.originalPhoto) {
+            this.topic.photoUrl = this.tvService.originalPhoto;
+          } else if (this.tvService.sendToAsset) {
+            if (this.tvService.sendToAsset instanceof ImageAsset) {
+              let source = new ImageSource();
+              source.fromAsset(this.tvService.sendToAsset)
+                .then((source: ImageSource) => {
+                  const now: number = Date.now()
+                  const success: boolean = source.saveToFile(`${this.docPath}/ad-${now}.png`, 'png');
+                  this.topic.photoUrl = `${this.docPath}/ad-${now}.png`;
+                })
+            } else {
+              this.topic.photoUrl = this.tvService.sendToAsset;
+            }
+          }
+
+          this.community = this.userService.getCommunity();
           //
           this.isPreview = true;
           this.rootLayout = <AbsoluteLayout>this.rootLayoutRef.nativeElement;

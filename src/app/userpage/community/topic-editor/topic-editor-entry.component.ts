@@ -14,6 +14,9 @@ import { ImagePicker } from 'nativescript-imagepicker';
 import * as camera from 'nativescript-camera';
 import { ImageSource } from 'tns-core-modules/image-source';
 import { ImageAsset } from 'tns-core-modules/image-asset';
+import * as fs from 'tns-core-modules/file-system';
+
+import { ImageCropper }  from 'nativescript-imagecropper';
 
 import { UserService } from '../../../user.service';
 import { TopicValidatorService } from '../../topic-validator.service';
@@ -31,6 +34,7 @@ export class TopicEditorEntryComponent implements OnInit {
   selectedType: string = 'GIVE';
   selectedPhoto: ImageAsset | string;
   imagePickerContext: ImagePicker;
+  docPath: string;
 
   constructor(
     private page: Page,
@@ -57,6 +61,7 @@ export class TopicEditorEntryComponent implements OnInit {
       }
     }
 
+    this.docPath = fs.path.normalize(`${fs.knownFolders.documents().path}`);
     this.bottomSize = layout.toDeviceIndependentPixels(screen.mainScreen.heightPixels - (screen.mainScreen.scale * (screen.mainScreen.scale > 2 ? 260 : 180)));
     this.onValidate();
   }
@@ -97,6 +102,26 @@ export class TopicEditorEntryComponent implements OnInit {
             selection.forEach((selected: ImageAsset) => {
               this.selectedPhoto = selected;
               this.tvService.sendToAsset = selected;
+
+              // --
+              let source = new ImageSource();
+              source.fromAsset(selected).then((isource: ImageSource) => {
+                const imageCropper = new ImageCropper();
+                imageCropper.show(isource, { width: 800, height: 800 })
+                  .then((args: any) => {
+                    console.log(args)
+                    if(args.image !== null){
+                      const croppedImage: ImageSource = args.image;
+                      const now: number = Date.now();
+                      const success: boolean = croppedImage.saveToFile(`${this.docPath}/ad-${now}.png`, 'png');
+                      // 2.
+                      this.selectedPhoto = `${this.docPath}/ad-${now}.png`;
+                      this.tvService.sendToAsset = `${this.docPath}/ad-${now}.png`
+                    }
+                  })
+                  .catch((e) => console.error('cropper error', e));
+              });
+              // --
             });
           })
           .catch((err: any) => console.log(err));
@@ -107,11 +132,30 @@ export class TopicEditorEntryComponent implements OnInit {
         camera.requestPermissions()
           .then(
             () => {
-              camera.takePicture({ width: 600, height: 600, keepAspectRatio: true })
               // camera.takePicture()
+              camera.takePicture({ width: 800, height: 800, keepAspectRatio: true })
                 .then((imageAsset: ImageAsset) => {
                   this.selectedPhoto = imageAsset;
                   this.tvService.sendToAsset = imageAsset;
+
+                  let source = new ImageSource();
+                  source.fromAsset(imageAsset).then((isource: ImageSource) => {
+                    const imageCropper = new ImageCropper();
+                    imageCropper.show(isource, { width: 800, height: 800 })
+                      .then((args: any) => {
+                        console.log(args)
+                        if(args.image !== null){
+                          const croppedImage: ImageSource = args.image;
+                          const now: number = Date.now();
+                          const success: boolean = croppedImage.saveToFile(`${this.docPath}/ad-${now}.png`, 'png');
+                          // 2.
+                          this.selectedPhoto = `${this.docPath}/ad-${now}.png`;
+                          this.tvService.sendToAsset = `${this.docPath}/ad-${now}.png`;
+                        }
+                      })
+                      .catch((e) => console.error('cropper error', e));
+                  });
+
                 })
                 .catch((err) => console.error(err));
             },

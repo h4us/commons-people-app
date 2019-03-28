@@ -219,11 +219,8 @@ TextField.input,
 }
 
 .searchbox-like-container {
-  .searchbox-like {
-    height: $searchbox-like-height;
-    background-color: #fff;
-    border-radius: $searchbox-like-height / 2;
-
+  .searchbox-like,
+  .searchbox-like-stretch {
     > * {
       font-size: $theme-fs-sb;
       color: $theme-dim;
@@ -254,6 +251,27 @@ TextField.input,
     }
   }
 
+  .searchbox-like {
+    background-color: #fff;
+    height: $searchbox-like-height;
+    border-radius: $searchbox-like-height / 2;
+  }
+
+  .searchbox-like-stretch {
+    background-color: transparent;
+    border-color: $theme-dim;
+    border-radius: $searchbox-like-height;
+    border-width: 1;
+
+    > * {
+      margin-left: $searchbox-like-spacing;
+      margin-right: $searchbox-like-spacing;
+      line-height: $multi-line-height;
+      margin-top: $multi-line-spaces;
+      margin-bottom: $multi-line-spaces;
+    }
+  }
+
   .followContent {
     color: $theme-color;
     min-width: $theme-fs-sb-large * 5;
@@ -262,6 +280,11 @@ TextField.input,
       min-width: $theme-fs-sb-large * 2;
       font-size: $theme-fs-sb-large * 1.2;
     }
+  }
+
+  .followIcon {
+    color: $theme-color;
+    font-size: $theme-fs-sb-large * 1.33;
   }
 }
 
@@ -274,6 +297,9 @@ TextField.input,
   height: 100%;
 }
 
+.fixedHeightTray {
+  height: 200;
+}
 
 // --
 .typo-annotation {
@@ -295,6 +321,12 @@ TextField.input,
   font-size: $theme-fs-medium;
   font-family: "NotoSansJP Medium", "NotoSansJP-Medium";
   font-weight: 500;
+}
+
+.typo-message {
+  font-size: $theme-fs-medium;
+  line-height: 1.2;
+  font-family: "NotoSansJP Regular", "NotoSansJP-Regular";
 }
 
 //

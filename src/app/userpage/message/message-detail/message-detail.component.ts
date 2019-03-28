@@ -1,10 +1,20 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+
+import { FormControl, FormGroup } from '@angular/forms';
+
+import { Subscription, interval } from 'rxjs';
+import { switchMap, debounceTime, filter } from 'rxjs/operators';
 
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
 import { isIOS } from 'tns-core-modules/platform';
+
+import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
+import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout';
+import { GridLayout } from 'tns-core-modules/ui/layouts/grid-layout';
+import { TextView } from 'tns-core-modules/ui/text-view';
+import { screen } from 'tns-core-modules/platform';
+import { layout } from 'tns-core-modules/utils/utils';
 
 import { ListViewEventData, ListViewItemSnapMode } from 'nativescript-ui-listview';
 import { RadListViewComponent } from 'nativescript-ui-listview/angular';
@@ -20,17 +30,22 @@ declare const IQKeyboardManager: any;
   templateUrl: './message-detail.component.html',
   styleUrls: ['./message-detail.component.scss']
 })
-export class MessageDetailComponent implements OnInit, OnDestroy {
+export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   title: string = '';
   user: User;
   messageLog: any[];
   threadObj: any;
 
-  sendText:string = 'hello';
+  resizes: number = 0;
+  ovf: boolean = false;
+  sendText = new FormControl('');
 
   mSubscription: Subscription;
 
-  @ViewChild('messageContainer') mContainer: RadListViewComponent;
+  @ViewChild('sizeAnchor') anchorRef: ElementRef;
+  @ViewChild('sendTray') sTrayRef: ElementRef;
+  sTray: GridLayout | StackLayout | TextView;
+  anchor: StackLayout;
 
   constructor(
     private routerExt: RouterExtensions,
@@ -74,14 +89,34 @@ export class MessageDetailComponent implements OnInit, OnDestroy {
 
         this.messageService.fetchMessages(desireId);
       });
+
+    this.sTray = this.sTrayRef.nativeElement;
+    this.anchor = <StackLayout>this.anchorRef.nativeElement;
+
+    // this.sendText.valueChanges.subscribe((val) => {
+    //   if (this.sTray) {
+    //     const eH: number = this.sTray.getMeasuredHeight() / screen.mainScreen.scale;
+    //     if (eH > 200) {
+    //       this.ovf = true;
+    //       this.resizes = eH;
+    //     } else if (this.resizes > 200){
+    //       this.ovf = false;
+    //       this.resizes = eH;
+    //     }
+    //   }
+    // });
   }
 
   ngOnDestroy() {
     this.mSubscription.unsubscribe();
   }
 
-  onItemTap(event: any) {
-    // this.mContainer.listView.scrollWithAmount(-200, true);
+  ngAfterViewInit() {
+    // setTimeout(() => {
+    //   const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
+    //   const aW = this.anchor.getMeasuredWidth() / screen.mainScreen.scale;
+    //   AbsoluteLayout.setTop(this.sTray, aH - eH);
+    // }, 100);
   }
 
   styled(text: string) {
@@ -93,31 +128,10 @@ ${msg}
   }
 
   sendMessage() {
-    this.messageService.sendMessages(this.sendText);
+    this.messageService.sendMessages(this.sendText.value);
   }
 
   sendPoint() {
     this.mProxy.request('send-point');
   }
-
-  // TODO:
-  onTextChange(args: any) {
-    // if (isIOS) {
-    //   setTimeout(() => {
-    //     // args.object.ios.contentOffset = new CGPoint();
-    //     const iqKeyboard = IQKeyboardManager.sharedManager();
-    //     iqKeyboard.reloadLayoutIfNeeded();
-    //   }, 100);
-    // }
-  }
-
-  onFocus(args: any) {
-    // if (isIOS) {
-    //   setTimeout(() => {
-    //     const iqKeyboard = IQKeyboardManager.sharedManager();
-    //     iqKeyboard.reloadLayoutIfNeeded();
-    //   }, 100)
-    // }
-  }
-
 }

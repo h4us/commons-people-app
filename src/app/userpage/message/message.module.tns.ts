@@ -1,8 +1,10 @@
 import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { MessageRoutingModule } from './message-routing.module';
 import { NativeScriptCommonModule } from 'nativescript-angular/common';
 import { NativeScriptFormsModule } from 'nativescript-angular/forms';
+
 
 import { MessageRootComponent } from './message-root/message-root.component';
 
@@ -27,6 +29,7 @@ import { MessageSearchComponent } from './message-search/message-search.componen
     NativeScriptUIListViewModule,
     SharedModule,
     UserpageSharedModule,
+    ReactiveFormsModule,
     MomentModule,
   ],
   schemas: [NO_ERRORS_SCHEMA],

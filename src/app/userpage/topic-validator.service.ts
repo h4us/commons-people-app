@@ -19,7 +19,7 @@ export class TopicValidatorService {
   type: AbstractControl;
 
   //
-  sendToAsset: ImageAsset;
+  sendToAsset: ImageAsset | string;
   editTo: number;
   originalCreated: string;
   originalPhoto: string;
