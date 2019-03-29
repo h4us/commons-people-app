@@ -30,7 +30,14 @@ export class HomeComponent implements OnInit {
         (error) => console.error(error),
         () => {
           setTimeout(() => {
-            this.router.navigate(['user', { clearHistory: true }], { transition: { name: 'fade', duration: 300 } })
+            //
+            console.log(this.userService.getCommunities());
+
+            const cl = this.userService.getCommunities();
+            this.router.navigate([(cl && cl.length > 0) ? 'user' : 'newuser'], {
+              clearHistory: true,
+              transition: { name: 'fade', duration: 300 }
+            })
           }, 600);
         }
       );

@@ -20,9 +20,10 @@ import { ProfileValidatorService } from './profile-validator.service';
 import { PointValidatorService } from './point-validator.service';
 
 import { UserpageRootComponent } from './userpage-root/userpage-root.component';
+import { NewbieComponent } from './newbie/newbie.component';
 
 @NgModule({
-  declarations: [UserpageRootComponent],
+  declarations: [UserpageRootComponent, NewbieComponent],
   imports: [
     UserpageRoutingModule,
     NativeScriptCommonModule,
@@ -33,7 +34,6 @@ import { UserpageRootComponent } from './userpage-root/userpage-root.component';
     MessageModule,
     //
     UserpageSharedModule,
-    //
     SharedModule,
   ],
   exports:[

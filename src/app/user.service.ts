@@ -80,7 +80,7 @@ export class UserService {
   }
 
   /*
-   * login / logout, etc
+   * login / logout / register, etc
    */
   updateRquest(target: string) {
     this.updateRequestSource.next(target);
@@ -112,6 +112,24 @@ export class UserService {
     return zip(
       from(this._sStorage.removeAll()),
       this.http.post(`${this.apiUrl}logout`, null)
+    );
+  }
+
+  createAccount(data): Observable<any> {
+    return zip(
+      from(this._sStorage.removeAll()),
+      this.http.post(`${this.apiUrl}create-account`, data)
+    );
+  }
+
+  deleteAccount(): Observable<any> {
+    // TODO:
+    this._isLoggedIn = false;
+    this._restoreble = false;
+
+    return zip(
+      from(this._sStorage.removeAll()),
+      this.http.post(`${this.apiUrl}users/${this.user.id}/delete`, null)
     );
   }
 
@@ -250,9 +268,25 @@ export class UserService {
     return (c && c.length > 0) ? c[0] : null;
   }
 
-  // TODO:
-  getCommnities(query?: string): any {
-    return query ? [] : this.user.communityList;
+  getCommunities(): any {
+    return this.user.communityList;
+  }
+
+  searchCommunities(query?: string): Observable<any> {
+    let params = [];
+    let ret: Observable<any> = of([]);
+
+    if (query) {
+      params.push(`filter=${query}`)
+    }
+
+    if (params.length > 0) {
+      ret = this.http.get(`${this.apiUrl}communities?${params.join('&')}`);
+    } else {
+      ret = this.http.get(`${this.apiUrl}communities`);
+    }
+
+    return ret
   }
 
   // TODO:

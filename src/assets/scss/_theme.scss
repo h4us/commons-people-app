@@ -246,8 +246,12 @@ TextField.input,
       background-color: transparent;
       font-size: $theme-fs-sb;
       padding: 0;
-      margin: 0;
+      margin: 0 $searchbox-like-spacing 0 0;
       line-height: 1;
+    }
+
+    .input-alt {
+      margin-right: $searchbox-like-spacing;
     }
   }
 

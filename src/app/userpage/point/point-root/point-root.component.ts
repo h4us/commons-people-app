@@ -30,7 +30,7 @@ export class PointRootComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.currentList = this.userService.getCommnities();
+    this.currentList = this.userService.getCommunities();
     this.user = this.userService.getCurrentUser();
 
     if (this.user.balanceList && this.user.balanceList.length > 0) {

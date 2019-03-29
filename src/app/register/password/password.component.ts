@@ -35,7 +35,7 @@ export class PasswordComponent implements OnInit {
   nextPage() {
     if (this.onValidate() && this.rForm.valid) {
       //
-      this.routerExt.navigate(['']);
+      this.routerExt.navigate(['/register', 'confirm']);
       //
     } else {
       alert({

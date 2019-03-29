@@ -34,7 +34,7 @@
           <CustomSearchbox
             placeholder="ユーザー名で絞り込む"
             followContent="キャンセル"
-            (onTapFollowContent)="closeAction()"
+            (onTapFollowContent)="closeAction(pointSender)"
             (onSearch)="searchAction($event)">
           </CustomSearchbox>
         </ng-template>

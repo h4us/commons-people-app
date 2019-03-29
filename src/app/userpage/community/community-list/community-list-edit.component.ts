@@ -26,8 +26,6 @@ export class CommunityListEditComponent implements OnInit, OnDestroy {
   user: User;
   mode: string = 'switch';
 
-  // private _subs: Subscription;
-
   constructor(
     private routerExt: RouterExtensions,
     private router: Router,
@@ -44,10 +42,13 @@ export class CommunityListEditComponent implements OnInit, OnDestroy {
     if (this.router.url.indexOf('communityeditor:community/edit') > -1) {
       this.mode = 'edit';
       this.title = 'コミュニティを選ぶ';
-      this.currentList = this.userService.getCommnities();
-      this.selectedList = this.userService.getCommnities().map((el) => el.id);
+      this.userService.searchCommunities().subscribe((data) => {
+        //
+        this.currentList = data;
+      });
+      this.selectedList = this.userService.getCommunities().map((el) => el.id);
     } else {
-      this.currentList = this.userService.getCommnities();
+      this.currentList = this.userService.getCommunities();
       this.selected = this.userService.currentCommunityId;
     }
   }
@@ -55,8 +56,13 @@ export class CommunityListEditComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
   }
 
-  closeModal(tLayout: DockLayout) {
-    tLayout.closeModal();
+  cancelAction(tLayout?: DockLayout) {
+    if ((this.mode == 'switch' || this.router.url.indexOf('/newuser') == 0)
+        && tLayout) {
+      tLayout.closeModal();
+    } else {
+      this.routerExt.backToPreviousPage();
+    }
   }
 
   onItemTap(args: ListViewEventData) {
@@ -66,7 +72,16 @@ export class CommunityListEditComponent implements OnInit, OnDestroy {
       this.selected = this.userService.switchCommunity(tItem.id);
       this.userService.updateRquest('refresh current community');
     } else {
-      // TODO:
+      const idx = this.selectedList.indexOf(tItem.id);
+      if (idx > -1) {
+        this.selectedList.splice(idx, 1);
+      } else {
+        this.routerExt.navigate([{
+          outlets: {
+            communityeditor: ['community', 'preview', tItem.name]
+          }
+        }], { relativeTo: this.aRoute.parent });
+      }
     }
   }
 

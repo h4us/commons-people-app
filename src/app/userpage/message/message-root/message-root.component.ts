@@ -52,7 +52,7 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
     this.currentCommunityId = this.userService.currentCommunityId;
 
     //
-    this.navList = this.userService.getCommnities();
+    this.navList = this.userService.getCommunities();
 
     //
     this.msgSubscription = this.messageService.activeThreads$.subscribe(

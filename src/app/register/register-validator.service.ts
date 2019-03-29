@@ -10,8 +10,8 @@ export class RegisterValidatorService {
   sendForm: FormGroup;
 
   username: AbstractControl;
-  email: AbstractControl;
-  emailConfirm: AbstractControl;
+  emailAddress: AbstractControl;
+  emailAddressConfirm: AbstractControl;
   password: AbstractControl;
   passwordConfirm: AbstractControl;
 
@@ -27,8 +27,8 @@ export class RegisterValidatorService {
   ) {
     this.sendForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(15), Validators.pattern(/[a-zA-Z0-9_]+/)]],
-      email: ['', [Validators.required, Validators.email ]],
-      emailConfirm: ['', [Validators.required ]],
+      emailAddress: ['', [Validators.required, Validators.email ]],
+      emailAddressConfirm: ['', [Validators.required ]],
       password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/[a-zA-Z0-9_]+/)]],
       passwordConfirm: ['', [Validators.required ]],
     });

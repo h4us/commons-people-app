@@ -69,7 +69,8 @@
       <ng-template ngFor let-item [ngForOf]="currentList" let-i="index">
         <StackLayout class="bg-theme-secondary">
           <CardView margin="1 0" elevation="5" backgroundColor="#fff">
-            <StackLayout height="90">
+            <StackLayout height="90"
+              (tap)="gotoCommunityPage(item)">
               <GridLayout columns="80,*,60" rows="*" class="p-15">
                 <Image col="0" class="m-r-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
                   src="{{ item.photoUrl || '~/assets/placeholder__group.png' }}"></Image>

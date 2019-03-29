@@ -5,9 +5,10 @@ import { UserpageRoutingModule } from './userpage-routing.module';
 import { UserpageRootComponent } from './userpage-root/userpage-root.component';
 
 import { ModalProxyService } from './modal-proxy.service';
+import { NewbieComponent } from './newbie/newbie.component';
 
 @NgModule({
-  declarations: [UserpageRootComponent],
+  declarations: [UserpageRootComponent, NewbieComponent],
   imports: [
     CommonModule,
     UserpageRoutingModule

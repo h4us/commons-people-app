@@ -2,10 +2,11 @@
   <StackLayout dock="top" class="bg-theme-secondary" height="60">
     <CustomActionBar *ngIf="mode == 'switch'; else elseBlock"
       [title]="title" leftIcon="&#xea02;" rightIcon="&#xe9b1;"
-      [cancelAction]="[closeModal, communityList]"
+      (onCancel)="cancelAction(communityList)"
       (onAprove)="switchMode()"></CustomActionBar>
     <ng-template #elseBlock>
-      <CustomActionBar [title]="title" leftIcon="&#xe92f;"></CustomActionBar>
+      <CustomActionBar [title]="title" leftIcon="&#xe92f;"
+        (onCancel)="cancelAction(communityList)"></CustomActionBar>
     </ng-template>
   </StackLayout>
   <RadListView class="bg-theme-secondary"
@@ -37,7 +38,7 @@
     </ng-template>
     <!-- // header -->
     <ng-template tkListViewHeader>
-      <StackLayout class="m-x-20 m-t-30 m-b-15">
+      <StackLayout padding="20 20 15">
         <SearchboxLike
           placeholder="名前で絞り込む"
           (onSearch)="false"></SearchboxLike>

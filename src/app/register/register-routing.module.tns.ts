@@ -5,6 +5,8 @@ import { NativeScriptRouterModule } from 'nativescript-angular/router';
 import { UsernameComponent } from './username/username.component';
 import { EmailComponent } from './email/email.component';
 import { PasswordComponent } from './password/password.component';
+import { ConfirmComponent } from './confirm/confirm.component';
+import { SentComponent } from './sent/sent.component';
 
 const routes: Routes = [
   {
@@ -18,6 +20,14 @@ const routes: Routes = [
   {
     path: 'register/password',
     component: PasswordComponent
+  },
+  {
+    path: 'register/confirm',
+    component: ConfirmComponent
+  },
+  {
+    path: 'register/sent',
+    component: SentComponent
   }
 ];
 

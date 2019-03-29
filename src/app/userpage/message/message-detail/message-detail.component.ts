@@ -112,11 +112,6 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   ngAfterViewInit() {
-    // setTimeout(() => {
-    //   const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
-    //   const aW = this.anchor.getMeasuredWidth() / screen.mainScreen.scale;
-    //   AbsoluteLayout.setTop(this.sTray, aH - eH);
-    // }, 100);
   }
 
   styled(text: string) {

@@ -55,7 +55,7 @@ export class ProfileRootComponent implements OnInit {
 
   ngOnInit() {
     this.user = this.userService.getCurrentUser();
-    this.currentList = this.userService.getCommnities();
+    this.currentList = this.userService.getCommunities();
 
     this.docPath = fs.path.normalize(`${fs.knownFolders.documents().path}`);
     console.log(this.docPath);
@@ -64,6 +64,15 @@ export class ProfileRootComponent implements OnInit {
   toEdit(field:string) {
     this.routerExt.navigate([`../profile/edit`, field], {
       relativeTo: this.aRoute
+    });
+  }
+
+  gotoCommunityPage(args: any) {
+    this.userService.switchCommunity(args.id);
+    this.routerExt.navigate([{
+      outlets: { userpage: [ 'community' ] }
+    }], {
+      relativeTo: this.aRoute.parent
     });
   }
 
@@ -250,4 +259,22 @@ export class ProfileRootComponent implements OnInit {
       })
     );
   }
+
+  deleteAccount () {
+    this.userService.deleteAccount().subscribe(
+      (data: any) => {
+        console.log('logout..', data);
+      },
+      (err) => {
+        console.error(err, '..force logout');
+        this.routerExt.navigate([''], {
+          clearHistory: true
+        });
+      },
+      () => this.routerExt.navigate([''], {
+        clearHistory: true
+      })
+    );
+  }
+
 }

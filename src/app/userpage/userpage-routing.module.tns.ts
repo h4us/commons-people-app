@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { NativeScriptRouterModule } from 'nativescript-angular/router';
 
 import { UserpageRootComponent } from './userpage-root/userpage-root.component';
+import { NewbieComponent } from './newbie/newbie.component';
 
 // TODO:
 import { PointRootComponent } from './point/point-root/point-root.component';
@@ -31,6 +32,31 @@ import { ProfileEditorComponent } from './profile/profile-editor/profile-editor.
 import { AuthGuard } from '../auth.guard';
 
 const routes: Routes = [
+  {
+    path: 'newuser',
+    component: NewbieComponent,
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: 'community/switch',
+        component: CommunityListEditComponent,
+        outlet: 'communityeditor',
+      },
+
+      {
+        path: 'community/edit',
+        component: CommunityListEditComponent,
+        outlet: 'communityeditor',
+      },
+
+      {
+        path: 'community/preview/:name',
+        component: CommunityRootComponent,
+        outlet: 'communityeditor',
+      },
+    ]
+  },
+
   {
     path: 'user',
     component: UserpageRootComponent,
@@ -118,7 +144,7 @@ const routes: Routes = [
       },
 
       // --
-      // TODO: new / edit
+      // TODO: new / edit (preview)
       // --
       {
         path: 'profile/edit/:field',
@@ -135,6 +161,12 @@ const routes: Routes = [
       {
         path: 'community/edit',
         component: CommunityListEditComponent,
+        outlet: 'communityeditor',
+      },
+
+      {
+        path: 'community/preview/:name',
+        component: CommunityRootComponent,
         outlet: 'communityeditor',
       },
 

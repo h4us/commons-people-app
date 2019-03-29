@@ -12,9 +12,11 @@ import { PasswordComponent } from './password/password.component';
 import { RegisterValidatorService } from './register-validator.service';
 
 import { SharedModule } from '../shared/shared.module';
+import { ConfirmComponent } from './confirm/confirm.component';
+import { SentComponent } from './sent/sent.component';
 
 @NgModule({
-  declarations: [UsernameComponent, EmailComponent, PasswordComponent],
+  declarations: [UsernameComponent, EmailComponent, PasswordComponent, ConfirmComponent, SentComponent],
   imports: [
     RegisterRoutingModule,
     NativeScriptCommonModule,

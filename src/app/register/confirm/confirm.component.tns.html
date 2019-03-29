@@ -1,0 +1,41 @@
+<DockLayout stretchLasthChild="true" class="bg-theme-secondary">
+  <StackLayout dock="top">
+    <CustomActionBar [title]="title" leftIcon="&#xe92f;"></CustomActionBar>
+  </StackLayout>
+  <StackLayout class="p-15" dock="bottom">
+    <Button text="この内容で仮登録" class="btn btn-primary btn-rounded-lg" width="50%"
+      (tap)="nextPage()"></Button>
+  </StackLayout>
+  <!-- // -->
+  <PreviousNextView>
+    <ScrollView>
+      <StackLayout class="p-15 form" [formGroup]="rForm">
+        <HtmlView class="bg-clear" html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular;'>以下の内容で仮登録します。<br>よろしいですか？</p>"></HtmlView>
+
+        <DockLayout class="input-like m-b-10"
+          stretchLasthChild="true"
+          (tap)="toEdit('username')">
+          <Label dock="left" class="label-left" text="ユーザーネーム"></Label>
+          <Label dock="right" class="icon label-right" text="&#xe930;"></Label>
+          <Label [text]="getCurrent('username')"></Label>
+        </DockLayout>
+        <DockLayout class="input-like m-b-10"
+          stretchLasthChild="true"
+          (tap)="toEdit('emailAddress')">
+          <Label dock="left" class="label-left" text="メールアドレス"></Label>
+          <Label dock="right" class="icon label-right" text="&#xe930;"></Label>
+          <Label [text]="getCurrent('emailAddress')"></Label>
+        </DockLayout>
+        <DockLayout class="input-like m-b-10"
+          stretchLasthChild="true"
+          (tap)="toEdit('password')">
+          <Label dock="left" class="label-left" text="パスワード"></Label>
+          <Label dock="right" class="icon label-right" text="&#xe930;"></Label>
+          <Label [text]="getCurrent('password')"></Label>
+        </DockLayout>
+
+      </StackLayout>
+    </ScrollView>
+  </PreviousNextView>
+  <!-- // -->
+</DockLayout>

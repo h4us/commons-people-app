@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
-import { RouterExtensions } from 'nativescript-angular/router';
+import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 
 import { Subscription, Subject, of, from } from 'rxjs';
 import { switchMap, mergeMap } from 'rxjs/operators'
@@ -32,6 +32,7 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   topics: any[];
   profile: any[];
   currentTab: string = 'topics';
+  isPreview: boolean = false;
 
   private _news: News[];
   private _subs: Subscription;
@@ -45,6 +46,7 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   constructor(
     private routerExt: RouterExtensions,
     private aRoute: ActivatedRoute,
+    private pagRoute: PageRoute,
     private userService: UserService,
     private newsService: NewsService,
     private mProxy: ModalProxyService,
@@ -72,9 +74,26 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
 
   //
   ngOnInit() {
-    this.currentCommunity = this.userService.getCommunity();
-    this._sub.next(true);
-    this.newsService.fetch();
+    if (this.aRoute.snapshot.url.filter((el) => el.path == 'preview').length > 0) {
+      this.isPreview = true;
+      this.userService.searchCommunities(encodeURI(this.aRoute.snapshot.params.name)).subscribe((data: any) => {
+        // TODO:
+        this.currentCommunity = data[0];
+        this.currentList = [
+          {
+            tpl: 'profile',
+            description: this.currentCommunity.description
+          }
+        ];
+        this.currentTab = 'profile';
+        this.newsService.fetch(`?categories=${this.currentCommunity.id}`);
+        // --
+      });
+    } else {
+      this.currentCommunity = this.userService.getCommunity();
+      this._sub.next(true);
+      this.newsService.fetch();
+    }
 
     this.fbtnEl = <Button>this.fbtn.nativeElement;
     this.anchor = <StackLayout>this.anchorRef.nativeElement;
@@ -107,7 +126,7 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
       this.routerExt.navigate(['../community/topic', tItem.id], {
         relativeTo: this.aRoute
       });
-    } else if (this.currentTab === 'news') {
+    } else if (this.currentTab === 'news' && !this.isPreview) {
       this.routerExt.navigate(['../community/news', tItem.id], {
         relativeTo: this.aRoute
       });
@@ -139,10 +158,6 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     this.routerExt.navigate(['./topics/search'], {
       relativeTo: this.aRoute
     });
-
-    // this.routerExt.navigate(['../community/topics/search'], {
-    //   relativeTo: this.aRoute
-    // });
   }
 
   onFabTap() {

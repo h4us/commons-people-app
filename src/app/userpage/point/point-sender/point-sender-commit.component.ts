@@ -37,7 +37,7 @@ export class PointSenderCommitComponent implements OnInit {
   ) {
     page.actionBarHidden = true;
 
-    this.tokens = this.userService.getCommnities().map((el) => { return el.tokenSymbol });
+    this.tokens = this.userService.getCommunities().map((el) => { return el.tokenSymbol });
 
     pvService.resetData();
     this.pForm = pvService.sendForm;

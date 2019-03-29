@@ -7,14 +7,12 @@ import { ModalDialogService, ModalDialogOptions } from 'nativescript-angular/mod
 
 import { Page } from 'tns-core-modules/ui/page';
 
-// TODO:
 import { TopicEditorComponent } from '../community/topic-editor/topic-editor.component';
 import { TopicOwnerComponent } from '../community/topic-owner/topic-owner.component';
 import { CommunityListComponent } from '../community/community-list/community-list.component';
 import { ThreadEditorComponent } from '../message/thread-editor/thread-editor.component';
 import { MessageEditorComponent } from '../message/message-editor/message-editor.component';
 import { PointSenderComponent } from '../point/point-sender/point-sender.component';
-// --
 
 import { ModalProxyService } from '../modal-proxy.service';
 import { MessageProxyService } from '../message-proxy.service';

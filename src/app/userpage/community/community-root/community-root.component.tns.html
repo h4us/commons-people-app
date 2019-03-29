@@ -52,7 +52,8 @@
                 <Label class="typo-list-heading" text="{{ item.title.rendered }}"></Label>
                 <Label class="typo-annotation text-grey" text="{{ item.date | amLocal | amDateFormat: 'YYYY.MM.DD' }}"></Label>
               </StackLayout>
-              <Label col="1" class="h2 p-10 icon bg-clear" text="&#xe930;" color="#1f977c" style="vertical-align:center;"></Label>
+              <Label col="1" class="h2 p-10 icon text-theme" text="&#xe930;" style="vertical-align:center;"
+                visibility="{{ isPreview ? 'collapse' : 'visible' }}"></Label>
             </GridLayout>
           </StackLayout>
         </CardView>
@@ -76,24 +77,27 @@ The order of route configuration matters. The router accepts the first route tha
     <ng-template tkListViewHeader>
       <StackLayout class="bg-theme-secondary">
         <GridLayout rows="*"
-          backgroundImage="{{ currentCommunity.coverPhotoUrl || '~/assets/placeholder__topic@2x.png' }}"
+          backgroundImage="{{ currentCommunity?.coverPhotoUrl || '~/assets/placeholder__topic@2x.png' }}"
           style="background-repeat: no-repeat; background-size:cover;">
           <GridLayout cols="*" rows="70,120,*,*" height="300"
             style="background:linear-gradient(rgba(0,0,0,.05), rgba(0,0,0,.65))">
             <StackLayout row="0" width="100%" height="60" class="bg-clear">
-              <CustomActionBar leftIcon="" rightIcon="&#xe9cb;" colorScheme="white"
+              <CustomActionBar colorScheme="white"
+                leftIcon="{{ isPreview ? '&#xe92f;' : '' }}"
+                rightIcon="{{ isPreview ? '' : '&#xe9cb;' }}"
                 (onAprove)="onSwitchTap()"></CustomActionBar>
             </StackLayout>
             <Image col="0" row="1"
-              src="{{ currentCommunity.photoUrl || '~/assets/placeholder__topic@2x.png' }}" stretch="aspectFill" width="100" height="100"
+              src="{{ currentCommunity?.photoUrl || '~/assets/placeholder__topic@2x.png' }}" stretch="aspectFill" width="100" height="100"
               style="border-radius:80; border-color:#fff; border-width:2;"></Image>
             <Label col="0" row="2"
-              class="typo-header text-center text-white" [text]="currentCommunity.name" style="padding:0; margin:5 0;"></Label>
+              class="typo-header text-center text-white" [text]="currentCommunity?.name" style="padding:0; margin:5 0;"></Label>
             <FlexboxLayout col="0" row="3"
               alignItems="center"
               justifyContent="center"
               style="padding:0; margin:0 0 5;">
-              <Label (tap)="onSwitchTab('topics')" class="h3 m-x-10 p-5 text-center text-white" text="トピック"
+              <Label *ngIf="!isPreview"
+                (tap)="onSwitchTab('topics')" class="h3 m-x-10 p-5 text-center text-white" text="トピック"
                 [class.bottom-border-white]="currentTab == 'topics'"></Label>
               <Label (tap)="onSwitchTab('news')" class="h3 m-x-10 p-5 text-center text-white" text="お知らせ"
                 [class.bottom-border-white]="currentTab == 'news'"></Label>
@@ -104,7 +108,7 @@ The order of route configuration matters. The router accepts the first route tha
         </GridLayout>
 
         <StackLayout class="m-x-20 m-t-30 m-b-15"
-          *ngIf="currentTab === 'topics'; else elseBlock">
+          *ngIf="!isPreview && (currentTab === 'topics'); else elseBlock">
           <SearchboxLike
             (onSearch)="searchAction()"></SearchboxLike>
         </StackLayout>
@@ -126,6 +130,7 @@ The order of route configuration matters. The router accepts the first route tha
   <FAB #floatingButton
     left="-200"
     top="-200"
+    visibility="{{ isPreview ? 'collapse' : 'visible' }}"
     (tap)="onFabTap()"
     class="fab-btn" icon="~/assets/fabtn-plus-72x72.png" backgroundColor="#1f977c"></FAB>
   <!-- <ActivityIndicator busy="true"></ActivityIndicator> -->

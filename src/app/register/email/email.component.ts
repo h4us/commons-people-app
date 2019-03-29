@@ -29,8 +29,8 @@ export class EmailComponent implements OnInit {
 
   onValidate(): any {
     // TODO:
-    return (this.rForm.get('email').valid &&
-            this.rForm.get('emailConfirm').value == this.rForm.get('email').value);
+    return (this.rForm.get('emailAddress').valid &&
+            this.rForm.get('emailAddressConfirm').value == this.rForm.get('emailAddress').value);
   }
 
   nextPage() {

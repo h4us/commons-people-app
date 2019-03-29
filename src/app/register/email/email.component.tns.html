@@ -9,14 +9,14 @@
         <HtmlView class="bg-clear" html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular;'>メールアドレスを設定してください。</p>"></HtmlView>
         <TextField
           class="input"
-          hint="E-mail"
-          formControlName="email"
+          hint="メールアドレス"
+          formControlName="emailAddress"
           (blur)="onValidate()"
           (returnPress)="onValidate()"></TextField>
         <TextField
           class="input"
-          hint="E-mail (confirm)"
-          formControlName="emailConfirm"
+          hint="メールアドレスを再入力"
+          formControlName="emailAddressConfirm"
           (blur)="onValidate()"
           (returnPress)="onValidate()"></TextField>
       </StackLayout>
