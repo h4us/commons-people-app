@@ -1,4 +1,4 @@
-<AbsoluteLayout>
+<AbsoluteLayout [isPassThroughParentEnabled]="true">
   <StackLayout #sizeAnchor class="util-anchor-full"></StackLayout>
 
   <RadListView left="0" top="0" width="100%" height="100%" class="bg-theme-secondary"
@@ -133,5 +133,17 @@ The order of route configuration matters. The router accepts the first route tha
     visibility="{{ isPreview ? 'collapse' : 'visible' }}"
     (tap)="onFabTap()"
     class="fab-btn" icon="~/assets/fabtn-plus-72x72.png" backgroundColor="#1f977c"></FAB>
+
+  <FlexboxLayout #floatingToggle
+    class="p-15 bg-clear" width="100%" height="120"
+    visibility="{{ isPreview ? 'visible' : 'collapse' }}"
+    flexDirection="row"
+    justifyContent="space-around"
+    alignContent="space-around"
+    alignItems="center">
+    <Button alignSelf="center" text="{{ inDraft ? '選択中' : '選択する' }}" class="btn btn-primary btn-rounded-lg" width="50%"
+      (tap)="toDraft()"></Button>
+  </FlexboxLayout>
+
   <!-- <ActivityIndicator busy="true"></ActivityIndicator> -->
 </AbsoluteLayout>

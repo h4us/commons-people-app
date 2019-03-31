@@ -9,8 +9,10 @@ import { map } from 'rxjs/operators';
 import { Page } from 'tns-core-modules/ui/page';
 import { Button } from 'tns-core-modules/ui/button';
 import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
+import { FlexboxLayout } from 'tns-core-modules/ui/layouts/flexbox-layout';
 import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout';
-import { screen } from 'tns-core-modules/platform';
+import { screen, isIOS } from 'tns-core-modules/platform';
+import * as application from 'tns-core-modules/application';
 import { layout } from 'tns-core-modules/utils/utils';
 
 import { ListViewEventData } from 'nativescript-ui-listview';
@@ -18,6 +20,8 @@ import { ListViewEventData } from 'nativescript-ui-listview';
 import { UserService } from '../../../user.service';
 import { ModalProxyService } from '../../modal-proxy.service';
 import { NewsService, News } from '../../news.service';
+
+import { TrayService } from '../../../shared/tray.service';
 
 @Component({
   selector: 'app-community-root',
@@ -38,9 +42,11 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   private _subs: Subscription;
   private _sub = new Subject<any>();
 
-  @ViewChild('floatingButton') fbtn: ElementRef;
+  @ViewChild('floatingButton') fbtnRef: ElementRef;
+  @ViewChild('floatingToggle') ftglRef: ElementRef;
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
   fbtnEl: Button;
+  ftgl: FlexboxLayout;
   anchor: StackLayout;
 
   constructor(
@@ -52,8 +58,10 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     private mProxy: ModalProxyService,
     private page: Page,
     private vcRef: ViewContainerRef,
+    private tService: TrayService
   ) {
     page.actionBarHidden = true;
+    // page.backgroundSpanUnderStatusBar = true;
 
     from(this._sub).pipe(
       switchMap((t: any) => { return this.userService.getTopics() })
@@ -95,22 +103,28 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
       this.newsService.fetch();
     }
 
-    this.fbtnEl = <Button>this.fbtn.nativeElement;
+    this.fbtnEl = <Button>this.fbtnRef.nativeElement;
+    this.ftgl = <FlexboxLayout>this.ftglRef.nativeElement;
     this.anchor = <StackLayout>this.anchorRef.nativeElement;
   }
 
   ngOnDestroy() {
-     this._subs.unsubscribe();
+    this._subs.unsubscribe();
   }
 
   ngAfterViewInit() {
     setTimeout(() => {
       const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
       const aW = this.anchor.getMeasuredWidth() / screen.mainScreen.scale;
+
       const eW = this.fbtnEl.getMeasuredWidth() / screen.mainScreen.scale;
       const eH = this.fbtnEl.getMeasuredHeight() / screen.mainScreen.scale;
+
+      const tH = this.ftgl.getMeasuredHeight() / screen.mainScreen.scale;
+
       AbsoluteLayout.setLeft(this.fbtnEl, aW - eW - (eW * 0.33));
       AbsoluteLayout.setTop(this.fbtnEl, aH - eH - (eH * 0.33));
+      AbsoluteLayout.setTop(this.ftgl, aH - tH);
     }, 100);
   }
 
@@ -170,6 +184,23 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
 
   templateSelector(item: any, index: number, items: any) {
     return item.tpl;
+  }
+
+  toDraft() {
+    const inDraft: number = this.userService.draftCommunityIds.indexOf(this.currentCommunity.id);
+    if (inDraft < 0) {
+      this.userService.draftCommunityIds.push(this.currentCommunity.id);
+      this.userService.draftCommunities.push(this.currentCommunity);
+    } else {
+      this.userService.draftCommunityIds.splice(inDraft, 1);
+      this.userService.draftCommunities.splice(inDraft, 1);
+    }
+
+    console.log(this.userService.draftCommunityIds, this.userService.draftCommunities);
+  }
+
+  get inDraft(): boolean {
+    return (this.currentCommunity && (this.userService.draftCommunityIds.indexOf(this.currentCommunity.id) > -1));
   }
 
   styled(text: string) {

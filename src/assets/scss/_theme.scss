@@ -218,6 +218,16 @@ TextField.input,
   }
 }
 
+.indicator-like {
+  border-radius: 12;
+  border-color: $theme-color;
+  border-width: 6;
+  padding: 0;
+  background-color: $theme-color;
+  width: 12;
+  height: 12;
+}
+
 .searchbox-like-container {
   .searchbox-like,
   .searchbox-like-stretch {
@@ -308,6 +318,11 @@ TextField.input,
 // --
 .typo-annotation {
   font-size: $theme-fs-extra-small;
+}
+
+.typo-nav {
+  font-size: $theme-fs-extra-small;
+  font-family: "NotoSansJP Medium", "NotoSansJP-Medium";
 }
 
 //

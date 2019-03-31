@@ -49,12 +49,17 @@ export class NewbieComponent implements OnInit, OnDestroy {
         forNewbie: true
       }
     };
-    this.modalService.showModal(CommunityListComponent, options);
-
-    // this.routerExt.navigate([ 'user' ], {
-    //   clearHistory: true,
-    //   transition: { name: 'fade', duration: 300 }
-    // })
+    this.modalService.showModal(CommunityListComponent, options)
+      .then(() => {
+        if (this.userService.getCommunities().length > 0) {
+          setTimeout(() => {
+            this.routerExt.navigate([ 'user' ], {
+              clearHistory: true,
+              transition: { name: 'fade', duration: 300 }
+            })
+          }, 500);
+        }
+      });
   }
 
   logout () {

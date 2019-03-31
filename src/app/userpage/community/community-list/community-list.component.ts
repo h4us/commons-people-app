@@ -6,6 +6,8 @@ import { ModalDialogParams, ModalDialogOptions } from 'nativescript-angular/moda
 
 import { Page } from 'tns-core-modules/ui/page';
 
+import { UserService, User } from '../../../user.service';
+
 @Component({
   selector: 'app-community-list',
   templateUrl: './community-list.component.html',
@@ -20,6 +22,7 @@ export class CommunityListComponent implements OnInit, OnDestroy {
     private aRoute: ActivatedRoute,
     private routerExt: RouterExtensions,
     private dParams: ModalDialogParams,
+    private userService: UserService,
   ) {
     page.actionBarHidden = true;
 

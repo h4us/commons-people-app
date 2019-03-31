@@ -50,10 +50,10 @@ export interface Topic {
   providedIn: 'root'
 })
 export class UserService {
+  // --
   // TODO:
   // private apiUrl: string = 'https://app.commons.love/api/';
   private apiUrl: string = 'https://app.test.commons.love/api/';
-  // --
 
   private loginData = {
     username: null,
@@ -68,6 +68,10 @@ export class UserService {
   //
   private updateRequestSource = new Subject<string>();
   updateRequest$ = this.updateRequestSource.asObservable();
+
+  draftCommunityIds: number[] = [];
+  draftCommunities: any[] = [];
+  // --
 
   constructor(private http: HttpClient) {
     const u = this._sStorage.getSync({ key: 'username' });
@@ -269,7 +273,7 @@ export class UserService {
   }
 
   getCommunities(): any {
-    return this.user.communityList;
+    return this.user.communityList.slice();
   }
 
   searchCommunities(query?: string): Observable<any> {

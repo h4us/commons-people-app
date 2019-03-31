@@ -28,14 +28,4 @@
       </StackLayout>
     </ScrollView>
   </DockLayout>
-
-  <GridLayout #overlayButtonContainerForPreview
-    rows="*" width="100%">
-    <CustomSnackbarLike #snackBar
-      approveMessage="この内容でよろしいですか？"
-      doneMessage="ポイントを送信しました"
-      (onCancel)="cancelConfirm()"
-      (onApprove)="onConfirm()"
-      (onClose)="forceClose()"></CustomSnackbarLike>
-  </GridLayout>
 </AbsoluteLayout>

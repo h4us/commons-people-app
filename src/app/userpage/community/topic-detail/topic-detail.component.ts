@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild, ComponentRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, ComponentRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
@@ -8,29 +8,30 @@ import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout';
 import { GridLayout } from 'tns-core-modules/ui/layouts/grid-layout';
 import { FlexboxLayout } from 'tns-core-modules/ui/layouts/flexbox-layout';
 import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
-import { screen } from 'tns-core-modules/platform';
+import { screen, isIOS } from 'tns-core-modules/platform';
 import { layout } from 'tns-core-modules/utils/utils';
+import * as application from 'tns-core-modules/application';
 
 import { ImageSource } from 'tns-core-modules/image-source';
 import { ImageAsset } from 'tns-core-modules/image-asset';
 import * as fs from 'tns-core-modules/file-system';
 import * as bgHttp from 'nativescript-background-http';
 
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 import { ModalProxyService } from '../../modal-proxy.service';
 import { TopicValidatorService } from '../../topic-validator.service';
 import { UserService, Topic } from '../../../user.service';
 
-import { SnackbarLikeComponent } from '../../../shared/snackbar-like/snackbar-like.component';
+import { TrayService } from '../../../shared/tray.service'
 
 @Component({
   selector: 'app-topic-detail',
   templateUrl: './topic-detail.component.html',
   styleUrls: ['./topic-detail.component.scss']
 })
-export class TopicDetailComponent implements OnInit, AfterViewInit {
+export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   topic: Topic;
   community: any;
   session: any;
@@ -44,22 +45,24 @@ export class TopicDetailComponent implements OnInit, AfterViewInit {
   @ViewChild('overlayButtonContainer') ovBcRef: ElementRef;
   @ViewChild('overlayButtonContainerForPreview') ovBcPrevRef: ElementRef;
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
-  @ViewChild('snackBar') snackBar: SnackbarLikeComponent;
   rootLayout: AbsoluteLayout;
   ovBc: GridLayout;
-  ovBcPrev: FlexboxLayout;
   anchor: StackLayout;
+
+  tNotifySubscription: Subscription;
 
   constructor(
     private routerExt: RouterExtensions,
     private pageRoute: PageRoute,
     private userService: UserService,
     private tvService: TopicValidatorService,
+    private trayService: TrayService,
     private page: Page,
     private aRoute: ActivatedRoute,
     private mProxy: ModalProxyService,
   ) {
     page.actionBarHidden = true;
+    page.backgroundSpanUnderStatusBar = true; // ...?
   }
 
   ngOnInit() {
@@ -75,7 +78,7 @@ export class TopicDetailComponent implements OnInit, AfterViewInit {
             this.community = this.userService.getCommunity(this.topic.communityId);
           });
 
-          this.snackBar.isShown = false;
+          // this.snackBar.isShown = false;
         } else {
           this.topic = this.tvService.sendForm.value;
           this.topic.createdBy = this.userService.getCurrentUser();
@@ -105,22 +108,57 @@ export class TopicDetailComponent implements OnInit, AfterViewInit {
           //
           this.isPreview = true;
           this.rootLayout = <AbsoluteLayout>this.rootLayoutRef.nativeElement;
+
+          this.registerSnackbarActions();
         }
         //
       });
 
     this.ovBc = <GridLayout>this.ovBcRef.nativeElement;
-    this.ovBcPrev = <FlexboxLayout>this.ovBcPrevRef.nativeElement;
     this.anchor = <StackLayout>this.anchorRef.nativeElement;
   }
 
   ngAfterViewInit() {
-    // ...
     setTimeout(() => {
       const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
       AbsoluteLayout.setTop(this.ovBc, aH - (this.ovBc.getMeasuredHeight() / screen.mainScreen.scale));
-      AbsoluteLayout.setTop(this.ovBcPrev, aH - (this.ovBcPrev.getMeasuredHeight() / screen.mainScreen.scale));
     }, 100);
+
+    if (this.isPreview) {
+      this.trayService.request('snackbar/topiceditor', 'open', {
+        doneMessage: '作成しています..',
+        cancelAsClose: false
+        // autoNextStep: false
+      });
+    }
+  }
+
+  ngOnDestroy() {
+    if(this.tNotifySubscription) {
+      console.log('clear subscription @topiceditor');
+      this.trayService.request('snackbar/topiceditor', 'close');
+      this.tNotifySubscription.unsubscribe();
+    }
+  }
+
+  registerSnackbarActions() {
+    this.tNotifySubscription = this.trayService.notifyToUser$
+      .subscribe((data: any) => {
+        console.log('@topiceditor', data);
+
+        if (data[0] == 'snackbar/topiceditor') {
+          switch (data[1]) {
+            case 'approveOrNext':
+              this.onConfirm();
+              break;
+            case 'cancelOrBack':
+              this.cancelAction();
+              break;
+            default:
+              break;
+          }
+        }
+      });
   }
 
   openMessageDialog(topic?: any) {
@@ -196,22 +234,27 @@ export class TopicDetailComponent implements OnInit, AfterViewInit {
         }
 
         this.isCreated = true;
+
+        // done.
+        this.trayService.request('snackbar/', 'open', {
+          isApproved: true,
+          step: 1,
+          doneMessage: 'トピックを作成しました'
+        });
+
+        this.forceClose();
       });
     } else {
       //
       console.log('validation error')
     }
-
-    setTimeout(() => {
-      const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
-      AbsoluteLayout.setTop(this.ovBcPrev, aH - (this.ovBcPrev.getMeasuredHeight() / screen.mainScreen.scale));
-    }, 30);
   }
+
   cancelConfirm() {
     this.routerExt.backToPreviousPage();
   }
+
   forceClose() {
-    this.snackBar.isShown = false;
     //
     this.rootLayout.closeModal();
   }

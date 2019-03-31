@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormGroup } from '@angular/forms'
 
@@ -12,12 +12,14 @@ import { ListViewEventData } from 'nativescript-ui-listview';
 import { UserService, User } from '../../../user.service';
 import { PointValidatorService } from '../../point-validator.service';
 
+import { TrayService } from '../../../shared/tray.service';
+
 @Component({
   selector: 'app-point-sender-commit',
   templateUrl: './point-sender-commit.component.html',
   styleUrls: ['./point-sender.component.scss']
 })
-export class PointSenderCommitComponent implements OnInit {
+export class PointSenderCommitComponent implements OnInit, OnDestroy, AfterViewInit {
   title: string = "ポイントを送る";
 
   sendToUser: any;
@@ -34,6 +36,7 @@ export class PointSenderCommitComponent implements OnInit {
     private routerExt: RouterExtensions,
     private userService: UserService,
     private pvService: PointValidatorService,
+    private tService: TrayService,
   ) {
     page.actionBarHidden = true;
 
@@ -72,6 +75,13 @@ export class PointSenderCommitComponent implements OnInit {
           console.log(this.pForm.value, this.pForm.valid);
         });
       });
+  }
+
+  ngOnDestroy() {
+  }
+
+  ngAfterViewInit() {
+    this.tService.request('snackbar', 'open');
   }
 
   onCommitted(args) {

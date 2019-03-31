@@ -1,24 +1,33 @@
-<FlexboxLayout
-  flexDirection="column"
-  class="bg-theme p-x-15 p-y-10" width="100%"
+<GridLayout #componentRoot width="100%" rows="auto,*" class="bg-clear" style="border-width:0;"
+  (tap)="blockTap()"
+  height="200"
   visibility="{{ isShown ? 'visible' : 'collapse' }}">
-  <!-- // -->
-  <Label *ngIf="!isApproved; else elseBlock"
-    class="text-center text-white" [text]="approveMessage"></Label>
-  <ng-template #elseBlock>
-    <GridLayout columns="60,*,60" rows="*" height="60" class="p-y-5 bg-clear">
-      <Label col="1" class="text-center text-white" [text]="doneMessage"></Label>
-      <Label col="2" class="h2 p-l-15 p-r-10 p-y-10 text-center icon bg-clear text-white" style="vertical-align:center;" text="&#xea02;"
-        (tap)="afterClose()"></Label>
-    </GridLayout>
-  </ng-template>
 
   <!-- // -->
+  <StackLayout *ngIf="isApproved" class="bg-clear" row="0" height="60" style="border-width:0;"></StackLayout>
+  <GridLayout *ngIf="isApproved"
+    row="1"
+    columns="60,*,60" rows="60" class="bg-theme">
+    <Label col="1" class="text-center text-white" textWrap="true" verticalAlignment="center"
+      [text]="doneMessage"></Label>
+    <Label col="2" class="p-y-10 text-center icon text-white" style="vertical-align:center; font-size:24;" text="&#xea02;"
+      (tap)="disposeBar()"></Label>
+  </GridLayout>
+
+  <!-- // -->
+  <StackLayout *ngIf="!isApproved"
+    row="0" height="60"
+    class="bg-theme p-x-15" orientation="horizontal">
+    <Label class="text-center text-white" verticalAlignment="center" width="100%"
+      [text]="approveMessage"></Label>
+  </StackLayout>
   <GridLayout *ngIf="!isApproved"
-    columns="*,*", row="auto">
+    row="1"
+    columns="*,*", rows="60"
+    class="bg-theme p-x-15">
     <Button col="0" class="btn btn-white btn-rounded-lg" text="キャンセル"
       (tap)="cancelOrBack()"></Button>
-    <Button col="1" class="btn btn-black btn-rounded-lg" text="OK"
+    <Button #testBtn col="1" class="btn btn-black btn-rounded-lg" text="OK"
       (tap)="approveOrNext()"></Button>
   </GridLayout>
-</FlexboxLayout>
+</GridLayout>

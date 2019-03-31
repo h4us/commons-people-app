@@ -260,21 +260,9 @@ export class ProfileRootComponent implements OnInit {
     );
   }
 
-  deleteAccount () {
-    this.userService.deleteAccount().subscribe(
-      (data: any) => {
-        console.log('logout..', data);
-      },
-      (err) => {
-        console.error(err, '..force logout');
-        this.routerExt.navigate([''], {
-          clearHistory: true
-        });
-      },
-      () => this.routerExt.navigate([''], {
-        clearHistory: true
-      })
-    );
+  toChildPage() {
+    this.routerExt.navigate([`../profile/etc`], {
+      relativeTo: this.aRoute
+    });
   }
-
 }

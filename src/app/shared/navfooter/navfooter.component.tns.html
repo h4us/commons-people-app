@@ -1,38 +1,82 @@
-<AbsoluteLayout height="{{ navMode == 'dm' ? 0 : 60 }}" visibility="{{ navMode == 'dm' ? 'hidden' : 'visible' }}">
-  <StackLayout orientation="horizontal" width="100%" height="60" class="p-0 m-0 navfooter-nav">
-    <GridLayout columns="*" rows="*,38*,12*,*" width="25%" height="60" class="nav-item"
-      [class.debugBorder]="debugBorder"
+<AbsoluteLayout #componentRoot
+  height="{{ navMode == 'dm' ? 0 : 60 }}"
+  visibility="{{ navMode == 'dm' ? 'hidden' : 'visible' }}">
+  <!-- // -->
+
+  <FlexboxLayout width="100%" height="60"
+    justifyContent="space-between"
+    alignItems="stretch"
+    class="p-x-15 p-y-0 m-0 navfooter-nav">
+
+    <AbsoluteLayout #navPoint width="75" height="60" class="nav-item"
       (tap)="gotoPoints()">
-      <Label col="0" row="1" text="&#xe94e;" class="h2 p-0 text-center icon" style="margin-top:12;"
-        [ngClass]="{ 'text-dim': (navActive != 'point'), 'debugBorder': debugBorder }"></Label>
-      <Label col="0" row="2" text="ポイント" class="h6 p-0 text-center" style="margin-top:-14; background-color:transparent;"
-        [ngClass]="{ 'text-dim': (navActive != 'point'), 'debugBorder': debugBorder }"></Label>
-    </GridLayout>
+      <FlexboxLayout width="100%" height="100%"
+        flexDirection="column"
+        justifyContent="space-between"
+        [class.debugBorder]="debugBorder">
+        <Label text="&#xe94e;" class="p-0 text-center icon" style="margin-top:7; min-height:32; font-size:32;"
+          [ngClass]="{ 'text-dim': (navActive != 'point'), 'debugBorder': debugBorder }"></Label>
+        <Label text="ポイント" class="p-0 text-center typo-nav" style="margin-top:-10; margin-bottom:7;"
+          [ngClass]="{ 'text-dim': (navActive != 'point'), 'debugBorder': debugBorder }"></Label>
+      </FlexboxLayout>
 
-    <GridLayout columns="*" rows="*,38*,12*,*" width="25%" height="60" class="nav-item"
-      [class.debugBorder]="debugBorder"
+      <Label class="indicator-like" text="" top="5"
+        [left]="iPoint"
+        [visibility]="indicated('point')"></Label>
+    </AbsoluteLayout>
+
+    <AbsoluteLayout #navCommunity width="75" height="60" class="nav-item"
       (tap)="gotoCommunity()">
-      <Label col="0" row="1" text="&#xe972;" class="h2 p-0 text-center icon" style="margin-top:12;"
-        [ngClass]="{ 'text-dim': (navActive != 'community'), 'debugBorder': debugBorder }"></Label>
-      <Label col="0" row="2" text="コミュニティ" class="h6 p-0 text-center" style="margin-top:-14; background-color:transparent;"
-        [ngClass]="{ 'text-dim': (navActive != 'community'), 'debugBorder': debugBorder }"></Label>
-    </GridLayout>
+      <FlexboxLayout width="100%" height="100%"
+        flexDirection="column"
+        justifyContent="space-between"
+        [class.debugBorder]="debugBorder">
+        <Label text="&#xe972;" class="p-0 text-center icon" style="margin-top:7; min-height:32; font-size:32;"
+          [ngClass]="{ 'text-dim': (navActive != 'community'), 'debugBorder': debugBorder }"></Label>
+        <Label text="コミュニティ" class="p-0 text-center typo-nav" style="margin-top:-10; margin-bottom:7;"
+          [ngClass]="{ 'text-dim': (navActive != 'community'), 'debugBorder': debugBorder }"></Label>
+      </FlexboxLayout>
 
-    <GridLayout columns="*" rows="*,38*,12*,*" width="25%" height="60" class="nav-item"
+      <Label class="indicator-like" text="" top="5"
+        [left]="iPoint"
+        [visibility]="indicated('community')"></Label>
+    </AbsoluteLayout>
+
+    <AbsoluteLayout #navMessage width="75" height="60" class="nav-item"
       (tap)="gotoMessage()">
-      <Label col="0" row="1" text="&#xe990;" class="h2 p-0 text-center icon" style="margin-top:12;"
-        [ngClass]="{ 'text-dim': (navActive != 'message'), 'debugBorder': debugBorder }"></Label>
-      <Label col="0" row="2" text="メッセージ" class="h6 p-0 text-center" style="margin-top:-14; background-color:transparent;"
-        [ngClass]="{ 'text-dim': (navActive != 'message'), 'debugBorder': debugBorder }"></Label>
-    </GridLayout>
+      <FlexboxLayout width="100%" height="100%"
+        flexDirection="column"
+        justifyContent="space-between"
+        [class.debugBorder]="debugBorder">
+        <Label text="&#xe990;" class="p-0 text-center icon" style="margin-top:7; min-height:32; font-size:32;"
+          [ngClass]="{ 'text-dim': (navActive != 'message'), 'debugBorder': debugBorder }"></Label>
+        <Label text="メッセージ" class="p-0 text-center typo-nav" style="margin-top:-10; margin-bottom:7;"
+          [ngClass]="{ 'text-dim': (navActive != 'message'), 'debugBorder': debugBorder }"></Label>
+      </FlexboxLayout>
 
-    <GridLayout columns="*" rows="*,38*,12*,*" width="25%" height="60" class="nav-item"
-      [class.debugBorder]="debugBorder"
+      <Label class="indicator-like" text="" top="5"
+        [left]="iPoint"
+        [visibility]="indicated('message')"></Label>
+    </AbsoluteLayout>
+
+    <AbsoluteLayout #navProfile width="75" height="60" class="nav-item"
       (tap)="gotoProfile()">
-      <Label col="0" row="1" text="&#xe9f1;" class="h2 p-0 text-center icon" style="margin-top:12;"
-        [ngClass]="{ 'text-dim': (navActive != 'profile'), 'debugBorder': debugBorder }"></Label>
-      <Label col="0" row="2" text="プロフィール" class="h6 p-0 text-center" style="margin-top:-14; background-color:transparent;"
-        [ngClass]="{ 'text-dim': (navActive != 'profile'), 'debugBorder': debugBorder }"></Label>
-    </GridLayout>
-  </StackLayout>
+      <FlexboxLayout width="100%" height="100%"
+        flexDirection="column"
+        justifyContent="space-between"
+        [class.debugBorder]="debugBorder">
+        <Label text="&#xe9f1;" class="h2 p-0 text-center icon" style="margin-top:7; min-heigh:32; font-size:32;"
+          [ngClass]="{ 'text-dim': (navActive != 'profile'), 'debugBorder': debugBorder }"></Label>
+        <Label text="プロフィール" class="h6 p-0 text-center typo-nav" style="margin-top:-10; margin-bottom:7;"
+          [ngClass]="{ 'text-dim': (navActive != 'profile'), 'debugBorder': debugBorder }"></Label>
+      </FlexboxLayout>
+
+      <Label class="indicator-like" text="" top="5"
+        [left]="iPoint"
+        [visibility]="indicated('profile')"></Label>
+    </AbsoluteLayout>
+
+  </FlexboxLayout>
+
+  <!-- // -->
 </AbsoluteLayout>

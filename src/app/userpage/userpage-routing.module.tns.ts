@@ -27,6 +27,7 @@ import { MessageSearchComponent } from './message/message-search/message-search.
 
 import { ProfileRootComponent } from './profile/profile-root/profile-root.component';
 import { ProfileEditorComponent } from './profile/profile-editor/profile-editor.component';
+import { ProfileEtcComponent } from './profile/profile-etc/profile-etc.component';
 
 //
 import { AuthGuard } from '../auth.guard';
@@ -45,6 +46,12 @@ const routes: Routes = [
 
       {
         path: 'community/edit',
+        component: CommunityListEditComponent,
+        outlet: 'communityeditor',
+      },
+
+      {
+        path: 'community/submit',
         component: CommunityListEditComponent,
         outlet: 'communityeditor',
       },
@@ -143,6 +150,18 @@ const routes: Routes = [
         outlet: 'userpage',
       },
 
+      {
+        path: 'profile/etc',
+        component: ProfileEtcComponent,
+        outlet: 'userpage',
+      },
+
+      {
+        path: 'profile/etc/:field',
+        component: ProfileEtcComponent,
+        outlet: 'userpage',
+      },
+
       // --
       // TODO: new / edit (preview)
       // --
@@ -160,6 +179,12 @@ const routes: Routes = [
 
       {
         path: 'community/edit',
+        component: CommunityListEditComponent,
+        outlet: 'communityeditor',
+      },
+
+      {
+        path: 'community/submit',
         component: CommunityListEditComponent,
         outlet: 'communityeditor',
       },

@@ -1,4 +1,7 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewContainerRef, ViewChild } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy, AfterViewInit,
+  ElementRef, ComponentRef, ViewContainerRef, ViewChild
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -6,6 +9,10 @@ import { RouterExtensions } from 'nativescript-angular/router';
 import { ModalDialogService, ModalDialogOptions } from 'nativescript-angular/modal-dialog';
 
 import { Page } from 'tns-core-modules/ui/page';
+// import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
+// import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout';
+import { screen, isIOS } from 'tns-core-modules/platform';
+import * as application from 'tns-core-modules/application';
 
 import { TopicEditorComponent } from '../community/topic-editor/topic-editor.component';
 import { TopicOwnerComponent } from '../community/topic-owner/topic-owner.component';
@@ -17,14 +24,20 @@ import { PointSenderComponent } from '../point/point-sender/point-sender.compone
 import { ModalProxyService } from '../modal-proxy.service';
 import { MessageProxyService } from '../message-proxy.service';
 
+import { TrayService } from '../../shared/tray.service';
+// import { SnackbarLikeComponent } from '../../shared/snackbar-like/snackbar-like.component'
+
 @Component({
   selector: 'app-userpage-root',
   templateUrl: './userpage-root.component.html',
   styleUrls: ['./userpage-root.component.scss'],
 })
-export class UserpageRootComponent implements OnInit {
+export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  @ViewChild('userpageRoot') uRoot: ElementRef;
 
   mSubscription: Subscription;
+  canAction: boolean = true;
 
   constructor(
     private routerExt: RouterExtensions,
@@ -34,8 +47,10 @@ export class UserpageRootComponent implements OnInit {
     private vcRef: ViewContainerRef,
     private aRoute: ActivatedRoute,
     private mProxy: ModalProxyService,
+    private trayService: TrayService,
   ) {
     page.actionBarHidden = true;
+    // page.backgroundSpanUnderStatusBar = true;
 
     this.mSubscription = mProxy.requestModal$.subscribe((data: any) => {
       // TODO:
@@ -55,7 +70,14 @@ export class UserpageRootComponent implements OnInit {
         if (data instanceof Array && data.length > 1) {
           options.context = data[1];
         }
-        this.modalService.showModal(TopicOwnerComponent, options);
+        this.modalService.showModal(TopicOwnerComponent, options).then((data: any) => {
+          if (data && data.snackbarRedirect) {
+            this.trayService.request('snackbar/', 'open', {
+              step: 1, isApproved: true,
+              doneMessage: data.snackbarRedirect.doneMessage
+            });
+          }
+        });
       } else if (data === 'thread-edit'){
         this.modalService.showModal(ThreadEditorComponent, options);
       } else if (data === 'thread-new'){
@@ -75,7 +97,14 @@ export class UserpageRootComponent implements OnInit {
         if (data instanceof Array && data.length > 1) {
           options.context = data[1];
         }
-        this.modalService.showModal(PointSenderComponent, options);
+        this.modalService.showModal(PointSenderComponent, options).then((data: any) => {
+          if (data && data.snackbarRedirect) {
+            this.trayService.request('snackbar/', 'open', {
+              step: 1, isApproved: true,
+              doneMessage: data.snackbarRedirect.doneMessage
+            });
+          }
+        });
       } else if (data === 'search' || (data instanceof Array && data.length > 0 && data[0] === 'search' )) {
         if (data instanceof Array && data.length > 1) {
           options.context = data[1];
@@ -92,6 +121,22 @@ export class UserpageRootComponent implements OnInit {
         userpage: ['community']
       }
     }], { relativeTo: this.aRoute });
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      const aH = this.uRoot.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
+      const sc: number = 1 / screen.mainScreen.scale;
+      if (isIOS) {
+        let safeAreaSpan: number = 0;
+        if (application.ios.window.safeAreaInsets) {
+          safeAreaSpan = <number>application.ios.window.safeAreaInsets.top + <number>application.ios.window.safeAreaInsets.bottom;
+        }
+        this.trayService.trayPosition = screen.mainScreen.heightDIPs - (safeAreaSpan);
+      } else {
+        this.trayService.trayPosition = aH;
+      }
+    }, 100);
   }
 
   ngOnDestroy() {
