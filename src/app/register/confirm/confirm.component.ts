@@ -40,7 +40,9 @@ export class ConfirmComponent implements OnInit {
   }
 
   getCurrent(key: string) {
-    return this.rForm.get(key).value;
+    const c: any = this.rForm.get(key);
+    let ret = c ? c.value : '';
+    return (key === 'password') ? ret.replace(/./g, '·') : ret;
   }
 
   nextPage() {

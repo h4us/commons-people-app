@@ -8,7 +8,7 @@
 android {
   defaultConfig {
     generatedDensities = []
-    applicationId = "net.inafact.commonsapp"
+    applicationId = "net.inafact.People"
 
     //override supported platforms
     // ndk {

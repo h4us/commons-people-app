@@ -35,13 +35,13 @@ applicationOn(resumeEvent, (args: ApplicationEventData) => {
   }
 });
 
-applicationOn(exitEvent, (args: ApplicationEventData) => {
-  if (args.android) {
-    console.log('Exit Activity: ' + args.android);
-  } else if (args.ios) {
-    console.log('Exit UIApplication: ' + args.ios);
-  }
-});
+// applicationOn(exitEvent, (args: ApplicationEventData) => {
+//   if (args.android) {
+//     console.log('Exit Activity: ' + args.android);
+//   } else if (args.ios) {
+//     console.log('Exit UIApplication: ' + args.ios);
+//   }
+// });
 
 applicationOn(lowMemoryEvent, (args: ApplicationEventData) => {
   if (args.android) {
