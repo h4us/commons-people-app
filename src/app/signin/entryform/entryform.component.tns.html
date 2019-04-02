@@ -1,21 +1,34 @@
 <DockLayout stretchLasthChild="true" class="bg-theme-secondary">
   <StackLayout dock="top">
-    <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="&#xe988;" (onAprove)="login()"></CustomActionBar>
+    <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="{{ fieldIsValid ? '&#xe988;' : '' }}"
+      (onAprove)="login()"></CustomActionBar>
   </StackLayout>
   <PreviousNextView>
     <ScrollView>
-      <StackLayout orientation="vertical" class="p-15 form">
+      <StackLayout orientation="vertical" class="p-15 form" [formGroup]="sForm">
         <TextField
           class="input"
-          keyboardType="email"
-          [(ngModel)]="username"
-          hint="ユーザーネーム"></TextField>
+          [class.error]="firstErrors.username"
+          hint="ユーザー名"
+          formControlName="username"></TextField>
+        <Label *ngIf="firstErrors?.username?.pattern"
+          class="text-error typo-annotation"
+          text="使用できない文字列が含まれています"></Label>
+        <Label *ngIf="firstErrors?.username?.required"
+          class="text-error typo-annotation"
+          text="必須のフィールドです"></Label>
         <TextField
-          col="0"
           class="input"
-          secure="true"
-          [(ngModel)]="password"
-          hint="パスワード"></TextField>
+          [class.error]="firstErrors.password"
+          hint="パスワード"
+          formControlName="password"
+          secure="true"></TextField>
+        <Label *ngIf="firstErrors?.password?.pattern"
+          class="text-error typo-annotation"
+          text="使用できない文字列が含まれています"></Label>
+        <Label *ngIf="firstErrors?.password?.required"
+          class="text-error typo-annotation"
+          text="必須のフィールドです"></Label>
         <Label text="パスワードを忘れた？" class="h3 m-y-10 p-10 text-center text-theme" [nsRouterLink]="['velification']"></Label>
       </StackLayout>
     </ScrollView>

@@ -1,4 +1,5 @@
 import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { SigninRoutingModule } from './signin-routing.module';
 import { NativeScriptCommonModule } from 'nativescript-angular/common';
@@ -20,6 +21,7 @@ import { VelificationformComponent } from './velificationform/velificationform.c
     SigninRoutingModule,
     NativeScriptCommonModule,
     NativeScriptFormsModule,
+    ReactiveFormsModule,
     SharedModule,
   ],
   schemas: [NO_ERRORS_SCHEMA]

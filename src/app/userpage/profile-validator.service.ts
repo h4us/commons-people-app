@@ -25,7 +25,7 @@ export class ProfileValidatorService {
     private userService: UserService,
   ) {
     this.sendForm = this.formBuilder.group({
-      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(15), Validators.pattern(/[a-zA-Z0-9_]+/)]],
+      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(15), Validators.pattern(/^[a-zA-Z0-9_]+$/)]],
       //
       firstName: ['', [Validators.maxLength(30)]],
       lastName: ['', [Validators.maxLength(30)]],
@@ -50,5 +50,9 @@ export class ProfileValidatorService {
       status,
       password
     });
+  }
+
+  resetData() {
+    //
   }
 }

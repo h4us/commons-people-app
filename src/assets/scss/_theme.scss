@@ -16,6 +16,11 @@ TextField.input,
   margin-bottom: 8;
   font-size: $theme-fs-medium;
   padding: $input-like-padding;
+
+  &.error {
+    color: #ff3661;
+    background-color: #ffeff2;
+  }
 }
 
 // button
@@ -119,6 +124,10 @@ TextField.input,
 
 .text-dim {
   color: #aaaaaa;
+}
+
+.text-error {
+  color: $theme-error;
 }
 
 // borders

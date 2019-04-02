@@ -144,8 +144,6 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   registerSnackbarActions() {
     this.tNotifySubscription = this.trayService.notifyToUser$
       .subscribe((data: any) => {
-        console.log('@topiceditor', data);
-
         if (data[0] == 'snackbar/topiceditor') {
           switch (data[1]) {
             case 'approveOrNext':

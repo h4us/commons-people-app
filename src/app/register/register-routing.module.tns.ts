@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes } from '@angular/router';
 import { NativeScriptRouterModule } from 'nativescript-angular/router';
 
+import { FieldComponent } from './field/field.component';
 import { UsernameComponent } from './username/username.component';
 import { EmailComponent } from './email/email.component';
 import { PasswordComponent } from './password/password.component';
@@ -11,16 +12,31 @@ import { SentComponent } from './sent/sent.component';
 const routes: Routes = [
   {
     path: 'register',
-    component: UsernameComponent
+    component: FieldComponent,
+    data: {
+      field: 'username',
+      needConfirmInput: false
+    }
   },
+
   {
     path: 'register/email',
-    component: EmailComponent
+    component: FieldComponent,
+    data: {
+      field: 'email',
+      needConfirmInput: true
+    }
   },
+
   {
     path: 'register/password',
-    component: PasswordComponent
+    component: FieldComponent,
+    data: {
+      field: 'password',
+      needConfirmInput: true
+    }
   },
+
   {
     path: 'register/confirm',
     component: ConfirmComponent

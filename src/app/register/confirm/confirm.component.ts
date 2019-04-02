@@ -5,7 +5,7 @@ import { RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
 
 import { UserService } from '../../user.service';
-import { RegisterValidatorService } from '../register-validator.service';
+import { RegisterValidatorService } from '../../register-validator.service';
 
 @Component({
   selector: 'app-confirm',
@@ -33,7 +33,7 @@ export class ConfirmComponent implements OnInit {
     if (key == 'emailAddress') {
       this.routerExt.navigate(['/register', 'email']);
     } else if (key == 'username') {
-      this.routerExt.navigate(['/register', 'username']);
+      this.routerExt.navigate(['/register']);
     } else {
       this.routerExt.navigate(['/register', key]);
     }

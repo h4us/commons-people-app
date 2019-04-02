@@ -4,17 +4,43 @@
   </StackLayout>
   <StackLayout class="p-15" dock="bottom">
     <Button text="送る" class="btn btn-primary btn-rounded-lg" width="50%"
+      [visibility]="fieldIsValid ? 'visible' : 'collapse'"
       (tap)="send()"></Button>
   </StackLayout>
   <PreviousNextView>
     <ScrollView>
-      <StackLayout orientation="vertical" class="p-15 form">
+
+      <StackLayout orientation="vertical" class="p-15 form" [formGroup]="sForm">
+        <HtmlView class="bg-clear"
+          html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular;'>パスワード再設定のリンクをお送りしますので、<br>登録済みのメールアドレスを入力してください。</p>"></HtmlView>
+
         <TextField
           class="input"
-          keyboardType="email"
-          [(ngModel)]="email"
-          hint="E-mail"></TextField>
+          [class.error]="firstErrors.emailAddress"
+          hint="メールアドレス"
+          formControlName="emailAddress"></TextField>
+        <Label *ngIf="firstErrors?.emailAddress?.email"
+          class="text-error typo-annotation"
+          text="無効なメールアドレスです"></Label>
+        <Label *ngIf="firstErrors?.emailAddress?.required"
+          class="text-error typo-annotation"
+          text="必須のフィールドです"></Label>
+        <TextField
+          class="input"
+          [class.error]="firstErrors.emailAddressConfirm"
+          hint="メールアドレスを再入力"
+          formControlName="emailAddressConfirm"></TextField>
+        <Label *ngIf="firstErrors?.emailAddressConfirm?.email"
+          class="text-error typo-annotation"
+          text="無効なメールアドレスです"></Label>
+        <Label *ngIf="firstErrors?.emailAddressConfirm?.required"
+          class="text-error typo-annotation"
+          text="必須のフィールドです"></Label>
+        <Label *ngIf="fieldIsValid && !confirmIsValid"
+          class="text-error typo-annotation"
+          text="確認の入力内容が異なります"></Label>
       </StackLayout>
+
     </ScrollView>
   </PreviousNextView>
 </DockLayout>

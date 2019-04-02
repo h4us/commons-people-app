@@ -39,10 +39,6 @@ export class TopicValidatorService {
   }
 
   resetData() {
-    this.editTo = null;
-    this.originalCreated = null;
-    this.originalPhoto = null;
-    this.sendToAsset = null;
     this.sendForm.reset();
   }
 }

@@ -1,0 +1,52 @@
+<DockLayout stretchLasthChild="true" class="bg-theme-secondary">
+  <StackLayout dock="top">
+    <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="{{ touched && fieldIsValid ? '&#xe92b;' : '' }}"
+      (onAprove)="nextPage()"></CustomActionBar>
+  </StackLayout>
+  <PreviousNextView>
+    <ScrollView>
+      <StackLayout class="p-15 form" [formGroup]="rForm">
+        <!-- // -->
+        <HtmlView *ngIf="field == 'username'"
+          class="bg-clear"
+          html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular;'>ユーザーネームを設定してください。<br>15文字以内、半角英数と記号（_）が使用できます。</p>"></HtmlView>
+        <HtmlView *ngIf="field == 'emailAddress'"
+          class="bg-clear"
+          html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular;'>メールアドレスを設定してください。</p>"></HtmlView>
+        <HtmlView *ngIf="field == 'password'"
+          class="bg-clear"
+          html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular;'>パスワードを設定してください。<br>8文字以上、半角英数と記号（_）が使用できます。</p>"></HtmlView>
+        <!-- // -->
+        <TextField
+          class="input"
+          [class.error]="firstError"
+          [hint]="title"
+          [formControlName]="field"
+          [secure]="field.indexOf('password') > -1"></TextField>
+        <TextField *ngIf="needConfirmInput"
+          class="input"
+          [class.error]="firstError"
+          hint="{{ title }}を再入力"
+          formControlName="{{ field }}Confirm"
+          [secure]="field.indexOf('password') > -1"></TextField>
+        <!-- //  -->
+        <Label *ngIf="firstError?.maxlength"
+          class="text-error typo-annotation"
+          text="{{ firstError?.maxlength?.requiredLength }}文字以内にしてください"></Label>
+        <Label *ngIf="firstError?.minlength"
+          class="text-error typo-annotation"
+          text="{{ firstError?.minlength?.requiredLength }}文字以上にしてください"></Label>
+        <Label *ngIf="firstError?.email"
+          class="text-error typo-annotation"
+          text="無効なメールアドレスです"></Label>
+        <Label *ngIf="firstError?.pattern"
+          class="text-error typo-annotation"
+          text="使用できない文字列が含まれています"></Label>
+        <Label *ngIf="needConfirmInput && !confirmIsValid"
+          class="text-error typo-annotation"
+          text="確認の入力内容が異なります"></Label>
+        <!-- // -->
+      </StackLayout>
+    </ScrollView>
+  </PreviousNextView>
+</DockLayout>

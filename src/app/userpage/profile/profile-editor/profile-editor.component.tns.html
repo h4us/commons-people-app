@@ -1,6 +1,6 @@
 <DockLayout stretchLasthChild="true" class="bg-theme-secondary">
   <StackLayout dock="top">
-    <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="&#xe92b;"
+    <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="{{ touched && fieldIsValid ? '&#xe92b;' : '' }}"
       (onAprove)="submit()"></CustomActionBar>
   </StackLayout>
   <PreviousNextView>
@@ -8,17 +8,36 @@
       <StackLayout orientation="vertical" class="p-15 form" [formGroup]="pForm">
         <TextView *ngIf="field == 'status' || field == 'description'"
           class="input"
+          [class.error]="firstError"
           [hint]="field"
           [formControlName]="field"
           (blur)="onValidate()"
           (returnPress)="onValidate()"></TextView>
         <TextField *ngIf="field != 'status' && field != 'description'"
           class="input"
+          [class.error]="firstError"
           [hint]="field"
           [formControlName]="field"
           [secure]="field == 'password'"
           (blur)="onValidate()"
           (returnPress)="onValidate()"></TextField>
+        <!-- // -->
+        <Label *ngIf="firstError?.required"
+          class="text-error typo-annotation"
+          text="必須のフィールドです"></Label>
+        <Label *ngIf="firstError?.maxlength"
+          class="text-error typo-annotation"
+          text="{{ firstError?.maxlength?.requiredLength }}文字以内にしてください"></Label>
+        <Label *ngIf="firstError?.minlength"
+          class="text-error typo-annotation"
+          text="{{ firstError?.minlength?.requiredLength }}文字以上にしてください"></Label>
+        <Label *ngIf="firstError?.email"
+          class="text-error typo-annotation"
+          text="無効なメールアドレスです"></Label>
+        <Label *ngIf="firstError?.pattern"
+          class="text-error typo-annotation"
+          text="使用できない文字列が含まれています"></Label>
+        <!-- // -->
       </StackLayout>
     </ScrollView>
   </PreviousNextView>

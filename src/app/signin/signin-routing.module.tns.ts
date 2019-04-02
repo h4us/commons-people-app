@@ -12,6 +12,8 @@ const routes: Routes = [
   {
     path: 'signin',
     component: EntryformComponent,
+    // component: ResetformComponent,
+    // component: VelificationformComponent,
     canActivate: [NoAuthGuard]
   },
 

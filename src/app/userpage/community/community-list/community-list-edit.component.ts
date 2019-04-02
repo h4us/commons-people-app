@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-// import { Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 // import { switchMap } from 'rxjs/operators';
 
 import { RouterExtensions } from 'nativescript-angular/router';
@@ -17,7 +17,7 @@ import { layout } from 'tns-core-modules/utils/utils';
 import { ListViewEventData } from 'nativescript-ui-listview';
 import { UserService, User } from '../../../user.service';
 
-import { SnackbarLikeComponent } from '../../../shared/snackbar-like/snackbar-like.component';
+import { TrayService } from '../../../shared/tray.service';
 
 @Component({
   selector: 'app-community-list-edit',
@@ -28,17 +28,14 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
   title: string = 'コミュニティの切り替え';
   currentList: any[];
   selected: number;
+  draft: number;
   selectedList: number[];
   user: User;
   mode: string = 'switch';
 
   @ViewChild('communityList') rootLayoutRef: ElementRef;
-  @ViewChild('overlayButtonContainerForPreview') ovBcPrevRef: ElementRef;
-  @ViewChild('sizeAnchor') anchorRef: ElementRef;
-  @ViewChild('snackBar') snackBar: SnackbarLikeComponent;
-  rootLayout: AbsoluteLayout;
-  ovBcPrev: GridLayout;
-  anchor: StackLayout;
+
+  tNotifySubscription: Subscription;
 
   constructor(
     private routerExt: RouterExtensions,
@@ -46,6 +43,7 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
     private aRoute: ActivatedRoute,
     private userService: UserService,
     private page: Page,
+    private trayService: TrayService
   ) {
     page.actionBarHidden = true;
   }
@@ -64,7 +62,7 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
       this.selectedList = this.userService.getCommunities().map((el) => el.id);
 
       if (this.selectedList.length > 0) {
-        this.userService.draftCommunityIds = this.selectedList;
+        this.userService.draftCommunityIds = this.selectedList.slice();
         this.userService.draftCommunities = this.userService.getCommunities();
       }
     } else if (this.router.url.indexOf('communityeditor:community/submit') > -1) {
@@ -72,34 +70,57 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
       this.title = 'コミュニティを選ぶ';
       this.currentList = this.userService.draftCommunities;
       this.selectedList = this.userService.draftCommunityIds;
+
+      this.registerSnackbarActions();
     } else {
       this.userService.draftCommunityIds = [];
       this.userService.draftCommunities = [];
       this.currentList = this.userService.getCommunities();
       this.selected = this.userService.currentCommunityId;
+      this.draft = this.userService.currentCommunityId;
     }
   }
 
   ngAfterViewInit() {
     if (this.mode == 'submit') {
-      this.ovBcPrev = <GridLayout>this.ovBcPrevRef.nativeElement;
-      this.anchor = <StackLayout>this.anchorRef.nativeElement;
-      this.rootLayout = <AbsoluteLayout>this.rootLayoutRef.nativeElement;
-
-      //
-      setTimeout(() => {
-        const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
-        AbsoluteLayout.setTop(this.ovBcPrev, aH - (this.ovBcPrev.getMeasuredHeight() / screen.mainScreen.scale));
-      }, 100);
+      this.trayService.request('snackbar/communityeditor', 'open', {
+        doneMessage: '送信しています..',
+        cancelAsClose: false
+      });
     }
   }
 
   ngOnDestroy() {
+    if (this.tNotifySubscription) {
+      this.tNotifySubscription.unsubscribe();
+    }
+  }
+
+  registerSnackbarActions() {
+    this.tNotifySubscription = this.trayService.notifyToUser$
+      .subscribe((data: any) => {
+        if (data[0] == 'snackbar/communityeditor') {
+          switch (data[1]) {
+            case 'approveOrNext':
+              this.submitChange();
+              break;
+            case 'cancelOrBack':
+              this.cancelAction();
+              break;
+            default:
+              break;
+          }
+        }
+      });
   }
 
   get draftIsChanged(): boolean {
-    // return this.userService.draftCommunityIds.length > 0;
-    return true;
+    //! simple but not strict
+    // return this.userService.draftCommunityIds.toString() != this.selectedList.toString();
+
+    //
+    return this.userService.draftCommunityIds.filter((el) => !this.selectedList.includes(el)).length > 0 ||
+      this.userService.draftCommunityIds.length != this.selectedList.length;
   }
 
   inDraft(id: number): boolean {
@@ -107,6 +128,10 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
   }
 
   cancelAction(tLayout?: DockLayout | AbsoluteLayout) {
+    if (this.mode == 'submit') {
+      this.trayService.request('snackbar/communityeditor', 'close');
+    }
+
     // if ((this.mode == 'switch' || this.router.url.indexOf('/newuser') == 0)
     if ((this.mode == 'switch')
         && tLayout) {
@@ -120,8 +145,7 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
     const tItem = args.view.bindingContext;
 
     if (this.mode == 'switch') {
-      this.selected = this.userService.switchCommunity(tItem.id);
-      this.userService.updateRquest('refresh current community');
+      this.draft = tItem.id;
     } else if (this.mode == 'edit') {
       const idx = this.selectedList.indexOf(tItem.id);
       if (idx > -1) {
@@ -135,40 +159,39 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
         //   }
         // }], { relativeTo: this.aRoute.parent });
       }
-
       this.routerExt.navigate([{
         outlets: {
           communityeditor: ['community', 'preview', tItem.name]
         }
       }], { relativeTo: this.aRoute.parent });
-    } else {
-      // nothing to do
     }
   }
 
-  switchMode() {
-    this.routerExt.navigate([{
-      outlets: {
-        communityeditor: ['community', 'edit']
-      }
-    }], { relativeTo: this.aRoute.parent });
+  switchModeOrSubmitChange() {
+    if (this.draft != this.selected) {
+      this.userService.switchCommunity(this.draft);
+      this.userService.updateRquest('refresh current community');
+      this.trayService.request('snackbar/', 'open', {
+        doneMessage: 'コミュニティを変更しました',
+        step: 1,
+        isApproved: true
+      });
+      this.rootLayoutRef.nativeElement.closeModal();
+    } else {
+      this.routerExt.navigate([{
+        outlets: {
+          communityeditor: ['community', 'edit']
+        }
+      }], { relativeTo: this.aRoute.parent });
+    }
   }
 
   confirmChange() {
-    console.log(
-      this.userService.draftCommunityIds,
-      this.userService.draftCommunities
-    );
-
     this.routerExt.navigate([{
       outlets: {
         communityeditor: ['community', 'submit']
       }
     }], { relativeTo: this.aRoute.parent });
-  }
-
-  cancelSnackbar() {
-    this.routerExt.backToPreviousPage();
   }
 
   submitChange() {
@@ -182,7 +205,7 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
     this.userService.updateCommunities(this.userService.draftCommunityIds).subscribe((data) => {
       console.log('submitted', data);
       this.userService.parseUser(data);
-      this.rootLayout.closeModal();
+      this.rootLayoutRef.nativeElement.closeModal();
     });
 
   }

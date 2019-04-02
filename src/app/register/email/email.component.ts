@@ -4,7 +4,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
 
-import { RegisterValidatorService } from '../register-validator.service';
+import { RegisterValidatorService } from '../../register-validator.service';
 
 @Component({
   selector: 'app-email',

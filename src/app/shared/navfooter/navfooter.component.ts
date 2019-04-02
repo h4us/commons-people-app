@@ -5,11 +5,10 @@ import {
 } from '@angular/core';
 import { Router, NavigationStart, NavigationEnd, ActivatedRoute } from '@angular/router';
 
-import { Subscription } from 'rxjs';
+import { interval, Subscription } from 'rxjs';
+import { takeWhile, skipWhile } from 'rxjs/operators';
 
 import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
-// import { FlexboxLayout } from 'tns-core-modules/ui/layouts/flexbox-layout';
-// import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout';
 import { RouterExtensions } from 'nativescript-angular/router';
 import { screen } from 'tns-core-modules/platform';
 
@@ -83,17 +82,26 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
     // slideRight
     // slideTop
     // slideBottom
+
+    // TODO:
+    this.npEl = <AbsoluteLayout>this.npRef.nativeElement;
+    const sb = interval(30).pipe(skipWhile(() => {
+      return (this.npEl.getMeasuredWidth() / screen.mainScreen.scale) < 1;
+    })).subscribe(() => {
+      const eW = this.npEl.getMeasuredWidth() / screen.mainScreen.scale;
+      this.iPoint = (eW / 75) * 48;
+      sb.unsubscribe();
+    });
   }
 
   ngAfterViewInit() {
-    this.npEl = <AbsoluteLayout>this.npRef.nativeElement;
-
+    // this.npEl = <AbsoluteLayout>this.npRef.nativeElement;
     // TODO:
-    setTimeout(() => {
-      const eW = this.npEl.getMeasuredWidth() / screen.mainScreen.scale;
-      const eH = this.npEl.getMeasuredHeight() / screen.mainScreen.scale;
-      this.iPoint = (eW / 75) * 48;
-    }, 100);
+    // setTimeout(() => {
+    //   const eW = this.npEl.getMeasuredWidth() / screen.mainScreen.scale;
+    //   const eH = this.npEl.getMeasuredHeight() / screen.mainScreen.scale;
+    //   this.iPoint = (eW / 75) * 48;
+    // }, 100);
     // --
   }
 

@@ -5,7 +5,7 @@ import { RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
 
 import { UserService } from '../../user.service';
-import { RegisterValidatorService } from '../register-validator.service';
+import { RegisterValidatorService } from '../../register-validator.service';
 
 @Component({
   selector: 'app-sent',
@@ -31,7 +31,7 @@ export class SentComponent implements OnInit {
   }
 
   nextPage() {
-    this.routerExt.navigate(['']);
+    this.routerExt.navigate(['/signin']);
   }
 
 }

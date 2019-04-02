@@ -7,9 +7,10 @@ import { EmailComponent } from './email/email.component';
 import { PasswordComponent } from './password/password.component';
 import { ConfirmComponent } from './confirm/confirm.component';
 import { SentComponent } from './sent/sent.component';
+import { FieldComponent } from './field/field.component';
 
 @NgModule({
-  declarations: [UsernameComponent, EmailComponent, PasswordComponent, ConfirmComponent, SentComponent],
+  declarations: [UsernameComponent, EmailComponent, PasswordComponent, ConfirmComponent, SentComponent, FieldComponent],
   imports: [
     CommonModule,
     RegisterRoutingModule
