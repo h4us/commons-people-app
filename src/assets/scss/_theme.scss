@@ -10,12 +10,14 @@ GridLayout + TextField {
 // forms
 input[type="text"],
 TextField,
-TextField.input,
-.form > .input {
+textfield.input,
+.form .input {
   background-color: #ffffff;
   margin-bottom: 8;
   font-size: $theme-fs-medium;
   padding: $input-like-padding;
+  color: #333;
+  placeholder-color: $theme-dim;
 
   &.error {
     color: #ff3661;
@@ -115,6 +117,10 @@ TextField.input,
 
 .text-grey {
   color: $theme-grey;
+}
+
+.text-darkgrey {
+  color: $theme-darkgrey;
 }
 
 .text-theme,
@@ -267,6 +273,8 @@ TextField.input,
       padding: 0;
       margin: 0 $searchbox-like-spacing 0 0;
       line-height: 1;
+      color: $theme-darkgrey;
+      placeholder-color: $theme-dim;
     }
 
     .input-alt {
@@ -286,12 +294,14 @@ TextField.input,
     border-radius: $searchbox-like-height;
     border-width: 1;
 
-    > * {
+    > *[editable] {
       margin-left: $searchbox-like-spacing;
       margin-right: $searchbox-like-spacing;
       line-height: $multi-line-height;
       margin-top: $multi-line-spaces;
       margin-bottom: $multi-line-spaces;
+      color: $theme-darkgrey;
+      placeholder-color: $theme-dim;
     }
   }
 
@@ -349,6 +359,12 @@ TextField.input,
   font-size: $theme-fs-medium;
   font-family: "NotoSansJP Medium", "NotoSansJP-Medium";
   font-weight: 500;
+}
+
+.typo-message-light {
+  font-size: $theme-fs-medium;
+  line-height: 1.1;
+  font-family: "NotoSansJP Regular", "NotoSansJP-Regular";
 }
 
 .typo-message {

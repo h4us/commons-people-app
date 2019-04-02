@@ -3,9 +3,6 @@ import { Routes } from '@angular/router';
 import { NativeScriptRouterModule } from 'nativescript-angular/router';
 
 import { FieldComponent } from './field/field.component';
-import { UsernameComponent } from './username/username.component';
-import { EmailComponent } from './email/email.component';
-import { PasswordComponent } from './password/password.component';
 import { ConfirmComponent } from './confirm/confirm.component';
 import { SentComponent } from './sent/sent.component';
 

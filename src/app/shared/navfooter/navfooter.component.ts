@@ -44,10 +44,10 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
       if (event instanceof NavigationEnd) {
-        //
+        // TODO: show / hide timing & animation
         console.log('nav end ->', this.router.url);
         //
-        if (this.router.url.match(/.*\/search/)) {
+        if (this.router.url.match(/.*\/search|sent-edit/)) {
           this.navMode = 'dm';
         } else {
           if (this.router.url.indexOf('userpage:community') >= 0) {

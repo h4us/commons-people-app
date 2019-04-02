@@ -34,20 +34,27 @@
       alignItems="stretch"
       justifyContent="center"
       class="m-y-20">
-      <Image src="~/assets/no-point@2x.png" stretch="aspectFit"></Image>
-      <Label class="font-weight-bold text-center" text="ポイントがありません" style="font-size:20;"></Label>
-      <Label textWrap="true" class="text-center" text="コミュニティの活動に参加して獲得するか
+      <Image src="~/assets/no-point@2x.png" stretch="aspectFit" flexShrink="1"></Image>
+      <FlexboxLayout alginSelf="center"
+        flexShrink="0" flexDirection="column" justifyContent="center"
+        minHeight="88">
+        <Label class="font-weight-bold text-center typo-card-heading" text="ポイントがありません"></Label>
+        <Label textWrap="true" class="text-center typo-message-light" android:style="margin-top:-10;" ios:style="margin-top:10;"
+          text="コミュニティの活動に参加して獲得するか
 コミュニティのオーナーにお問い合わせください"></Label>
-      <StackLayout alignSelf="center">
-        <Button text="コミュニティをみる" class="btn btn-primary btn-rounded-lg" style="padding-left:15; padding-right:15;"
+      </FlexboxLayout>
+      <FlexboxLayout alignSelf="center"
+        flexDirection="column" justifyContent="center" flexShrink="0"
+        minHeight="88">
+        <Button text="コミュニティをみる" class="btn btn-primary btn-rounded-lg" style="padding-left:30; padding-right:30;"
           (tap)="gotoCommunity()"></Button>
-        <Button text="問い合わせる" class="btn btn-primary btn-rounded-lg btn-outline" style="padding-left:15; padding-right:15;"
+        <Button text="問い合わせる" class="btn btn-primary btn-rounded-lg btn-outline" style="padding-left:30; padding-right:30;"
           (tap)="giveMePoint()"></Button>
-        <!-- // -->
-        <Label class="text-center h3" text="view test list"
+      </FlexboxLayout>
+      <FlexboxLayout alignSelf="center" flexDirection="column" justifyContent="center" flexShrink="0">
+        <Label class="text-center typo-list-heading" text="view list demo"
           (tap)="allZero = !allZero"></Label>
-        <!-- // -->
-      </StackLayout>
+      </FlexboxLayout>
     </FlexboxLayout>
   </ng-template>
 </GridLayout>

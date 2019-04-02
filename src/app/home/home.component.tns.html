@@ -1,4 +1,13 @@
 <GridLayout rows="*">
+  <StackLayout #lottieViewAnchor
+    width="100%" height="0" verticalAlignment="center" horizontalAlignment="center" class="bg-clear"></StackLayout>
+
+  <LottieView #lottieView
+    style="{{ 'margin-top: ' + safeAreaSpan }}"
+    [width]="ltCalcWidth"
+    [height]="ltCalcWidth"
+    [src]="srcData" [loop]="true" [autoPlay]="true"></LottieView>
+
   <DockLayout *ngIf="!autologin; else elseBlock"
     stretchLasthChild="true" class="bg-theme-secondary">
     <StackLayout class="p-15" dock="bottom">
@@ -18,10 +27,4 @@
       </StackLayout>
     </FlexboxLayout>
   </DockLayout>
-  <ng-template #elseBlock>
-    <StackLayout width="100%" height="100%" verticalAlignment="center" horizontalAlignment="center">
-      <LottieView width="72" height="72" [src]="srcData" [loop]="true" [autoPlay]="true"
-        android:style="margin-top:14;" ios:style="margin-top:5;"></LottieView>
-    </StackLayout>
-  </ng-template>
 </GridLayout>

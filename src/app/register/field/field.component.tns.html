@@ -17,18 +17,51 @@
           class="bg-clear"
           html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular;'>パスワードを設定してください。<br>8文字以上、半角英数と記号（_）が使用できます。</p>"></HtmlView>
         <!-- // -->
-        <TextField
+        <GridLayout *ngIf="field == 'password'"
+          columns="*,48" rows="{{ isIOS ? 48 : 60 }}" style="padding:0;"
           class="input"
+          [class.error]="firstError">
+          <TextField
+            col="0"
+            class="input" style="margin-bottom:0;"
+            [class.error]="firstError"
+            [hint]="title"
+            [secure]="isSecure"
+            [formControlName]="field"
+            (returnPress)="onValidate()"></TextField>
+          <Label col="1" class="icon text-darkgrey text-center p-x-15 p-y-10" verticalAlignment="center"
+            text="{{ isSecure ? '&#xe95c;' : '&#xe95d;' }}"
+            (tap)="togglePassword()"></Label>
+        </GridLayout>
+        <!-- // -->
+        <TextField *ngIf="field != 'password'"
+          class="input"
+          keyboardType="{{ field == 'emailAddress' ? 'email' : 'url' }}"
           [class.error]="firstError"
           [hint]="title"
-          [formControlName]="field"
-          [secure]="field.indexOf('password') > -1"></TextField>
-        <TextField *ngIf="needConfirmInput"
+          [formControlName]="field"></TextField>
+        <!-- // -->
+        <GridLayout *ngIf="field == 'password' && needConfirmInput"
+          columns="*" rows="{{ isIOS ? 48 : 60 }}" style="padding:0;"
           class="input"
+          [class.error]="firstError">
+          <TextField
+            col="0"
+            class="input" style="margin-bottom:0;"
+            [class.error]="firstError"
+            hint="{{ title }}を再入力"
+            [secure]="isSecure"
+            formControlName="{{ field }}Confirm"
+            (returnPress)="onValidate()"></TextField>
+        </GridLayout>
+        <!-- // -->
+        <TextField *ngIf="field != 'password' && needConfirmInput"
+          class="input"
+          keyboardType="{{ field == 'emailAddress' ? 'email' : 'url' }}"
           [class.error]="firstError"
           hint="{{ title }}を再入力"
           formControlName="{{ field }}Confirm"
-          [secure]="field.indexOf('password') > -1"></TextField>
+          [secure]="field.indexOf('password') > -1 && isSecure"></TextField>
         <!-- //  -->
         <Label *ngIf="firstError?.maxlength"
           class="text-error typo-annotation"

@@ -1,10 +1,16 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy, AfterViewInit,
+  ElementRef, ViewChild
+} from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 
 import { interval, Subscription } from 'rxjs';
+import { skipWhile } from 'rxjs/operators';
 
 import { RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
+import { screen, isIOS } from 'tns-core-modules/platform';
+import * as application from 'tns-core-modules/application';
 
 import { UserService, User } from '../user.service';
 import { RegisterValidatorService } from '../register-validator.service';
@@ -15,10 +21,15 @@ import { SigninValidatorService } from '../signin-validator.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   title:string = 'COMMONS PEOPLE';
-  srcData: string;
   autologin: boolean = false;
+
+  srcData: string = 'data.json';
+  ltCalcWidth: number = 0;
+  safeAreaSpan: number = 12;
+  @ViewChild('lottieViewAnchor') ltAnchor: ElementRef;
+  @ViewChild('lottieView') lt: ElementRef;
 
   private _subs: Subscription;
 
@@ -31,9 +42,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     private page: Page
   ) {
     page.actionBarHidden = true;
-
-    this.srcData = `data.json`;
-
     // ...
     this._subs = this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
@@ -66,6 +74,32 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       );
     }
+
+    // TODO:
+    const sb = interval(30).pipe(skipWhile(() => {
+      return this.ltAnchor.nativeElement.getMeasuredWidth() < 1;
+    })).subscribe(() => {
+      const lCW = this.ltAnchor.nativeElement.getMeasuredWidth() / screen.mainScreen.scale;
+
+      if (isIOS) {
+        if (application.ios.window.safeAreaInsets) {
+          this.safeAreaSpan = (<number>application.ios.window.safeAreaInsets.top) * -1;
+          console.log('--> ios safeAreaSpan?', this.safeAreaSpan);
+        }
+      }
+
+      if (lCW < 321) {
+        this.ltCalcWidth = 64.853 * (320 / lCW);
+      } else {
+        this.ltCalcWidth = 76 * (375 / lCW);
+      }
+
+      sb.unsubscribe();
+    });
+    // --
+  }
+
+  ngAfterViewInit() {
   }
 
   ngOnDestroy() {

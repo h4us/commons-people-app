@@ -58,7 +58,6 @@ export class ProfileRootComponent implements OnInit {
     this.currentList = this.userService.getCommunities();
 
     this.docPath = fs.path.normalize(`${fs.knownFolders.documents().path}`);
-    console.log(this.docPath);
   }
 
   toEdit(field:string) {

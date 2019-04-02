@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 
 import { RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
+import { isIOS } from 'tns-core-modules/platform';
 
 import { UserService, User } from '../../user.service';
 import { SigninValidatorService } from '../../signin-validator.service';
@@ -17,6 +18,7 @@ import { SigninValidatorService } from '../../signin-validator.service';
 export class EntryformComponent implements OnInit, OnDestroy {
   title: string = 'サインイン'
   sForm: FormGroup;
+  isSecure: boolean = true;
 
   firstErrors = {
     username: false,
@@ -58,6 +60,14 @@ export class EntryformComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.sfSub.unsubscribe();
+  }
+
+  togglePassword() {
+    this.isSecure = !this.isSecure;
+  }
+
+  get isIOS(): boolean {
+    return isIOS;
   }
 
   login() {

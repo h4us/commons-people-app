@@ -8,6 +8,8 @@ import { switchMap } from 'rxjs/operators';
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
 
+import { isIOS } from 'tns-core-modules/platform';
+
 import { RegisterValidatorService } from '../../register-validator.service';
 
 @Component({
@@ -46,6 +48,7 @@ export class FieldComponent implements OnInit, OnDestroy {
   confirmIsValid: boolean = true;
   firstError: any;
   firstErrorInConfirm: any;
+  isSecure: boolean = true;
 
   private touched: boolean = false;
 
@@ -124,6 +127,14 @@ export class FieldComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.rfSub.unsubscribe();
+  }
+
+  get isIOS(): boolean {
+    return isIOS;
+  }
+
+  togglePassword() {
+    this.isSecure = !this.isSecure;
   }
 
   nextPage() {

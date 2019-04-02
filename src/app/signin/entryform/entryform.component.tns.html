@@ -8,6 +8,7 @@
       <StackLayout orientation="vertical" class="p-15 form" [formGroup]="sForm">
         <TextField
           class="input"
+          keyboardType="url"
           [class.error]="firstErrors.username"
           hint="ユーザー名"
           formControlName="username"></TextField>
@@ -17,12 +18,19 @@
         <Label *ngIf="firstErrors?.username?.required"
           class="text-error typo-annotation"
           text="必須のフィールドです"></Label>
-        <TextField
-          class="input"
-          [class.error]="firstErrors.password"
-          hint="パスワード"
-          formControlName="password"
-          secure="true"></TextField>
+        <GridLayout class="input" style="padding:0;"
+          columns="*,48" rows="{{ isIOS ? 48 : 60 }}"
+          [class.error]="firstErrors.password">
+          <TextField
+            class="input" style="margin-bottom:0;"
+            [class.error]="firstErrors.password"
+            hint="パスワード"
+            formControlName="password"
+            [secure]="isSecure"></TextField>
+          <Label col="1" class="icon text-darkgrey text-center p-x-15 p-y-10" verticalAlignment="center"
+            text="{{ isSecure ? '&#xe95c;' : '&#xe95d;' }}"
+            (tap)="togglePassword()"></Label>
+        </GridLayout>
         <Label *ngIf="firstErrors?.password?.pattern"
           class="text-error typo-annotation"
           text="使用できない文字列が含まれています"></Label>

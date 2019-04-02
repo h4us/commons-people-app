@@ -16,9 +16,46 @@ export class ProfileValidatorService {
   lastName: AbstractControl;
   description: AbstractControl;
   location: AbstractControl;
-  emailAddres: AbstractControl;
+  emailAddress: AbstractControl;
+  emailAddressConfirm: AbstractControl;
   status: AbstractControl;
   password: AbstractControl;
+  passwordConfirm: AbstractControl;
+
+  labelsForInput = {
+    username: {
+      title: 'ユーザーネーム',
+      hint: ''
+    },
+    firstName: {
+      title: '名',
+      hint: ''
+    },
+    lastName: {
+      title: '姓',
+      hint: ''
+    },
+    description: {
+      title: '自己紹介',
+      hint: ''
+    },
+    location: {
+      title: '場所',
+      hint: ''
+    },
+    emailAddress: {
+      title: 'メールアドレス',
+      hint: ''
+    },
+    status: {
+      title: 'ステータス',
+      hint: ''
+    },
+    password: {
+      title: 'パスワード',
+      hint: ''
+    },
+  };
 
   constructor(
     private formBuilder: FormBuilder,
@@ -33,8 +70,11 @@ export class ProfileValidatorService {
       location: ['', [Validators.maxLength(100)]],
       //
       emailAddress: ['', [Validators.required, Validators.email ]],
+      emailAddressConfirm: ['', [Validators.required, Validators.email ]],
+      //
       status: ['', [Validators.maxLength(50)]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/[a-zA-Z0-9_]+/)]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^[a-zA-Z0-9_]+$/)]],
+      passwordConfirm: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^[a-zA-Z0-9_]+$/)]],
     });
 
     const { username, firstName, lastName, description, location, emailAddress, status } = this.userService.getCurrentUser();

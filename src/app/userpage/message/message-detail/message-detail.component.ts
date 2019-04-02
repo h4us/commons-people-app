@@ -38,12 +38,15 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
 
   resizes: number = 0;
   ovf: boolean = false;
+  rowLimit: string = '*';
+  lastH: number = 0;
   sendText = new FormControl('');
 
   mSubscription: Subscription;
 
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
   @ViewChild('sendTray') sTrayRef: ElementRef;
+  @ViewChild('sendInput') sInputRef: ElementRef;
   sTray: GridLayout | StackLayout | TextView;
   anchor: StackLayout;
 
@@ -90,21 +93,34 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
         this.messageService.fetchMessages(desireId);
       });
 
-    this.sTray = this.sTrayRef.nativeElement;
+    // this.sTray = this.sTrayRef.nativeElement;
     this.anchor = <StackLayout>this.anchorRef.nativeElement;
 
-    // this.sendText.valueChanges.subscribe((val) => {
-    //   if (this.sTray) {
-    //     const eH: number = this.sTray.getMeasuredHeight() / screen.mainScreen.scale;
-    //     if (eH > 200) {
-    //       this.ovf = true;
-    //       this.resizes = eH;
-    //     } else if (this.resizes > 200){
-    //       this.ovf = false;
-    //       this.resizes = eH;
-    //     }
-    //   }
-    // });
+    setTimeout(() => {
+      const origH: number = (this.sTrayRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale);
+      const limitH: number = origH * 3;
+      this.lastH = this.sInputRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
+
+      this.sendText.valueChanges.subscribe((val) => {
+        // if (this.sTray) {
+        const eH: number = this.sInputRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
+
+        if (this.lastH > limitH && this.rowLimit == '*') {
+          console.log(eH, limitH, origH);
+          console.log('bang');
+          this.lastH = eH;
+          this.rowLimit = '' + limitH;
+        } else {
+          this.lastH = eH;
+          this.rowLimit = '*';
+          console.log('foo');
+        }
+
+        this.lastH = eH;
+        // }
+      });
+    }, 100);
+
   }
 
   ngOnDestroy() {

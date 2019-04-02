@@ -28,6 +28,7 @@ import { MessageSearchComponent } from './message/message-search/message-search.
 import { ProfileRootComponent } from './profile/profile-root/profile-root.component';
 import { ProfileEditorComponent } from './profile/profile-editor/profile-editor.component';
 import { ProfileEtcComponent } from './profile/profile-etc/profile-etc.component';
+import { SentComponent } from './profile/sent/sent.component';
 
 //
 import { AuthGuard } from '../auth.guard';
@@ -168,6 +169,12 @@ const routes: Routes = [
       {
         path: 'profile/edit/:field',
         component: ProfileEditorComponent,
+        outlet: 'userpage',
+      },
+
+      {
+        path: 'profile/sent-edit',
+        component: SentComponent,
         outlet: 'userpage',
       },
 

@@ -42,10 +42,10 @@
 
       <StackLayout row="1" class="p-15 bg-white searchbox-like-container">
 
-        <GridLayout columns="*,60" rosw="*" width="100%" class="bg-white searchbox-like-container">
-          <StackLayout col="0" row="0" class="form searchbox-like-stretch">
-            <TextView #sendTray [formControl]="sendText" editable="true"
-              style="border-color:transparent; background-color:transparent;"></TextView>
+        <GridLayout columns="*,60" [rows]="rowLimit" width="100%" class="bg-white searchbox-like-container">
+          <StackLayout #sendTray col="0" row="0" class="form searchbox-like-stretch">
+            <TextView #sendInput [formControl]="sendText" editable="true"
+              hint="Aa" style="border-color:transparent; background-color:transparent;"></TextView>
           </StackLayout>
           <FlexboxLayout col="1" row="0"
             flexDirection="column"

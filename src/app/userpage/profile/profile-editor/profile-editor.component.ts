@@ -2,13 +2,14 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormGroup } from '@angular/forms'
 
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 // import { Observable, Subject, forkJoin, from, of, zip } from 'rxjs';
 // import { distinct, switchMap, map, mergeAll, filter } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
+import { isIOS } from 'tns-core-modules/platform';
 
 import { UserService } from '../../../user.service';
 import { TrayService } from '../../../shared/tray.service';
@@ -24,8 +25,11 @@ export class ProfileEditorComponent implements OnInit, OnDestroy {
   field: string = '';
   pForm: FormGroup;
 
-  fieldIsValid: boolean;
+  fieldIsValid: boolean = false;
+  confirmIsValid: boolean = true;
   firstError: any;
+  firstErrorInConfirm: any;
+  isSecure: boolean = true;
 
   private touched: boolean = false;
   private edited: boolean = false;
@@ -46,18 +50,6 @@ export class ProfileEditorComponent implements OnInit, OnDestroy {
     page.actionBarHidden = true;
 
     this.pForm = pvService.sendForm;
-
-    this.pfSub = pvService.sendForm.valueChanges.subscribe((changes: any) => {
-      if (!this.touched) {
-        this.touched = true;
-      }
-
-      this.fieldIsValid = this.pForm.get(this.field).valid;
-      this.firstError = this.pForm.get(this.field).errors ?
-        {
-          [Object.keys(this.pForm.get(this.field).errors)[0]] : this.pForm.get(this.field).errors[Object.keys(this.pForm.get(this.field).errors)[0]]
-        } : null;
-    });
   }
 
   ngOnInit() {
@@ -66,9 +58,37 @@ export class ProfileEditorComponent implements OnInit, OnDestroy {
       .forEach((params) => {
         //
         const fld: string = <string>params.field;
-        this.title = fld;
+        this.title = this.pvService.labelsForInput[fld].title;
         this.field = fld;
       });
+
+    this.pfSub = this.pvService.sendForm.valueChanges.subscribe((changes: any) => {
+      if (!this.touched) {
+        this.touched = true;
+      }
+
+      this.firstError = this.pForm.get(this.field).errors ?
+        {
+          [Object.keys(this.pForm.get(this.field).errors)[0]] : this.pForm.get(this.field).errors[Object.keys(this.pForm.get(this.field).errors)[0]]
+        } : null;
+
+      if (this.field != 'password' && this.field != 'emailAddress') {
+        this.fieldIsValid = this.pForm.get(this.field).valid
+      } else {
+        //
+        this.firstErrorInConfirm = this.pForm.get(`${this.field}Confirm`).errors ?
+          {
+            [Object.keys(this.pForm.get(`${this.field}Confirm`).errors)[0]] : this.pForm.get(`${this.field}Confirm`).errors[Object.keys(this.pForm.get(`${this.field}Confirm`).errors)[0]]
+          } : null;
+        //
+
+        this.confirmIsValid = this.pForm.get(`${this.field}Confirm`).value == this.pForm.get(this.field).value;
+
+        this.fieldIsValid = this.pForm.get(this.field).valid
+          && this.pForm.get(`${this.field}Confirm`).valid
+          && this.confirmIsValid;
+      }
+    });
 
     this.lastCommit = this.pForm.value;
   }
@@ -81,12 +101,20 @@ export class ProfileEditorComponent implements OnInit, OnDestroy {
     } else {
       this.trayService.request('snackbar/', 'open', {
         step: 1, isApproved: true,
-        doneMessage: `${this.field} edited.`
+        doneMessage: `${this.title}を編集しました.`
       });
     }
   }
 
   onValidate() {
+  }
+
+  togglePassword() {
+    this.isSecure = !this.isSecure;
+  }
+
+  get isIOS(): boolean {
+    return isIOS;
   }
 
   submit() {
@@ -105,7 +133,23 @@ export class ProfileEditorComponent implements OnInit, OnDestroy {
     } else if (['emailAddress', 'password'].includes(this.field)) {
       //
       console.log('mail-base update');
-      //
+      let req: Observable<any>;
+      if (this.field == 'password') {
+        req = this.userService.updateUserPassword({
+          currentPassword: this.pForm.get('password').value
+        });
+      } else {
+        req = this.userService.updateUserEmailAddress({
+          newEmailAddress: this.pForm.get('emailAddress').value
+        });
+      }
+      req.subscribe((data) => {
+        this.routerExt.navigate([{
+          outlets: { userpage: ['profile', 'sent-edit'] }
+        }], {
+          relativeTo: this.aRoute.parent
+        });
+      });
     } else if (this.field == 'status') {
       this.userService.updateUserInfo({ status: this.pForm.get('status').value }, 'status')
         .subscribe((data) => {

@@ -235,13 +235,15 @@ export class UserService {
 
   updateUserEmailAddress(data: any, mode?: string): Observable<any> {
     // TODO:
-    let ret: Observable<any>;
+    let ret: Observable<any> = of([]);
+    // ret = this.http.post(`${this.apiUrl}users/${this.user.id}/emailaddress`, data);
     return ret;
   }
 
   updateUserPassword(data: any, mode?: string): Observable<any> {
     // TODO:
-    let ret: Observable<any>;
+    let ret: Observable<any> = of([]);
+    // ret = this.http.post(`${this.apiUrl}users/${this.user.id}/passwordreset`, data);
     return ret;
   }
 
