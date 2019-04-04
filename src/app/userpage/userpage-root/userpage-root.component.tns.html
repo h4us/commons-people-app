@@ -9,6 +9,11 @@
     </StackLayout>
   </GridLayout>
   <!-- // -->
+  <StackLayout width="100%" height="100%" backgroundColor="rgba(0,0,0,.33)"
+    visibility="{{ locked ? 'visible' : 'collapse' }}"
+    (touch)="onOuterTouch()"
+    (tap)="onOuterTouch()"></StackLayout>
+  <!-- // -->
   <CustomSnackbarLike #snackBar
     approveMessage="この内容でよろしいですか？"
     doneMessage="送信が完了しました。"

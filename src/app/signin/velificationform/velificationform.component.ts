@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
@@ -32,6 +33,7 @@ export class VelificationformComponent implements OnInit, OnDestroy {
 
   constructor(
     private routerExt: RouterExtensions,
+    private aRoute: ActivatedRoute,
     private userService:UserService,
     private siService: SigninValidatorService,
     private page: Page
@@ -65,16 +67,26 @@ export class VelificationformComponent implements OnInit, OnDestroy {
    }
 
   public send() {
+    // --
     // TODO: TEST, redirect, snackbar ?
-    console.log('send ->', this.sForm.get('emailAddress').value);
-
+    // --
     this.userService.sendVelification(this.sForm.get('emailAddress').value).subscribe(
       (data: any) => {
-        this.routerExt.navigate(['/signin']);
+        // this.routerExt.navigate(['/signin']);
+        this.routerExt.navigate([{
+          outlets: {
+            signinpage: [ 'entry' ]
+          }
+        }], { relativeTo: this.aRoute.parent });
       },
-      (error: any) => { console.error(error); }
+      (error: any) => {
+        console.error(error);
+        this.routerExt.navigate([{
+          outlets: {
+            signinpage: [ 'entry' ]
+          }
+        }], { relativeTo: this.aRoute.parent });
+      }
     );
-
-    // this.routerExt.navigate(['/signin']);
   }
 }

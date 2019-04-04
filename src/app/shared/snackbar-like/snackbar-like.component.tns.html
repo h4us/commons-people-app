@@ -7,10 +7,12 @@
   <StackLayout *ngIf="isApproved" class="bg-clear" row="0" height="60" style="border-width:0;"></StackLayout>
   <GridLayout *ngIf="isApproved"
     row="1"
-    columns="60,*,60" rows="60" class="bg-theme">
+    columns="60,*,60" rows="60"
+    [ngClass]="{ 'bg-theme': barColor == 'theme', 'bg-error': barColor == 'error' }">
     <Label col="1" class="text-center text-white" textWrap="true" verticalAlignment="center"
       [text]="doneMessage"></Label>
     <Label col="2" class="p-y-10 text-center icon text-white" style="vertical-align:center; font-size:24;" text="&#xea02;"
+      visibility="{{ canUserDisposable ? 'visible' : 'collapse' }}"
       (tap)="disposeBar()"></Label>
   </GridLayout>
 

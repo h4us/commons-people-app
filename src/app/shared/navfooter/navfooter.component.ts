@@ -13,6 +13,7 @@ import { RouterExtensions } from 'nativescript-angular/router';
 import { screen } from 'tns-core-modules/platform';
 
 // import { NavigationTransition, Frame } from 'tns-core-modules/ui/frame';
+import { TrayService } from '../tray.service';
 
 @Component({
   selector: 'app-navfooter',
@@ -23,7 +24,8 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() debugBorder: boolean = false;
 
   private _navActive: string;
-  private _subs: Subscription;
+  private rSubscription: Subscription;
+  private tSubscription: Subscription;
 
   navMode: string = 'default';
   iPoint: number = 0;
@@ -35,10 +37,10 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
     private router: Router,
     private routerExt: RouterExtensions,
     private aRoute: ActivatedRoute,
+    private trayService: TrayService,
   ) {
-
     // TODO:
-    this._subs = this.router.events.subscribe(event => {
+    this.rSubscription = this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         console.log('nav start ->', this.router.url)
       }
@@ -65,6 +67,10 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         }
       }
+    });
+
+    this.tSubscription = this.trayService.navShowHide$.subscribe((flag: boolean) => {
+      this.navMode = flag ? 'default' : 'dm';
     });
   }
 
@@ -106,7 +112,8 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
-    this._subs.unsubscribe();
+    this.rSubscription.unsubscribe();
+    this.tSubscription.unsubscribe();
   }
 
   get navActive(): string {

@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
 import { Observable, Subject, forkJoin, from, of, zip } from 'rxjs';
 import { distinct, switchMap, map, mergeAll, filter } from 'rxjs/operators';
 
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-
 import { ImageAsset } from 'tns-core-modules/image-asset';
 import { ImageSource } from 'tns-core-modules/image-source';
-
 import { SecureStorage } from 'nativescript-secure-storage';
+
+import { environment } from '~/environments/environment';
 
 export interface LoginData {
   username: string;
@@ -51,10 +52,7 @@ export interface Topic {
 })
 export class UserService {
   // --
-  // TODO:
-  // private apiUrl: string = 'https://app.commons.love/api/';
-  private apiUrl: string = 'https://app.test.commons.love/api/';
-
+  private apiUrl: string = environment.apiBaseURL;
   private loginData = {
     username: null,
     password: null

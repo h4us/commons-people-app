@@ -10,6 +10,7 @@ export class ModalProxyService {
 
   private requestModalSource = new Subject<any>();
   private switchBackSource = new Subject<any>();
+  private userpageLockSource = new Subject<boolean>();
 
   requestModal$ = this.requestModalSource.asObservable();
   switchBack$ = this.switchBackSource.asObservable();

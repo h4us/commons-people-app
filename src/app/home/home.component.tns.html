@@ -1,30 +1,38 @@
-<GridLayout rows="*">
-  <StackLayout #lottieViewAnchor
-    width="100%" height="0" verticalAlignment="center" horizontalAlignment="center" class="bg-clear"></StackLayout>
+<AbsoluteLayout width="100%" height="100%">
+  <GridLayout #homepageRoot rows="*" width="100%" height="100%">
+    <StackLayout #lottieViewAnchor
+      width="100%" height="0" verticalAlignment="center" horizontalAlignment="center" class="bg-clear"></StackLayout>
 
-  <LottieView #lottieView
-    style="{{ 'margin-top: ' + safeAreaSpan }}"
-    [width]="ltCalcWidth"
-    [height]="ltCalcWidth"
-    [src]="srcData" [loop]="true" [autoPlay]="true"></LottieView>
+    <LottieView #lottieView
+      style="{{ 'margin-top: ' + safeAreaSpan }}"
+      [width]="ltCalcWidth"
+      [height]="ltCalcWidth"
+      [src]="srcData" [loop]="true" [autoPlay]="true"></LottieView>
 
-  <DockLayout *ngIf="!autologin; else elseBlock"
-    stretchLasthChild="true" class="bg-theme-secondary">
-    <StackLayout class="p-15" dock="bottom">
-      <Label text="ENGLISH" class="h3 p-5 m-10 text-center text-theme"></Label>
-    </StackLayout>
-    <FlexboxLayout class="p-15" flexDirection="row" alignItems="center" flexWrap="wrap" justifyContent="center" alignContent="center">
-      <Image src="~/assets/logo@2x.png" width="44%" style="margin:40 0;"></Image>
-      <StackLayout width="100%">
-        <Button text="新規登録" class="btn btn-primary btn-rounded-lg" width="50%" (tap)="gotoRegister()"></Button>
-        <Button text="サインイン" class="btn btn-active btn-primary btn-black btn-rounded-lg" width="50%" (tap)="gotoSignin()"></Button>
-        <!-- <Label class="h3 p-5 m-5 text-center" (tap)="gotoDemo()">
-             <FormattedString>
-             <Span text="&nbsp;UI widgets demo & test page"></Span>
-             <Span text="&#xe912;" class="icon"></Span>
-             </FormattedString>
-             </Label> -->
+    <DockLayout *ngIf="!autologin; else elseBlock"
+      stretchLasthChild="true" class="bg-theme-secondary">
+      <StackLayout class="p-15" dock="bottom">
+        <Label text="ENGLISH" class="h3 p-5 m-10 text-center text-theme"></Label>
       </StackLayout>
-    </FlexboxLayout>
-  </DockLayout>
-</GridLayout>
+      <FlexboxLayout class="p-15" flexDirection="row" alignItems="center" flexWrap="wrap" justifyContent="center" alignContent="center">
+        <Image src="~/assets/logo@2x.png" width="44%" style="margin:40 0;"></Image>
+        <StackLayout width="100%">
+          <Button text="新規登録" class="btn btn-primary btn-rounded-lg" width="50%" (tap)="gotoRegister()"></Button>
+          <Button text="サインイン" class="btn btn-active btn-primary btn-black btn-rounded-lg" width="50%" (tap)="gotoSignin()"></Button>
+          <Label *ngIf="!isProd" class="typo-annotation text-center" text="development build"></Label>
+          <!-- <Label class="h3 p-5 m-5 text-center" (tap)="gotoDemo()">
+               <FormattedString>
+               <Span text="&nbsp;UI widgets demo & test page"></Span>
+               <Span text="&#xe912;" class="icon"></Span>
+               </FormattedString>
+               </Label> -->
+        </StackLayout>
+      </FlexboxLayout>
+    </DockLayout>
+  </GridLayout>
+
+  <CustomSnackbarLike #snackBar
+    containerId="home"
+    approveMessage=""
+    doneMessage=""></CustomSnackbarLike>
+</AbsoluteLayout>

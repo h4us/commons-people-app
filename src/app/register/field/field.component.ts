@@ -137,6 +137,10 @@ export class FieldComponent implements OnInit, OnDestroy {
     this.isSecure = !this.isSecure;
   }
 
+  onValidate() {
+    //
+  }
+
   nextPage() {
     if (this.fieldIsValid) {
       const c = this.stepAt.findIndex((el) => el.field == this.field) + 1;

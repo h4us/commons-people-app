@@ -36,25 +36,19 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   messageLog: any[];
   threadObj: any;
 
-  resizes: number = 0;
-  ovf: boolean = false;
-  rowLimit: string = '*';
-  lastH: number = 70;
   limH: number = 70;
+  limHforDevice: number = 200;
+  minHforDevice: number = 70;
   firstFetchFlag: boolean = false;
+  isEmpty: boolean = true;
   sendText = new FormControl('');
 
   mSubscription: Subscription;
-
-  tHSubs: Subscription;
   tCSubs: Subscription;
 
-  // @ViewChild('sizeAnchor') anchorRef: ElementRef;
   @ViewChild('sendTray') sTrayRef: ElementRef;
   @ViewChild('sendInput') sInputRef: ElementRef;
   @ViewChild('mContent') mContentRef: ElementRef;
-  // sTray: GridLayout | StackLayout | TextView;
-  // anchor: StackLayout;
 
   constructor(
     private routerExt: RouterExtensions,
@@ -74,9 +68,11 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
         this.messageLog = data;
         if (this.messageLog.length > 0) {
           setTimeout(() => {
-            this.mContentRef.nativeElement.scrollToVerticalOffset(this.mContentRef.nativeElement.scrollableHeight, this.firstFetchFlag);
+            // TODO: scroll behavior
+            const sc: number = this.mContentRef.nativeElement.scrollableHeight;
+            this.mContentRef.nativeElement.scrollToVerticalOffset(sc, this.firstFetchFlag);
             this.firstFetchFlag = true;
-          }, 30)
+          }, 40);
         }
       }
     );
@@ -102,25 +98,19 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
 
   ngOnDestroy() {
     this.mSubscription.unsubscribe();
-    this.tHSubs.unsubscribe();
     this.tCSubs.unsubscribe();
   }
 
   ngAfterViewInit() {
-    // a. tracing height (expanded) input area
-    this.tHSubs = interval(30).pipe(
-      tap(() => {
-        this.lastH = this.sTrayRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
-      })
-    ).subscribe();
-
-    // b. watch text content changed, then expand area if not expanded
+    // a. watch text content changed, then expand area if not expanded
     this.tCSubs = this.sendText.valueChanges.subscribe((val: string) => {
-      if (this.limH != 200 && val != '') {
-        this.limH = 200;
+      if (this.limH != this.limHforDevice && val != '') {
+        this.limH = this.limHforDevice;
       } else if (val == '') {
-        this.limH = 70;
+        this.limH = this.minHforDevice;
       }
+
+      this.isEmpty = val == '';
     });
   }
 
@@ -134,21 +124,19 @@ ${msg}
 
   onActiveContentArea() {
     const nH: number = this.sTrayRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
-    if (this.limH == 200 && nH < 200) {
+    if (this.limH == this.limHforDevice && nH < this.limHforDevice) {
       this.limH = nH;
     }
   }
 
   onFocus() {
     // TODO: use calicurate device height
-    this.limH = 200;
+    this.limH = this.limHforDevice;
   }
 
   sendMessage() {
     this.messageService.sendMessages(this.sendText.value);
-    setTimeout(() => {
-      this.sendText.setValue('');
-    }, 30);
+    this.sendText.setValue('');
   }
 
   sendPoint() {

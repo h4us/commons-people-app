@@ -25,7 +25,6 @@ import { ModalProxyService } from '../modal-proxy.service';
 import { MessageProxyService } from '../message-proxy.service';
 
 import { TrayService } from '../../shared/tray.service';
-// import { SnackbarLikeComponent } from '../../shared/snackbar-like/snackbar-like.component'
 
 @Component({
   selector: 'app-userpage-root',
@@ -37,7 +36,11 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('userpageRoot') uRoot: ElementRef;
 
   mSubscription: Subscription;
+  lSubscription: Subscription;
+
+  //
   canAction: boolean = true;
+  locked: boolean = false;
 
   constructor(
     private routerExt: RouterExtensions,
@@ -113,6 +116,11 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
     });
+
+    //
+    this.lSubscription = trayService.userpageLock$.subscribe((state: boolean) => {
+      this.locked = state;
+    });
   }
 
   ngOnInit() {
@@ -141,5 +149,10 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy() {
     this.mSubscription.unsubscribe();
+    this.lSubscription.unsubscribe();
+  }
+
+  onOuterTouch(): boolean {
+    return false;
   }
 }

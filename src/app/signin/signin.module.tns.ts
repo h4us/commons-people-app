@@ -10,12 +10,14 @@ import { SharedModule } from '../shared/shared.module';
 import { EntryformComponent } from './entryform/entryform.component';
 import { ResetformComponent } from './resetform/resetform.component';
 import { VelificationformComponent } from './velificationform/velificationform.component';
+import { SigninRootComponent } from './signin-root/signin-root.component';
 
 @NgModule({
   declarations: [
     EntryformComponent,
     ResetformComponent,
-    VelificationformComponent
+    VelificationformComponent,
+    SigninRootComponent
   ],
   imports: [
     SigninRoutingModule,

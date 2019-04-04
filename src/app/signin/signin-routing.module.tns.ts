@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes } from '@angular/router';
 import { NativeScriptRouterModule } from 'nativescript-angular/router';
 
+import { SigninRootComponent } from './signin-root/signin-root.component';
 import { EntryformComponent } from './entryform/entryform.component';
 import { VelificationformComponent } from './velificationform/velificationform.component';
 import { ResetformComponent } from './resetform/resetform.component';
@@ -11,22 +12,26 @@ import { NoAuthGuard } from '../no-auth.guard';
 const routes: Routes = [
   {
     path: 'signin',
-    component: EntryformComponent,
-    // component: ResetformComponent,
-    // component: VelificationformComponent,
-    canActivate: [NoAuthGuard]
-  },
+    component: SigninRootComponent,
+    canActivate: [NoAuthGuard],
+    children: [
+      {
+        path: 'entry',
+        component: EntryformComponent,
+        outlet: 'signinpage',
+      },
+      {
+        path: 'velification',
+        component: VelificationformComponent,
+        outlet: 'signinpage',
+      },
 
-  {
-    path: 'signin/velification',
-    component: VelificationformComponent,
-    canActivate: [NoAuthGuard]
-  },
-
-  {
-    path: 'signin/reset',
-    component: ResetformComponent,
-    canActivate: [NoAuthGuard]
+      {
+        path: 'reset',
+        component: ResetformComponent,
+        outlet: 'signinpage',
+      },
+    ]
   },
 ];
 

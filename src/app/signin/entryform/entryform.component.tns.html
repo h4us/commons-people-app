@@ -1,6 +1,7 @@
 <DockLayout stretchLasthChild="true" class="bg-theme-secondary">
   <StackLayout dock="top">
     <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="{{ fieldIsValid ? '&#xe988;' : '' }}"
+      (onCancel)="goTo('home')"
       (onAprove)="login()"></CustomActionBar>
   </StackLayout>
   <PreviousNextView>
@@ -37,7 +38,8 @@
         <Label *ngIf="firstErrors?.password?.required"
           class="text-error typo-annotation"
           text="必須のフィールドです"></Label>
-        <Label text="パスワードを忘れた？" class="h3 m-y-10 p-10 text-center text-theme" [nsRouterLink]="['velification']"></Label>
+        <Label text="パスワードを忘れた？" class="h3 m-y-10 p-10 text-center text-theme"
+          (tap)="goTo('velification')"></Label>
       </StackLayout>
     </ScrollView>
   </PreviousNextView>

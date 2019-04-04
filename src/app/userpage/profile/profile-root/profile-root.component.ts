@@ -1,6 +1,8 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormGroup } from '@angular/forms'
+
+import { Subscription } from 'rxjs';
 
 import { RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
@@ -20,6 +22,8 @@ import * as nsHttp from 'tns-core-modules/http';
 import { ImageCropper, OptionsCommon }  from 'nativescript-imagecropper';
 
 import { UserService, User } from '../../../user.service';
+import { TrayService } from '../../../shared/tray.service';
+import { ModalProxyService } from '../../modal-proxy.service';
 import { ProfileValidatorService } from '../../profile-validator.service';
 
 
@@ -28,11 +32,12 @@ import { ProfileValidatorService } from '../../profile-validator.service';
   templateUrl: './profile-root.component.html',
   styleUrls: ['./profile-root.component.scss']
 })
-export class ProfileRootComponent implements OnInit {
+export class ProfileRootComponent implements OnInit, OnDestroy {
   currentList: any[];
 
   user: User;
   pForm: FormGroup;
+  tSubs: Subscription;
 
   docPath: any;
   session: any;
@@ -46,6 +51,7 @@ export class ProfileRootComponent implements OnInit {
     private aRoute: ActivatedRoute,
     private page: Page,
     private userService: UserService,
+    private trayService: TrayService,
     private pvService: ProfileValidatorService,
   ) {
     page.actionBarHidden = true;
@@ -60,6 +66,42 @@ export class ProfileRootComponent implements OnInit {
     this.currentList = this.userService.getCommunities();
 
     this.docPath = fs.path.normalize(`${fs.knownFolders.documents().path}`);
+
+    this.tSubs = this.trayService.notifyToUser$.subscribe((data: any) => {
+      if (data && data.length > 1 && data[0] == 'snackbar/') {
+        if (data[1] == 'approveOrNext') {
+
+          this.trayService.lockUserpageArea();
+
+          this.userService.logout().subscribe(
+            () => {},
+            (err) => {
+              console.error(err, '..force logout');
+              this.routerExt.navigate([''], {
+                clearHistory: true
+              });
+            },
+            () => {
+              setTimeout(() => {
+                this.trayService.request('snackbar/', 'close', { waitFor: 'logout' });
+              }, 1500);
+            }
+          );
+        }
+
+        if (data[1] == 'disposeAnimationDone' && data.length > 2) {
+          if (data[2].waitFor && data[2].waitFor == 'logout') {
+            this.routerExt.navigate([''], {
+              clearHistory: true
+            })
+          }
+        }
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.tSubs.unsubscribe();
   }
 
   toEdit(field:string) {
@@ -106,6 +148,9 @@ export class ProfileRootComponent implements OnInit {
 
               let source = new ImageSource();
               source.fromAsset(selected).then((isource: ImageSource) => {
+                // --
+                if (isIOS) { this.trayService.hideNavigation(); }
+                // --
                 const imageCropper = new ImageCropper();
                 imageCropper.show(isource, { width: 800, height: 800, lockSquare: true })
                   .then((args: any) => {
@@ -138,6 +183,14 @@ export class ProfileRootComponent implements OnInit {
                       });
                       this.tasks.push(task);
                     }
+
+                    // --
+                    if (isIOS) {
+                      setTimeout(() => {
+                        this.trayService.showNavigation();
+                      }, 500)
+                    }
+                    // --
                   })
                   .catch((e) => console.error('cropper error', e));
               });
@@ -160,6 +213,10 @@ export class ProfileRootComponent implements OnInit {
 
                   let source = new ImageSource();
                   source.fromAsset(imageAsset).then((isource: ImageSource) => {
+                    // --
+                    if (isIOS) { this.trayService.hideNavigation(); }
+                    // --
+
                     const imageCropper = new ImageCropper();
                     imageCropper.show(isource, { width: 800, height: 800, lockSquare: true })
                       .then((args: any) => {
@@ -192,34 +249,17 @@ export class ProfileRootComponent implements OnInit {
                           });
                           this.tasks.push(task);
                         }
+
+                        // --
+                        if (isIOS) {
+                          setTimeout(() => {
+                            this.trayService.showNavigation();
+                          }, 500)
+                        }
+                        // --
                       })
                       .catch((e) => console.error('cropper error', e));
 
-                    // //
-                    // const request = {
-                    //   // url: 'http://192.168.11.7:8080',
-                    //   url: `${this.userService.endpoint}/users/${this.user.id}/avatar`,
-                    //   method: 'POST',
-                    //   headers: {
-                    //     // 'Content-Type': 'application/octet-stream',
-                    //     'Content-Type': 'multipart/form-data',
-                    //     'File-Name': 'photo',
-                    //   },
-                    //   description: 'test',
-                    //   androidAutoDeleteAfterUpload: false,
-                    //   androidNotificationTitle: 'NativeScript HTTP background',
-                    // };
-                    // let task: bgHttp.Task;
-                    // let lastEvent = '';
-                    // const params = [
-                    //   { name: 'photo', filename: `${this.docPath}/test2.png`, mimeType: 'image/png' }
-                    // ];
-                    // task = this.session.multipartUpload(params, request);
-                    // task.on('progress', (e) => {
-                    //   console.log(e);
-                    // });
-                    // this.tasks.push(task);
-                    // //
                   }).catch((err) => console.error('resource serror', err));
                 })
                 .catch((err) => console.error('photo error', err));
@@ -247,6 +287,11 @@ export class ProfileRootComponent implements OnInit {
           const imageCropper = new ImageCropper();
           // TODO: android lockSquare not work..
           const opt: OptionsCommon = isIOS ? { width: src.width, height: src.height, lockSquare: true } : null;
+
+          // --
+          if (isIOS) { this.trayService.hideNavigation(); }
+          // --
+
           imageCropper.show(src, opt)
             .then((args: any) => {
               if(args.image !== null){
@@ -278,6 +323,14 @@ export class ProfileRootComponent implements OnInit {
                 });
                 this.tasks.push(task);
               }
+
+              // --
+              if (isIOS) {
+                setTimeout(() => {
+                  this.trayService.showNavigation();
+                }, 500)
+              }
+              // --
             })
             .catch((e) => console.error('cropper error', e));
         });
@@ -287,20 +340,11 @@ export class ProfileRootComponent implements OnInit {
   }
 
   logout () {
-    this.userService.logout().subscribe(
-      (data: any) => {
-        console.log('logout..', data);
-      },
-      (err) => {
-        console.error(err, '..force logout');
-        this.routerExt.navigate([''], {
-          clearHistory: true
-        });
-      },
-      () => this.routerExt.navigate([''], {
-        clearHistory: true
-      })
-    );
+    this.trayService.request('snackbar/', 'open', {
+      approveMessage: 'ログアウトしますか？',
+      doneMessage: 'ログアウトしています...',
+      canUserDisposable: false
+    });
   }
 
   toChildPage() {

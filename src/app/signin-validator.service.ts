@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, FormBuilder, Validators, ValidatorFn } from '@angular/forms';
 
+import { environment } from '~/environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -26,10 +28,16 @@ export class SigninValidatorService {
   }
 
   resetData() {
-    this.sendForm.reset({
-      username: 'inafuku',
-      password: 'helloworld'
-    });
+
+    this.sendForm.reset(
+      environment.production ? {
+        username: '',
+        password: ''
+      } : {
+        username: 'inafuku',
+        password: 'helloworld'
+      }
+    );
 
     // this.sendForm.reset();
   }

@@ -41,7 +41,10 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, OnChanges, Afte
   positionRef: number = 0;
   basePosition: number = 0;
   baseOffset: number = 120;
+  autoDisposeDelay: number = 5000;
   autoCloseOnApproved: boolean = true;
+  barColor: string = 'theme';
+  canUserDisposable: boolean = true;
 
   @ViewChild('componentRoot') cRootRef: ElementRef;
 
@@ -56,9 +59,10 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, OnChanges, Afte
     private trayService: TrayService,
   ) {
     this.sReportSubscription = this.stepReport.asObservable().subscribe((n: number) => {
+      // TODO: cleanup
       if (n == 1 && this.autoCloseOnApproved && this.isShown) {
         this.aCloseSubscription = of(null).pipe(
-          delay(5000)
+          delay(this.autoDisposeDelay)
         ).subscribe(() => {
           this.disposeBar();
         });
@@ -89,7 +93,7 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, OnChanges, Afte
 
         if (data[1] == 'close') {
           console.log(`close external! @${this.containerId}`);
-          this.disposeBar();
+          this.disposeBar(cmdOption);
         }
 
         if (data[1] == 'open') {
@@ -97,13 +101,16 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, OnChanges, Afte
           this.cRootRef.nativeElement.translateY = 200;
           this.cRootRef.nativeElement.opacity = 0;
           this.isShown = true;
-          // TODO:
+          // TODO: cleanup
+          this.autoDisposeDelay = typeof cmdOption.autoDisposeDelay != 'undefined' ? cmdOption.autoDisposeDelay : 5000;
           this.isApproved = typeof cmdOption.isApproved != 'undefined' ? cmdOption.isApproved : false;
           this.step = cmdOption.step ? cmdOption.step : 0;
           this.cancelAsClose = typeof cmdOption.cancelAsClose != 'undefined' ? cmdOption.cancelAsClose : true;
           this.autoNextStep = typeof cmdOption.autoNextStep != 'undefined' ? cmdOption.autoNextStep : true;
           this.approveMessage = cmdOption.approveMessage || this.approveMessage;
           this.doneMessage = cmdOption.doneMessage || this.doneMessage;
+          this.canUserDisposable = typeof cmdOption.canUserDisposable != 'undefined' ? cmdOption.canUserDisposable : true;
+          this.barColor = cmdOption.barColor ? cmdOption.barColor : 'theme';
           //
 
           this.trayService.notify(`snackbar/${this.containerId}`, 'willRise');
@@ -211,7 +218,7 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, OnChanges, Afte
     }
   }
 
-  disposeBar() {
+  disposeBar(stateWith?: any) {
     // if (this.onClose.observers.length > 0) {
     //   this.onClose.emit(`tap afterClose`);
     // }
@@ -229,12 +236,12 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, OnChanges, Afte
         this.cRootRef.nativeElement.translateX = 0;
         this.cRootRef.nativeElement.translateY = 0;
 
-        this.trayService.notify(`snackbar/${this.containerId}`, 'disposeAnimationDone');
+        this.trayService.notify(`snackbar/${this.containerId}`, 'disposeAnimationDone', stateWith);
       }, () => {});
-      console.log(`snackbar action, afterClose @${this.containerId}`);
+      console.log(`snackbar action, afterClose @${this.containerId} ( ${stateWith} )`);
     }
 
-    this.trayService.notify(`snackbar/${this.containerId}`, 'disposeBar');
+    this.trayService.notify(`snackbar/${this.containerId}`, 'disposeBar', stateWith);
   }
 
   blockTap() {

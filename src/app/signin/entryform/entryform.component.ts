@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
@@ -8,6 +9,7 @@ import { Page } from 'tns-core-modules/ui/page';
 import { isIOS } from 'tns-core-modules/platform';
 
 import { UserService, User } from '../../user.service';
+import { TrayService } from '../../shared/tray.service';
 import { SigninValidatorService } from '../../signin-validator.service';
 
 @Component({
@@ -30,9 +32,11 @@ export class EntryformComponent implements OnInit, OnDestroy {
   private sfSub: Subscription;
 
   constructor(
-    private router: RouterExtensions,
+    private routerExt: RouterExtensions,
+    private aRoute: ActivatedRoute,
     private userService: UserService,
     private siService: SigninValidatorService,
+    private trayService: TrayService,
     private page: Page
   ) {
     page.actionBarHidden = true;
@@ -70,7 +74,20 @@ export class EntryformComponent implements OnInit, OnDestroy {
     return isIOS;
   }
 
+  goTo(to: string) {
+    if (to == 'home') {
+      this.routerExt.navigate(['']);
+    } else {
+      this.routerExt.navigate([{
+        outlets: {
+          signinpage: [ to ]
+        }
+      }], { relativeTo: this.aRoute.parent });
+    }
+  }
+
   login() {
+    this.trayService.lockUserpageArea();
     this.userService.login(
       this.sForm.get('username').value,
       this.sForm.get('password').value
@@ -81,9 +98,11 @@ export class EntryformComponent implements OnInit, OnDestroy {
       (error) => { console.error(error) },
       () => {
         const cl = this.userService.getCommunities();
-        this.router.navigate([(cl && cl.length > 0) ? 'user' : 'newuser'], {
-          clearHistory: true
-        })
+        setTimeout(() => {
+          this.routerExt.navigate([(cl && cl.length > 0) ? 'user' : 'newuser'], {
+            clearHistory: true
+          })
+        }, 500);
       }
     );
   }
