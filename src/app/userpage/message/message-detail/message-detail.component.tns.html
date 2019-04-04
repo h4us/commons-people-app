@@ -11,17 +11,19 @@
       (onAprove)="sendPoint()"></CustomActionBar>
   </StackLayout>
 
-  <ScrollView row="1" width="100%" height="100%" class="bg-theme-secondary">
+  <ScrollView width="100%" row="1" enabled="false">
 
-    <GridLayout rows="*,auto" width="100%" height="100%">
+    <GridLayout rows="*" height="100%">
 
-      <ScrollView row="0" height="100%">
-        <StackLayout>
+      <ScrollView #mContent row="0" height="100%"
+        (tap)="onActiveContentArea()"
+        (touch)="onActiveContentArea()">
+        <StackLayout row="0" [paddingBottom]="limH">
+          <!-- // -->
           <ng-template ngFor let-item [ngForOf]="messageLog" let-i="index">
             <StackLayout class="p-x-30 p-y-15 bg-theme-secondary">
               <GridLayout *ngIf="(item.createdBy && (item.createdBy == user.id)); else elseBlock" columns="*" rows="*" class="bg-clear">
                 <StackLayout col="0" class="p-15 bg-bubble" style="border-radius:20;">
-                  <!-- <HtmlView class="bg-clear" [html]="styled(item.text)"></HtmlView> -->
                   <Label class="bg-clear typo-message" textWrap="true" [text]="item.text"></Label>
                 </StackLayout>
               </GridLayout>
@@ -30,7 +32,6 @@
                   <Image col="0" class="m-x-10" style="border-radius:80;" stretch="aspectFill" width="32" height="32" verticalAlignment="top"
                     src="{{ item.photoUrl || '~/assets/placeholder__group.png' }}"></Image>
                   <StackLayout col="1" class="p-15 bg-white" style="border-radius:20;">
-                    <!-- <HtmlView class="bg-clear" [html]="styled(item.text)"></HtmlView> -->
                     <Label class="bg-clear typo-message" textWrap="true" [text]="item.text"></Label>
                   </StackLayout>
                 </GridLayout>
@@ -38,25 +39,68 @@
             </StackLayout>
           </ng-template>
         </StackLayout>
+        <!-- // -->
       </ScrollView>
 
-      <StackLayout row="1" class="p-15 bg-white searchbox-like-container">
+      <FlexboxLayout row="0"
+        flexDirection="column"
+        justifyContent="flex-end"
+        android:isUserInteractionEnabled="false"
+        ios:isPassThroughParentEnabled="true">
 
-        <GridLayout columns="*,60" [rows]="rowLimit" width="100%" class="bg-white searchbox-like-container">
-          <StackLayout #sendTray col="0" row="0" class="form searchbox-like-stretch">
-            <TextView #sendInput [formControl]="sendText" editable="true"
-              hint="Aa" style="border-color:transparent; background-color:transparent;"></TextView>
-          </StackLayout>
-          <FlexboxLayout col="1" row="0"
+        <GridLayout columns="*,70" rows="auto"
+          ios:isPassThroughParentEnabled="true">
+          <!--
+               <ScrollView col="0"
+               [height]="limH"
+               class="debug-border"
+               alignSelf="flex-start"
+               ios:isPassThroughParentEnabled="true"
+               style="background-color:rgba(0,0,0,.1);">
+          -->
+
+          <FlexboxLayout
+            [height]="limH"
             flexDirection="column"
-            alignItems="stretch"
-            justifyContent="flex-end">
-            <Label class="icon followIcon text-center p-y-10" text="&#xe9c2;"
-            (tap)="sendMessage()"></Label>
+            justifyContent="flex-end"
+            class="bg-clear"
+            ios:isPassThroughParentEnabled="true">
+            <StackLayout #sendTray
+              class="p-l-15 p-y-12 bg-white">
+              <FlexboxLayout flexDirection="column"
+                justifyContent="flex-end"
+                class="form msgbox">
+                <!-- <StackLayout orientation="horizontal" class="form msgbox"> -->
+                <TextView #sendInput
+                  editable="true" class="input" hint="Aa" style="border-color:transparent; background-color:transparent;"
+                  [formControl]="sendText"
+                  (tap)="onFocus()"></TextView>
+                <!-- </StackLayout> -->
+              </FlexboxLayout>
+            </StackLayout>
           </FlexboxLayout>
+
+          <!--
+               </ScrollView>
+          -->
+
+          <FlexboxLayout col="1" [height]="limH"
+            flexDirection="column"
+            justifyContent="flex-end"
+            class="bg-clear">
+            <StackLayout orientation="horizontal" class="bg-white searchbox-like-container"
+              [height]="lastH">
+              <Label alignSelf="flex-end" class="icon followIcon text-center p-y-20"
+                verticalAlignment="bottom"
+                text="&#xe9c2;"
+                width="100%"
+                (tap)="sendMessage()"></Label>
+            </StackLayout>
+          </FlexboxLayout>
+
         </GridLayout>
 
-      </StackLayout>
+      </FlexboxLayout>
 
     </GridLayout>
 

@@ -46,6 +46,7 @@
     "nativescript-theme-core": "~1.0.4",
     "nativescript-ui-dataform": "^4.0.0",
     "nativescript-ui-listview": "^6.1.0",
+    "nativescript-urlhandler": "^1.2.3",
     "ngx-moment": "^3.4.0",
     "reflect-metadata": "~0.1.12",
     "rxjs": "~6.3.3",

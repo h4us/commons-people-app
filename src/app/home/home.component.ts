@@ -16,6 +16,8 @@ import { UserService, User } from '../user.service';
 import { RegisterValidatorService } from '../register-validator.service';
 import { SigninValidatorService } from '../signin-validator.service';
 
+// import { handleOpenURL, AppURL } from 'nativescript-urlhandler';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',

@@ -18,12 +18,37 @@ export class TopicValidatorService {
   location: AbstractControl;
   type: AbstractControl;
 
-  //
+  // -
   sendToAsset: ImageAsset | string;
   editTo: number;
   originalCreated: string;
   originalPhoto: string;
-  //
+
+  labelsForInput = {
+    title: {
+      title: 'タイトル',
+      hint: ''
+    },
+    description: {
+      title: '概要',
+      hint: ''
+    },
+    points: {
+      title: 'ポイント',
+      hint: ''
+    },
+    location: {
+      title: '場所',
+      hint: ''
+    },
+    type: {
+      title: 'できる / ほしい',
+      hint: '',
+      GIVE: 'できる',
+      WANT: 'ほしい'
+    },
+  };
+  // -
 
   constructor(
     private formBuilder: FormBuilder
@@ -32,7 +57,7 @@ export class TopicValidatorService {
       communityId: [-1, [Validators.required, Validators.min(0)]],
       title: ['', [Validators.required, Validators.minLength(1)]],
       description: ['', [Validators.required ]],
-      points: ['', [Validators.required]],
+      points: ['', [Validators.required, Validators.pattern(/[+-]?\d+(?:\.\d+)?/)]],
       location: ['', [Validators.required]],
       type: ['WANT', [Validators.required]],
     });

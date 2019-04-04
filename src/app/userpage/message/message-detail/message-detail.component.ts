@@ -3,7 +3,7 @@ import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild } fr
 import { FormControl, FormGroup } from '@angular/forms';
 
 import { Subscription, interval } from 'rxjs';
-import { switchMap, debounceTime, filter } from 'rxjs/operators';
+import { skipWhile, switchMap, debounceTime, filter, tap, delay } from 'rxjs/operators';
 
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
@@ -23,7 +23,7 @@ import { UserService, User } from '../../../user.service';
 import { ModalProxyService } from '../../modal-proxy.service';
 import { MessageProxyService } from '../../message-proxy.service';
 
-declare const IQKeyboardManager: any;
+// declare const IQKeyboardManager: any;
 
 @Component({
   selector: 'app-message-detail',
@@ -39,16 +39,22 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   resizes: number = 0;
   ovf: boolean = false;
   rowLimit: string = '*';
-  lastH: number = 0;
+  lastH: number = 70;
+  limH: number = 70;
+  firstFetchFlag: boolean = false;
   sendText = new FormControl('');
 
   mSubscription: Subscription;
 
-  @ViewChild('sizeAnchor') anchorRef: ElementRef;
+  tHSubs: Subscription;
+  tCSubs: Subscription;
+
+  // @ViewChild('sizeAnchor') anchorRef: ElementRef;
   @ViewChild('sendTray') sTrayRef: ElementRef;
   @ViewChild('sendInput') sInputRef: ElementRef;
-  sTray: GridLayout | StackLayout | TextView;
-  anchor: StackLayout;
+  @ViewChild('mContent') mContentRef: ElementRef;
+  // sTray: GridLayout | StackLayout | TextView;
+  // anchor: StackLayout;
 
   constructor(
     private routerExt: RouterExtensions,
@@ -67,9 +73,10 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
       (data) => {
         this.messageLog = data;
         if (this.messageLog.length > 0) {
-          // setTimeout(() => {
-          //   this.mContainer.listView.scrollToIndex(this.messageLog.length - 1, false);
-          // }, 300);
+          setTimeout(() => {
+            this.mContentRef.nativeElement.scrollToVerticalOffset(this.mContentRef.nativeElement.scrollableHeight, this.firstFetchFlag);
+            this.firstFetchFlag = true;
+          }, 30)
         }
       }
     );
@@ -78,9 +85,9 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
       .pipe(switchMap((aRoute) => aRoute.params))
       .forEach((params) => {
         const desireId: number = <number>params.id;
-        this.title = `Message: ${desireId}`;
+        this.title = `ダイレクトメッセージ: ${desireId}`;
+        // this.title = `Message: ${desireId}`;
 
-        //
         if (this.messageService.activeThreads) {
           const _thread = this.messageService.activeThreads.filter((el) => el.id == desireId);
           if (_thread.length > 0) {
@@ -88,46 +95,33 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
             this.title = this.threadObj.title;
           }
         }
-        //
 
         this.messageService.fetchMessages(desireId);
       });
-
-    // this.sTray = this.sTrayRef.nativeElement;
-    this.anchor = <StackLayout>this.anchorRef.nativeElement;
-
-    setTimeout(() => {
-      const origH: number = (this.sTrayRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale);
-      const limitH: number = origH * 3;
-      this.lastH = this.sInputRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
-
-      this.sendText.valueChanges.subscribe((val) => {
-        // if (this.sTray) {
-        const eH: number = this.sInputRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
-
-        if (this.lastH > limitH && this.rowLimit == '*') {
-          console.log(eH, limitH, origH);
-          console.log('bang');
-          this.lastH = eH;
-          this.rowLimit = '' + limitH;
-        } else {
-          this.lastH = eH;
-          this.rowLimit = '*';
-          console.log('foo');
-        }
-
-        this.lastH = eH;
-        // }
-      });
-    }, 100);
-
   }
 
   ngOnDestroy() {
     this.mSubscription.unsubscribe();
+    this.tHSubs.unsubscribe();
+    this.tCSubs.unsubscribe();
   }
 
   ngAfterViewInit() {
+    // a. tracing height (expanded) input area
+    this.tHSubs = interval(30).pipe(
+      tap(() => {
+        this.lastH = this.sTrayRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
+      })
+    ).subscribe();
+
+    // b. watch text content changed, then expand area if not expanded
+    this.tCSubs = this.sendText.valueChanges.subscribe((val: string) => {
+      if (this.limH != 200 && val != '') {
+        this.limH = 200;
+      } else if (val == '') {
+        this.limH = 70;
+      }
+    });
   }
 
   styled(text: string) {
@@ -138,8 +132,23 @@ ${msg}
 </div>`;
   }
 
+  onActiveContentArea() {
+    const nH: number = this.sTrayRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
+    if (this.limH == 200 && nH < 200) {
+      this.limH = nH;
+    }
+  }
+
+  onFocus() {
+    // TODO: use calicurate device height
+    this.limH = 200;
+  }
+
   sendMessage() {
     this.messageService.sendMessages(this.sendText.value);
+    setTimeout(() => {
+      this.sendText.setValue('');
+    }, 30);
   }
 
   sendPoint() {

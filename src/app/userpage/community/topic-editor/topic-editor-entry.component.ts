@@ -8,6 +8,7 @@ import { DockLayout } from 'tns-core-modules/ui/layouts/dock-layout';
 import { screen } from 'tns-core-modules/platform';
 import { layout } from 'tns-core-modules/utils/utils';
 import { action } from 'tns-core-modules/ui/dialogs';
+import { isIOS } from 'tns-core-modules/platform';
 
 import * as imagepicker from 'nativescript-imagepicker';
 import { ImagePicker } from 'nativescript-imagepicker';
@@ -15,8 +16,9 @@ import * as camera from 'nativescript-camera';
 import { ImageSource } from 'tns-core-modules/image-source';
 import { ImageAsset } from 'tns-core-modules/image-asset';
 import * as fs from 'tns-core-modules/file-system';
+import * as nsHttp from 'tns-core-modules/http';
 
-import { ImageCropper }  from 'nativescript-imagecropper';
+import { ImageCropper, OptionsCommon }  from 'nativescript-imagecropper';
 
 import { UserService } from '../../../user.service';
 import { TopicValidatorService } from '../../topic-validator.service';
@@ -87,11 +89,7 @@ export class TopicEditorEntryComponent implements OnInit {
     // TODO:
     action({
       cancelButtonText: 'Cancel',
-      actions: [
-        'Take Photo',
-        'Choose Photo',
-        'Edit Photo'
-      ]
+      actions: !this.selectedPhoto ? [ 'Take Photo', 'Choose Photo' ] : [ 'Take Photo', 'Choose Photo', 'Edit Photo' ]
     }).then((which: string) => {
       // Select from image picker
       if (which === 'Choose Photo') {
@@ -100,28 +98,24 @@ export class TopicEditorEntryComponent implements OnInit {
           .then(() => this.imagePickerContext.present())
           .then((selection) => {
             selection.forEach((selected: ImageAsset) => {
-              this.selectedPhoto = selected;
-              this.tvService.sendToAsset = selected;
+              // this.selectedPhoto = selected;
+              // this.tvService.sendToAsset = selected;
 
-              // --
               let source = new ImageSource();
               source.fromAsset(selected).then((isource: ImageSource) => {
                 const imageCropper = new ImageCropper();
                 imageCropper.show(isource, { width: 800, height: 800 })
                   .then((args: any) => {
-                    console.log(args)
                     if(args.image !== null){
                       const croppedImage: ImageSource = args.image;
                       const now: number = Date.now();
                       const success: boolean = croppedImage.saveToFile(`${this.docPath}/ad-${now}.png`, 'png');
-                      // 2.
                       this.selectedPhoto = `${this.docPath}/ad-${now}.png`;
                       this.tvService.sendToAsset = `${this.docPath}/ad-${now}.png`
                     }
                   })
                   .catch((e) => console.error('cropper error', e));
               });
-              // --
             });
           })
           .catch((err: any) => console.log(err));
@@ -135,15 +129,14 @@ export class TopicEditorEntryComponent implements OnInit {
               // camera.takePicture()
               camera.takePicture({ width: 800, height: 800, keepAspectRatio: true })
                 .then((imageAsset: ImageAsset) => {
-                  this.selectedPhoto = imageAsset;
-                  this.tvService.sendToAsset = imageAsset;
+                  // this.selectedPhoto = imageAsset;
+                  // this.tvService.sendToAsset = imageAsset;
 
                   let source = new ImageSource();
                   source.fromAsset(imageAsset).then((isource: ImageSource) => {
                     const imageCropper = new ImageCropper();
                     imageCropper.show(isource, { width: 800, height: 800 })
                       .then((args: any) => {
-                        console.log(args)
                         if(args.image !== null){
                           const croppedImage: ImageSource = args.image;
                           const now: number = Date.now();
@@ -165,7 +158,35 @@ export class TopicEditorEntryComponent implements OnInit {
 
       // edit
       if (which === 'Edit Photo') {
-        console.log('TODO: editor');
+        let source = new ImageSource();
+        let p: Promise<unknown>;
+
+        if (this.selectedPhoto && typeof this.selectedPhoto == 'string' && this.selectedPhoto.indexOf('http') != 0) {
+          p = source.fromFile(this.selectedPhoto);
+        } else {
+          // ?
+          return;
+        }
+
+        p.then((isource: unknown) => {
+          const src: ImageSource = typeof isource == 'boolean' ? source : <ImageSource>isource;
+          const imageCropper = new ImageCropper();
+          // TODO: android lockSquare not work..
+          const opt: OptionsCommon = isIOS ? { width: src.width, height: src.height, lockSquare: true } : null;
+          imageCropper.show(src, opt)
+            .then((args: any) => {
+              if(args.image !== null){
+                const croppedImage: ImageSource = args.image;
+                const now: number = Date.now();
+                const success: boolean = croppedImage.saveToFile(`${this.docPath}/ad-${now}.png`, 'png');
+
+                this.selectedPhoto = `${this.docPath}/ad-${now}.png`;
+                this.tvService.sendToAsset = `${this.docPath}/ad-${now}.png`;
+              }
+            })
+            .catch((e) => console.error('cropper error', e));
+        });
+
       }
     })
   }

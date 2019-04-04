@@ -23,6 +23,13 @@
         [hint]="title"
         [formControlName]="field"
         (returnPress)="onValidate()"></TextView>
+      <TextView *ngIf="field == 'emailAddress'"
+        class="input"
+        keyboardType="email"
+        [class.error]="firstError"
+        [hint]="title"
+        [formControlName]="field"
+        (returnPress)="onValidate()"></TextView>
       <GridLayout *ngIf="field == 'password'"
         columns="*,48" rows="{{ isIOS ? 48 : 60 }}" style="margin-bottom:0; padding:0;"
         class="input"
@@ -39,7 +46,7 @@
           text="{{ isSecure ? '&#xe95c;' : '&#xe95d;' }}"
           (tap)="togglePassword()"></Label>
       </GridLayout>
-      <TextField *ngIf="field != 'status' && field != 'description' && field != 'password'"
+      <TextField *ngIf="field != 'status' && field != 'description' && field != 'password' && field != 'emailAddress'"
         class="input"
         [class.error]="firstError"
         [hint]="title"

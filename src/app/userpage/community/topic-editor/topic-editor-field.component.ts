@@ -42,7 +42,7 @@ export class TopicEditorFieldComponent implements OnInit {
       .forEach((params) => {
         //
         const fld: string = <string>params.field;
-        this.title = fld;
+        this.title = this.tvService.labelsForInput[fld].title;
         this.field = fld;
         //
       });

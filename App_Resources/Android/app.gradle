@@ -9,6 +9,7 @@ android {
   defaultConfig {
     generatedDensities = []
     applicationId = "net.inafact.People"
+    // applicationId = "app.commons.love"
 
     //override supported platforms
     // ndk {

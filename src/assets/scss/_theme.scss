@@ -243,6 +243,28 @@ textfield.input,
   height: 12;
 }
 
+
+.msgbox {
+  background-color: transparent;
+  border-color: $theme-dim;
+  border-radius: $searchbox-like-height * 0.75;
+  border-width: 1;
+  width: 100%;
+
+  > *[editable],
+  .input {
+    width: 100%;
+    padding-left: $searchbox-like-spacing * 1.2;
+    padding-right: $searchbox-like-spacing * 1.2;
+    line-height: $multi-line-height;
+    padding-top: $multi-line-spaces * 1.75;
+    padding-bottom: $multi-line-spaces * 1.75;
+    margin: 0;
+    color: $theme-darkgrey;
+    placeholder-color: $theme-dim;
+  }
+}
+
 .searchbox-like-container {
   .searchbox-like,
   .searchbox-like-stretch {

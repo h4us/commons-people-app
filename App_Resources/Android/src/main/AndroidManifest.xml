@@ -29,7 +29,8 @@
 			android:name="com.tns.NativeScriptActivity"
 			android:label="@string/title_activity_kimera"
 			android:configChanges="keyboardHidden|orientation|screenSize"
-			android:theme="@style/LaunchScreenTheme">
+			android:theme="@style/LaunchScreenTheme"
+      android:launchMode="singleTask">
 
 			<meta-data android:name="SET_THEME_ON_LAUNCH" android:resource="@style/AppTheme" />
 
@@ -37,7 +38,23 @@
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
+
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <!-- <data android:scheme="cmnsppl" android:host="__PACKAGE__" /> -->
+        <data android:scheme="launch" android:host="__PACKAGE__" />
+      </intent-filter>
+
 		</activity>
+
+    <!-- // -->
+    <activity android:name="com.yalantis.ucrop.UCropActivity"
+              android:screenOrientation="portrait"
+              android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
 		<activity android:name="com.tns.ErrorReportActivity"/>
 	</application>
+
 </manifest>

@@ -5,6 +5,7 @@ import { FormGroup } from '@angular/forms'
 import { RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
 import { action } from 'tns-core-modules/ui/dialogs';
+import { isIOS } from 'tns-core-modules/platform';
 
 import { ListViewEventData } from 'nativescript-ui-listview';
 import * as imagepicker from 'nativescript-imagepicker';
@@ -14,8 +15,9 @@ import { ImageSource } from 'tns-core-modules/image-source';
 import { ImageAsset } from 'tns-core-modules/image-asset';
 import * as fs from 'tns-core-modules/file-system';
 import * as bgHttp from 'nativescript-background-http';
+import * as nsHttp from 'tns-core-modules/http';
 
-import { ImageCropper }  from 'nativescript-imagecropper';
+import { ImageCropper, OptionsCommon }  from 'nativescript-imagecropper';
 
 import { UserService, User } from '../../../user.service';
 import { ProfileValidatorService } from '../../profile-validator.service';
@@ -90,11 +92,7 @@ export class ProfileRootComponent implements OnInit {
     // TODO:
     action({
       cancelButtonText: 'Cancel',
-      actions: [
-        'Take Photo',
-        'Choose Photo',
-        'Edit Photo'
-      ]
+      actions: (!this.selectedPhoto  && !this.user.avatarUrl) ? [ 'Take Photo', 'Choose Photo' ] : [ 'Take Photo', 'Choose Photo', 'Edit Photo' ]
     }).then((which: string) => {
       // Select from image picker
       if (which === 'Choose Photo') {
@@ -104,14 +102,13 @@ export class ProfileRootComponent implements OnInit {
           .then((selection) => {
             selection.forEach((selected: any) => {
               // 1.
-              this.selectedPhoto = selected;
+              // this.selectedPhoto = selected;
 
               let source = new ImageSource();
               source.fromAsset(selected).then((isource: ImageSource) => {
                 const imageCropper = new ImageCropper();
-                imageCropper.show(isource, { width: 800, height: 800 })
+                imageCropper.show(isource, { width: 800, height: 800, lockSquare: true })
                   .then((args: any) => {
-                    console.log(args)
                     if(args.image !== null){
                       const croppedImage: ImageSource = args.image;
                       const pngfile: string = `${this.docPath}/face-${Date.now()}.png`;
@@ -159,14 +156,13 @@ export class ProfileRootComponent implements OnInit {
               camera.takePicture({ width: 800, height: 800, keepAspectRatio: true })
                 .then((imageAsset: ImageAsset) => {
                   // 1.
-                  this.selectedPhoto = imageAsset;
+                  // this.selectedPhoto = imageAsset;
 
                   let source = new ImageSource();
                   source.fromAsset(imageAsset).then((isource: ImageSource) => {
                     const imageCropper = new ImageCropper();
-                    imageCropper.show(isource, { width: 800, height: 800 })
+                    imageCropper.show(isource, { width: 800, height: 800, lockSquare: true })
                       .then((args: any) => {
-                        console.log(args)
                         if(args.image !== null){
                           const croppedImage: ImageSource = args.image;
                           const pngfile: string = `${this.docPath}/face.png`;
@@ -198,9 +194,6 @@ export class ProfileRootComponent implements OnInit {
                         }
                       })
                       .catch((e) => console.error('cropper error', e));
-
-                    // const success: boolean = source.saveToFile(`${this.docPath}/test2.png`, 'png');
-                    // console.log('saved?', success);
 
                     // //
                     // const request = {
@@ -237,7 +230,58 @@ export class ProfileRootComponent implements OnInit {
 
       // edit
       if (which === 'Edit Photo') {
-        console.log('TODO: editor');
+        let source = new ImageSource();
+        let p: Promise<unknown>;
+
+        if (this.selectedPhoto && typeof this.selectedPhoto == 'string' && this.selectedPhoto.indexOf('http') != 0) {
+          p = source.fromFile(this.selectedPhoto);
+        } else if(this.user.avatarUrl) {
+          p = nsHttp.getImage(this.user.avatarUrl);
+        } else {
+          // ?
+          return;
+        }
+
+        p.then((isource: unknown) => {
+          const src: ImageSource = typeof isource == 'boolean' ? source : <ImageSource>isource;
+          const imageCropper = new ImageCropper();
+          // TODO: android lockSquare not work..
+          const opt: OptionsCommon = isIOS ? { width: src.width, height: src.height, lockSquare: true } : null;
+          imageCropper.show(src, opt)
+            .then((args: any) => {
+              if(args.image !== null){
+                const croppedImage: ImageSource = args.image;
+                const pngfile: string = `${this.docPath}/face-${Date.now()}.png`;
+                const success: boolean = croppedImage.saveToFile(pngfile, 'png');
+
+                this.selectedPhoto = pngfile;
+
+                const request = {
+                  url: `${this.userService.endpoint}/users/${this.user.id}/avatar`,
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'File-Name': 'photo',
+                  },
+                  description: '',
+                  androidAutoDeleteAfterUpload: false,
+                  androidNotificationTitle: 'commonsapp HTTP background',
+                };
+                let task: bgHttp.Task;
+                let lastEvent = '';
+                const params = [
+                  { name: 'photo', filename: pngfile, mimeType: 'image/png' }
+                ];
+                task = this.session.multipartUpload(params, request);
+                task.on('progress', (e) => {
+                  console.log(e);
+                });
+                this.tasks.push(task);
+              }
+            })
+            .catch((e) => console.error('cropper error', e));
+        });
+
       }
     });
   }

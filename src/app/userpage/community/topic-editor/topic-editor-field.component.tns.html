@@ -6,15 +6,19 @@
     <StackLayout orientation="vertical" class="p-15 form" [formGroup]="tForm">
       <TextView *ngIf="field == 'title' || field == 'description'"
         class="input"
-        [hint]="field"
+        [hint]="title"
         [formControlName]="field"
-        (blur)="onValidate()"
         (returnPress)="onValidate()"></TextView>
-      <TextField *ngIf="field != 'title' && field != 'description'"
+      <TextField *ngIf="field == 'points'"
         class="input"
-        [hint]="field"
+        keyboardType="number"
+        [hint]="title"
         [formControlName]="field"
-        (blur)="onValidate()"
+        (returnPress)="onValidate()"></TextField>
+      <TextField *ngIf="field != 'title' && field != 'description' && field != 'points'"
+        class="input"
+        [hint]="title"
+        [formControlName]="field"
         (returnPress)="onValidate()"></TextField>
     </StackLayout>
   </ScrollView>
