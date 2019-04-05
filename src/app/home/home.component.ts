@@ -38,6 +38,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('lottieView') lt: ElementRef;
 
   isProd: boolean = environment.production;
+  useApiBase: string = environment.apiBaseURL;
 
   private _subs: Subscription;
 

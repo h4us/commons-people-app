@@ -236,8 +236,15 @@ module.exports = env => {
         plugins: [
             // Define useful constants like TNS_WEBPACK
             new webpack.DefinePlugin({
-                "global.TNS_WEBPACK": "true",
-                "process": undefined,
+              "global.TNS_WEBPACK": "true",
+              //
+              // "process": undefined,
+
+              // MEMO: refs https://medium.com/@derekfong/nativescript-angular-setup-environment-ts-for-different-environments-631b4c5219b6
+              "process.env": {
+                environment: (env && Object.prototype.hasOwnProperty.call(env, 'environment')) ? JSON.stringify(env.environment) : undefined
+              }
+              //
             }),
             // Remove all files from the out dir.
             new CleanWebpackPlugin([`${dist}/**/*`]),
