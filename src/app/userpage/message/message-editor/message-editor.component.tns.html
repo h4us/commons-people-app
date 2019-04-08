@@ -4,41 +4,46 @@
       [cancelAction]="[closeModal, messageEditor]"
       (onAprove)="ok(messageEditor)"></CustomActionBar>
   </StackLayout>
-  <RadListView class="bg-theme-secondary"
-    (itemTap)="onItemTap($event)"
-    [items]="currentList">
-    <ng-template tkListItemTemplate let-item="item" let-i="index">
-      <!-- // item -->
-      <StackLayout class="bg-theme-secondary">
-        <CardView margin="1 20" elevation="5" class="bg-white">
-          <StackLayout class="bg-clear">
-            <GridLayout columns="80,*,60" rows="90" class="bg-clear">
-              <Image col="0" class="m-x-10" style="border-radius:80;" stretch="aspectFill" width="60" height="60"
-                src="{{ item.avatarUrl || '~/assets/placeholder__user.png' }}"></Image>
-              <StackLayout col="1" orientation="horizontal" class="p-10">
-                <Label class="h3" text="{{ item.username }}" virticalAlignment="stretch"></Label>
-              </StackLayout>
-              <Label col="2" class="h2 p-10 icon"
-                [class.text-theme]="selected.indexOf(item.id) > -1"
-                text="{{ selected.indexOf(item.id) > -1 ? '&#xe92c;' : '&#xe937;' }}" style="vertical-align:center;"></Label>
-            </GridLayout>
-          </StackLayout>
-        </CardView>
-      </StackLayout>
-    </ng-template>
-    <!-- // header -->
-    <ng-template tkListViewHeader>
-      <StackLayout padding="20 20 25">
-        <SearchboxLike
+
+  <ScrollView class="bg-theme-secondary">
+    <StackLayout>
+      <StackLayout padding="20 20 25" width="100%">
+        <SearchboxLike *ngIf="!isSearchMode"
           placeholder="名前で絞り込む"
-          (onSearch)="false"></SearchboxLike>
-        <!-- <SearchboxLike
-             placeholder="名前で絞り込む"
-             followContent="キャンセル"
-             (onSearch)="false"
-             (onClear)="false"
-             (onCancel)="false"></SearchboxLike> -->
+          (onSearch)="switchMode()"></SearchboxLike>
+        <CustomSearchbox *ngIf="isSearchMode"
+          placeholder="名前で絞り込む"
+          followContent="キャンセル"
+          focusAtInit="true"
+          (onSearch)="searchAction($event)"
+          (onTapFollowContent)="switchMode()"></CustomSearchbox>
       </StackLayout>
-    </ng-template>
-  </RadListView>
+
+      <!-- // -->
+      <ActivityIndicator *ngIf="currentList.length == 0" busy="true" width="20"></ActivityIndicator>
+
+      <!-- // -->
+      <ng-template ngFor let-item [ngForOf]="currentList" let-i="index">
+        <StackLayout class="bg-theme-secondary">
+          <CardView margin="1 20" elevation="5" class="bg-white"
+            (tap)="onItemTap(item)">
+            <StackLayout class="bg-clear">
+              <GridLayout columns="80,*,60" rows="90" class="bg-clear">
+                <Image col="0" class="m-x-10" style="border-radius:80;" stretch="aspectFill" width="60" height="60"
+                  src="{{ item.avatarUrl || '~/assets/placeholder__user.png' }}"></Image>
+                <StackLayout col="1" orientation="horizontal" class="p-10">
+                  <Label class="h3" text="{{ item.username }}" virticalAlignment="stretch"></Label>
+                </StackLayout>
+                <Label col="2" class="h2 p-10 icon"
+                  [class.text-theme]="selected.indexOf(item.id) > -1"
+                  text="{{ selected.indexOf(item.id) > -1 ? '&#xe92c;' : '&#xe937;' }}" style="vertical-align:center;"></Label>
+              </GridLayout>
+            </StackLayout>
+          </CardView>
+        </StackLayout>
+      </ng-template>
+
+    </StackLayout>
+  </ScrollView>
+
 </DockLayout>

@@ -19,12 +19,13 @@ import { PointSenderComponent } from './point-sender/point-sender.component';
 import { PointSenderSelectComponent } from './point-sender/point-sender-select.component';
 import { PointSenderCommitComponent } from './point-sender/point-sender-commit.component';
 import { PointSenderConfirmComponent } from './point-sender/point-sender-confirm.component';
+import { PointRequestComponent } from './point-request/point-request.component';
 
 @NgModule({
   declarations: [
     PointRootComponent,
     PointLogComponent,
-    PointSenderComponent, PointSenderSelectComponent, PointSenderCommitComponent, PointSenderConfirmComponent,
+    PointSenderComponent, PointSenderSelectComponent, PointSenderCommitComponent, PointSenderConfirmComponent, PointRequestComponent,
   ],
   imports: [
     PointRoutingModule,

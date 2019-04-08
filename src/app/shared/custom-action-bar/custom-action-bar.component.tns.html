@@ -1,25 +1,51 @@
-<GridLayout columns="60,*,60" rows="50" height="60" class="p-y-5 bg-clear" [class.debugBorder]="debugBorder">
-  <Label *ngIf="(leftIcon?.length > 0) else emptyLeft"
-    col="0" row="0" class="h2 p-r-15 p-l-10 p-y-10 text-center icon bg-clear"  style="vertical-align:center;"
-    [color]="(colorScheme === 'white') ? '#fff' : '#1f977c'"
-    [text]="leftIcon"
-    [class.debugBorder]="debugBorder"
-    (tap)="cancelOrBack()"></Label>
-  <ng-template #emptyLeft>
-    <Label col="0" row="0" class="h2 p-r-15 p-l-10 p-y-10 text-center bg-clear" text="&nbsp;" style="vertical-align:center;"></Label>
-  </ng-template>
-  <Label col="1" row="0" class="h3 text-center bg-clear"
-    [text]="title"
-    [class.debugBorder]="debugBorder"
-    [color]="(colorScheme === 'white') ? '#fff' : '#000'"
-    style="font-weight:600; vertical-align:center;"></Label>
-  <Label *ngIf="(rightIcon?.length > 0) else emptyRight"
-    col="2" row="0" class="h2 p-l-15 p-r-10 p-y-10 text-center icon bg-clear" color="#1f977c" style="vertical-align:center;"
-    [color]="(colorScheme === 'white') ? '#fff' : '#1f977c'"
-    [text]="rightIcon"
-    [class.debugBorder]="debugBorder"
-    (tap)="aproveOrNext()"></Label>
-  <ng-template #emptyRight>
-    <Label col="2" row="0" class="h2 p-r-15 p-l-10 p-y-10 text-center bg-clear" text="&nbsp;" style="vertical-align:center;"></Label>
-  </ng-template>
-</GridLayout>
+<FlexboxLayout
+  justifyContent="space-between"
+  alignItems="center"
+  alignContent="center"
+  height="60" class="bg-clear" [class.debugBorder]="debugBorder">
+
+  <DockLayout alignSelf="center" stretchLasthChild="false" class="m-l-10">
+    <Label *ngIf="(leftIcon?.length > 0) else emptyLeft"
+      dock="left" width="40" class="typo-nav-icon p-y-10 text-center icon bg-clear"  style="vertical-align:center;"
+      [color]="(colorScheme === 'white') ? '#fff' : '#1f977c'"
+      [text]="leftIcon"
+      [class.debugBorder]="debugBorder"
+      (tap)="cancelOrBack()"></Label>
+    <ng-template #emptyLeft>
+      <Label dock="left" width="40" class="typo-nav-icon p-y-10 text-center bg-clear" text="&nbsp;" style="vertical-align:center;"></Label>
+    </ng-template>
+
+    <Label *ngIf="(thirdIcon?.length > 0)"
+      dock="left" width="40" class="typo-nav-icon p-y-10 text-center bg-clear" text="&nbsp;" style="vertical-align:center;"></Label>
+  </DockLayout>
+
+  <StackLayout>
+    <Label alignSelf="center" class="typo-list-heading text-center bg-clear"
+      [text]="title"
+      [class.debugBorder]="debugBorder"
+      [color]="(colorScheme === 'white') ? '#fff' : '#000'"
+      style="font-weight:600; vertical-align:center;"></Label>
+  </StackLayout>
+
+  <DockLayout alignSelf="center" stretchLasthChild="false" class="m-r-10">
+    <Label *ngIf="(rightIcon?.length > 0) else emptyRight"
+      dock="left" class="typo-nav-icon p-y-10 text-center icon bg-clear" color="#1f977c" style="vertical-align:center;"
+      width="40"
+      [color]="(colorScheme === 'white') ? '#fff' : '#1f977c'"
+      [text]="rightIcon"
+      [class.debugBorder]="debugBorder"
+      (tap)="aproveOrNext()"></Label>
+    <ng-template #emptyRight>
+      <Label dock="left" width="40" class="typo-nav-icon p-y-10 text-center bg-clear" text="&nbsp;" style="vertical-align:center;"></Label>
+    </ng-template>
+
+    <Label *ngIf="(thirdIcon?.length > 0)"
+      dock="right" class="typo-nav-icon p-y-10 text-center icon bg-clear" color="#1f977c" style="vertical-align:center;"
+      width="40"
+      [color]="(colorScheme === 'white') ? '#fff' : '#1f977c'"
+      [text]="thirdIcon"
+      [class.debugBorder]="debugBorder"
+      (tap)="extraTap()"></Label>
+  </DockLayout>
+
+</FlexboxLayout>

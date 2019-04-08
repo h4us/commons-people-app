@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Observable, Subject, forkJoin, from, of, zip } from 'rxjs';
-import { distinct, switchMap, map, mergeAll, filter, tap } from 'rxjs/operators';
+import { distinct, concatMap, toArray, mergeAll, concatAll, tap } from 'rxjs/operators';
 
 import { ImageAsset } from 'tns-core-modules/image-asset';
 import { ImageSource } from 'tns-core-modules/image-source';
@@ -219,20 +219,33 @@ export class UserService {
   }
 
   searchUsers(targetCommunity?:number, query?:string): any {
-    // TODO:
+    // TODO: performance, error handling, etc
+    // const t: number = targetCommunity || this._currentCommunityId;
+    // const allowChar: string = 'abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ0123456789_';
+    // let q: string = query ? `&q=${query}` : '';
+    // if (q == '') {
+    //   const ob: Observable<any>[] = [];
+    //   for (let i = 0; i < allowChar.length; i++) {
+    //     ob.push(this.http.get(`${this.apiUrl}users?communityId=${t}&q=${allowChar[i]}`));
+    //   }
+    //   return forkJoin(...ob).pipe(mergeAll());
+    // } else {
+    //   return this.http.get(`${this.apiUrl}users?communityId=${t}${q}`);
+    // }
+
     const t: number = targetCommunity || this._currentCommunityId;
-    const allowChar: string = 'abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ0123456789_';
+    const allowChar: string = '0123456789aAbBcCdDeEfFgGhHiIjJkKlLnNmMoOpPqQrRsStTuUvVwWxXyYzZ_';
     let q: string = query ? `&q=${query}` : '';
     if (q == '') {
-      const ob: Observable<any>[] = [];
-      for (let i = 0; i < allowChar.length; i++) {
-        ob.push(this.http.get(`${this.apiUrl}users?communityId=${t}&q=${allowChar[i]}`));
-      }
-      return forkJoin(...ob).pipe(mergeAll());
+      return from(allowChar).pipe(
+        concatMap((c: string) => this.http.get(`${this.apiUrl}users?communityId=${t}&q=${c}`)),
+        concatAll(),
+        distinct((el: any) => el.id),
+        toArray()
+      );
     } else {
       return this.http.get(`${this.apiUrl}users?communityId=${t}${q}`);
     }
-    // --
   }
 
   updateUserInfo(data: any, mode?: string): Observable<any> {
@@ -248,18 +261,12 @@ export class UserService {
     return ret;
   }
 
-  updateUserEmailAddress(data: any, mode?: string): Observable<any> {
-    // TODO:
-    let ret: Observable<any> = of([]);
-    // ret = this.http.post(`${this.apiUrl}users/${this.user.id}/emailaddress`, data);
-    return ret;
+  updateUserEmailAddress(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}users/${this.user.id}/emailaddress`, data);
   }
 
-  updateUserPassword(data: any, mode?: string): Observable<any> {
-    // TODO:
-    let ret: Observable<any> = of([]);
-    // ret = this.http.post(`${this.apiUrl}users/${this.user.id}/passwordreset`, data);
-    return ret;
+  updateUserPassword(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}users/${this.user.id}/passwordreset`, data);
   }
 
   /*

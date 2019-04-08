@@ -94,8 +94,9 @@ export class PointSenderSelectComponent implements OnInit {
     }
   }
 
-  onItemTap(args: ListViewEventData) {
-    const tItem = args.view.bindingContext;
+  // onItemTap(args: ListViewEventData) {
+  onItemTap(tItem: any) {
+    // const tItem = args.view.bindingContext;
 
     const currentOutlet = this.aRoute.outlet;
     const outletParam = {};

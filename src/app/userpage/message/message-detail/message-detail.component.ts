@@ -82,8 +82,8 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
       .forEach((params) => {
         const desireId: number = <number>params.id;
         this.title = `ダイレクトメッセージ: ${desireId}`;
-        // this.title = `Message: ${desireId}`;
 
+        // TODO:
         if (this.messageService.activeThreads) {
           const _thread = this.messageService.activeThreads.filter((el) => el.id == desireId);
           if (_thread.length > 0) {
@@ -141,5 +141,10 @@ ${msg}
 
   sendPoint() {
     this.mProxy.request('send-point');
+  }
+
+  editThread() {
+    console.log('edit thread');
+    // this.mProxy.request('send-point');
   }
 }

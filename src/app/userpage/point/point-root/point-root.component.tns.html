@@ -51,10 +51,13 @@
         <Button text="問い合わせる" class="btn btn-primary btn-rounded-lg btn-outline" style="padding-left:30; padding-right:30;"
           (tap)="giveMePoint()"></Button>
       </FlexboxLayout>
-      <FlexboxLayout alignSelf="center" flexDirection="column" justifyContent="center" flexShrink="0">
+      <!-- // -->
+      <FlexboxLayout *ngIf="!isProd"
+        alignSelf="center" flexDirection="column" justifyContent="center" flexShrink="0">
         <Label class="text-center typo-list-heading" text="view list demo"
           (tap)="allZero = !allZero"></Label>
       </FlexboxLayout>
+      <!-- // -->
     </FlexboxLayout>
   </ng-template>
 </GridLayout>

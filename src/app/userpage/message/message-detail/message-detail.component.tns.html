@@ -7,8 +7,9 @@
   <!-- <StackLayout #sizeAnchor class="util-anchor-full"></StackLayout> -->
 
   <StackLayout row="0" class="bg-theme-secondary" height="60">
-    <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="&#xea0a;"
-      (onAprove)="sendPoint()"></CustomActionBar>
+    <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="&#xea0a;" thirdIcon="{{ threadObj?.group ? '&#xe9c4;' : '' }}"
+      (onAprove)="sendPoint()"
+      (onExtraTap)="editThread()"></CustomActionBar>
   </StackLayout>
 
   <ScrollView width="100%" row="1" enabled="false">

@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 
+import { Observable, from } from 'rxjs';
+import { distinct, toArray } from 'rxjs/operators';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterExtensions } from 'nativescript-angular/router';
 
 import { Page } from 'tns-core-modules/ui/page';
 import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
 import { DockLayout } from 'tns-core-modules/ui/layouts/dock-layout';
-
-import { ListViewEventData } from 'nativescript-ui-listview';
 
 import { UserService } from '../../../user.service';
 
@@ -22,6 +23,8 @@ export class MessageEditorComponent implements OnInit {
   selected: number[] = [];
   currentList: any[] = [];
 
+  isSearchMode: boolean = false;
+
   constructor(
     private page: Page,
     private router: Router,
@@ -35,7 +38,6 @@ export class MessageEditorComponent implements OnInit {
   ngOnInit() {
     this.userService.searchUsers(this.userService.currentCommunityId)
       .subscribe((data: any) => {
-        console.log(data);
         this.currentList = data;
       });
   }
@@ -44,10 +46,8 @@ export class MessageEditorComponent implements OnInit {
     layout.closeModal();
   }
 
-  onItemTap(args: ListViewEventData) {
-    const tItem = args.view.bindingContext;
-    const hasItem = this.selected.indexOf(tItem.id);
-
+  onItemTap(tItem: any) {
+      const hasItem = this.selected.indexOf(tItem.id);
     if (hasItem > -1) {
       this.selected.splice(hasItem, 1);
     } else {
@@ -64,6 +64,32 @@ export class MessageEditorComponent implements OnInit {
       });
     } else if (this.selected.length > 1) {
       //
+      let names: any[] = this.selected.map((id: number) => this.currentList.find((el: any) => el.id == id));
+      names.push(this.userService.getCurrentUser());
+      names = names.map((el: any) => el.username);
+
+      //
+      this.userService.createGroupMessageThread({
+        title: names.join(),
+        communityId: this.userService.currentCommunityId,
+        memberIds: this.selected
+      }).subscribe((data: any) => {
+        layout.closeModal({
+          willCreate: data.id
+        });
+      });
     }
+  }
+
+  switchMode() {
+    this.isSearchMode = !this.isSearchMode;
+  }
+
+  searchAction(e: any) {
+    this.userService.searchUsers(this.userService.currentCommunityId, e.search)
+      .subscribe((data: any) => {
+        this.currentList = data;
+      });
+    // console.log(e);
   }
 }

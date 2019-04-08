@@ -121,7 +121,9 @@ The order of route configuration matters. The router accepts the first route tha
 
     <ng-template tkListViewFooter>
       <StackLayout class="p-10 bg-theme-secondary">
-        <Button *ngIf="currentTab != 'profile'"
+        <!-- <Button *ngIf="currentTab != 'profile'"
+             class="btn btn-rounded-lg btn-primary btn-black" width="40%" text="さらに読む"></Button> -->
+        <Button *ngIf="false"
           class="btn btn-rounded-lg btn-primary btn-black" width="40%" text="さらに読む"></Button>
       </StackLayout>
     </ng-template>
@@ -142,6 +144,7 @@ The order of route configuration matters. The router accepts the first route tha
     alignContent="space-around"
     alignItems="center">
     <Button alignSelf="center" text="{{ inDraft ? '選択中' : '選択する' }}" class="btn btn-primary btn-rounded-lg" width="50%"
+      [class.btn-black]="inDraft"
       (tap)="toDraft()"></Button>
   </FlexboxLayout>
 

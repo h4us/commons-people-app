@@ -382,6 +382,11 @@ textfield.input,
 .typo-list-small,
 .typo-label {
   font-size: $theme-fs-small;
+
+  &-bold {
+    font-size: $theme-fs-small;
+    font-family: "NotoSansJP Bold", "NotoSansJP-Bold", "Noto Sans JP Bold";
+  }
 }
 
 //
@@ -391,16 +396,16 @@ textfield.input,
   font-weight: 500;
 }
 
-.typo-message-light {
-  font-size: $theme-fs-medium;
-  line-height: 1.1;
-  font-family: "NotoSansJP Light", "NotoSansJP-Light", "Noto Sans JP Light";
-}
-
 .typo-message {
   font-size: $theme-fs-medium;
   line-height: 1.2;
   font-family: "NotoSansJP Regular", "NotoSansJP-Regular", "Noto Sans JP Regular";
+
+  &-light {
+    font-size: $theme-fs-medium;
+    line-height: 1.1;
+    font-family: "NotoSansJP Light", "NotoSansJP-Light", "Noto Sans JP Light";
+  }
 }
 
 //
@@ -429,6 +434,11 @@ textfield.input,
   font-size: $theme-fs-ultra-large;
   line-height: 1.75;
   font-weight: 700;
+}
+
+.typo-nav-icon {
+  font-size: $theme-fs-ultra-large;
+  font-weight: 500;
 }
 
 // --

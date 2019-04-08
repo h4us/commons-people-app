@@ -11,6 +11,7 @@ export class CustomActionBarComponent implements OnInit {
   @Input() title: string;
   @Input() leftIcon: string;
   @Input() rightIcon: string;
+  @Input() thirdIcon: string;
   @Input() colorScheme: string;
 
   //
@@ -23,6 +24,7 @@ export class CustomActionBarComponent implements OnInit {
   //
   @Output() onCancel = new EventEmitter<string>();
   @Output() onAprove = new EventEmitter<string>();
+  @Output() onExtraTap = new EventEmitter<string>();
 
   //
   @Input() debugBorder: boolean = false;
@@ -67,4 +69,11 @@ export class CustomActionBarComponent implements OnInit {
       }
     }
   }
+
+  extraTap() {
+    if (this.onExtraTap.observers.length > 0) {
+      this.onExtraTap.emit('tap extra');
+    }
+  }
+
 }

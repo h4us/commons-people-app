@@ -79,23 +79,33 @@ export class ProfileEditorComponent implements OnInit, OnDestroy, AfterViewInit 
 
       if (this.field != 'password' && this.field != 'emailAddress') {
         this.fieldIsValid = this.pForm.get(this.field).valid
+          && this.lastCommit[`${this.field}`] != this.pForm.get(`${this.field}`).value;
       } else {
-        //
         this.firstErrorInConfirm = this.pForm.get(`${this.field}Confirm`).errors ?
           {
             [Object.keys(this.pForm.get(`${this.field}Confirm`).errors)[0]] : this.pForm.get(`${this.field}Confirm`).errors[Object.keys(this.pForm.get(`${this.field}Confirm`).errors)[0]]
           } : null;
-        //
 
         this.confirmIsValid = this.pForm.get(`${this.field}Confirm`).value == this.pForm.get(this.field).value;
 
-        this.fieldIsValid = this.pForm.get(this.field).valid
-          && this.pForm.get(`${this.field}Confirm`).valid
-          && this.confirmIsValid;
+        if (this.field == 'password') {
+          this.fieldIsValid = this.pForm.get(this.field).valid
+            && this.pForm.get(`${this.field}Confirm`).valid
+            && this.confirmIsValid;
+        } else {
+          this.fieldIsValid = this.pForm.get(this.field).valid
+            && this.pForm.get(`${this.field}Confirm`).valid
+            && this.lastCommit[`${this.field}`] != this.pForm.get(`${this.field}`).value
+            && this.confirmIsValid;
+        }
       }
     });
 
     this.lastCommit = this.pForm.value;
+
+    if (this.field == 'password') {
+      this.pForm.patchValue({ password: '' });
+    }
   }
 
   ngAfterViewInit() {
@@ -142,9 +152,8 @@ export class ProfileEditorComponent implements OnInit, OnDestroy, AfterViewInit 
           this.routerExt.backToPreviousPage();
         });
     } else if (['emailAddress', 'password'].includes(this.field)) {
-      //
-      console.log('mail-base update');
       let req: Observable<any>;
+
       if (this.field == 'password') {
         req = this.userService.updateUserPassword({
           currentPassword: this.pForm.get('password').value
@@ -154,6 +163,7 @@ export class ProfileEditorComponent implements OnInit, OnDestroy, AfterViewInit 
           newEmailAddress: this.pForm.get('emailAddress').value
         });
       }
+
       req.subscribe((data) => {
         this.routerExt.navigate([{
           outlets: { userpage: ['profile', 'sent-edit'] }

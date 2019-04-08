@@ -6,7 +6,9 @@
     alignItems="center">
     <Label class="icon left-label" text="&#xe9c1;"
       (tap)="onSearchAction()"></Label>
-    <TextField class="input" width="100%"
+    <TextField
+      #searchInput
+      class="input" width="100%"
       [hint]="placeholder"
       [formControl]="keywords"
       (returnPress)="onSearchAction($event)"></TextField>

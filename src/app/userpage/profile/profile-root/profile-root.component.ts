@@ -347,8 +347,8 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
 
   logout () {
     this.trayService.request('snackbar/', 'open', {
-      approveMessage: 'ログアウトしますか？',
-      doneMessage: 'ログアウトしています...',
+      approveMessage: 'サインアウトしますか？',
+      doneMessage: 'サインアウトしています...',
       canUserDisposable: false
     });
   }

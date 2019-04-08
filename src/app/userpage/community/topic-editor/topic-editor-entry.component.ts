@@ -118,7 +118,7 @@ export class TopicEditorEntryComponent implements OnInit {
               });
             });
           })
-          .catch((err: any) => console.log(err));
+          .catch((err: any) => console.error(err));
       }
 
       // boot camera
@@ -166,18 +166,12 @@ export class TopicEditorEntryComponent implements OnInit {
         } else if (typeof this.selectedPhoto == 'string' && this.selectedPhoto.indexOf('http') == 0) {
           p = nsHttp.getImage(this.selectedPhoto);
         } else {
-          console.log(this.selectedPhoto, 'format error');
+          console.error(this.selectedPhoto, 'format error');
           return;
         }
 
-        console.log(p);
-
         p.then((isource: unknown) => {
-
           const src: ImageSource = typeof isource == 'boolean' ? source : <ImageSource>isource;
-
-          console.log(src, 'is OK.');
-
           const imageCropper = new ImageCropper();
           // TODO: android lockSquare not work..
           const opt: OptionsCommon = isIOS ? { width: src.width, height: src.height, lockSquare: true } : null;

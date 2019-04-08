@@ -24,7 +24,6 @@ import { environment } from '~/environments/environment';
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
-  // providers: [ TrayService ]
 })
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   title:string = 'COMMONS PEOPLE';

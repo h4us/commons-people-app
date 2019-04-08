@@ -19,15 +19,11 @@
         <StackLayout width="100%">
           <Button text="新規登録" class="btn btn-primary btn-rounded-lg" width="50%" (tap)="gotoRegister()"></Button>
           <Button text="サインイン" class="btn btn-active btn-primary btn-black btn-rounded-lg" width="50%" (tap)="gotoSignin()"></Button>
+          <!-- // -->
           <Label *ngIf="!isProd" class="typo-annotation text-center" textWrap="true"
             text="development build
 [ {{ useApiBase }} ]"></Label>
-          <!-- <Label class="h3 p-5 m-5 text-center" (tap)="gotoDemo()">
-               <FormattedString>
-               <Span text="&nbsp;UI widgets demo & test page"></Span>
-               <Span text="&#xe912;" class="icon"></Span>
-               </FormattedString>
-               </Label> -->
+          <!-- // -->
         </StackLayout>
       </FlexboxLayout>
     </DockLayout>

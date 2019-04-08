@@ -8,6 +8,7 @@ import { NewbieComponent } from './newbie/newbie.component';
 // TODO:
 import { PointRootComponent } from './point/point-root/point-root.component';
 import { PointLogComponent } from './point/point-log/point-log.component';
+import { PointRequestComponent } from './point/point-request/point-request.component';
 import { PointSenderSelectComponent } from './point/point-sender/point-sender-select.component';
 import { PointSenderCommitComponent } from './point/point-sender/point-sender-commit.component';
 import { PointSenderConfirmComponent } from './point/point-sender/point-sender-confirm.component';
@@ -143,6 +144,12 @@ const routes: Routes = [
         path:'message/log/:id',
         component: MessageDetailComponent,
         outlet: 'userpage'
+      },
+
+      {
+        path: 'point/request',
+        component: PointRequestComponent,
+        outlet: 'userpage',
       },
 
       {

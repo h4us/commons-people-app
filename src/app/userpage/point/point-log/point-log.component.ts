@@ -11,7 +11,6 @@ import { Button } from 'tns-core-modules/ui/button';
 import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
 import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout';
 import { screen } from 'tns-core-modules/platform';
-import { layout } from 'tns-core-modules/utils/utils';
 
 import { UserService, User } from '../../../user.service';
 
@@ -69,7 +68,7 @@ export class PointLogComponent implements OnInit, AfterViewInit {
                 username: 'testuser'
               },
               amount: 100,
-              description: 'this is dummy',
+              description: 'this is dummy this is dummy this is dummy this is dummy this is dummy this is dummy',
               createdAt: new Date()
             });
             // --
@@ -106,9 +105,8 @@ export class PointLogComponent implements OnInit, AfterViewInit {
 
   padName(n: string): string {
     // if (n.length < 15) {
-    //   // const p = Array(15 - n.length).fill('M');
-    //   // return n + p.join('');
-    //   // return 'MMMMMMMMMMMMMMM';
+    //   const p = Array(15 - n.length).fill('M');
+    //   return n + p.join('');
     // } else {
     //   return n;
     // }

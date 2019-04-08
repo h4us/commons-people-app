@@ -2,12 +2,13 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { RouterExtensions } from 'nativescript-angular/router';
-
 import { Page } from 'tns-core-modules/ui/page';
 
 import { ListViewEventData } from 'nativescript-ui-listview';
 
 import { UserService, User } from '../../../user.service';
+
+import { environment } from '~/environments/environment';
 
 @Component({
   selector: 'app-point-root',
@@ -20,6 +21,8 @@ export class PointRootComponent implements OnInit {
   balanceList: any[];
   user: User;
   allZero: boolean = true;
+
+  isProd: boolean = environment.production;
 
   constructor(
     private router: RouterExtensions,
@@ -55,13 +58,13 @@ export class PointRootComponent implements OnInit {
   gotoCommunity() {
     this.router.navigate(['../community'], {
       relativeTo: this.aRoute,
-      transition: { name: 'fade', duration: 150 },
+      // transition: { name: 'fade', duration: 150 },
     });
   }
 
   giveMePoint() {
-    // this.router.navigate(['../community'], {
-    //   relativeTo: this.aRoute
-    // });
+    this.router.navigate(['../point/request'], {
+      relativeTo: this.aRoute
+    });
   }
 }

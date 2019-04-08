@@ -1,7 +1,6 @@
 import {
   Component, OnInit, OnDestroy, AfterViewInit,
-  Input, Output,
-  ViewChild, ElementRef
+  Input, ViewChild, ElementRef
 } from '@angular/core';
 import { Router, NavigationStart, NavigationEnd, ActivatedRoute } from '@angular/router';
 
@@ -126,16 +125,13 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   gotoPoints() {
-    // this.routerExt.navigate(['/user', 'point'], {
-    //   transition: { name: 'fade', duration: 100 }
-    // });
-
     this.routerExt.navigate([{
       outlets: {
         userpage: ['point']
       }
     }], {
-      transition: { name: 'fade', duration: 150 },
+      animated: false,
+      // transition: { name: 'fade', duration: 150 },
       relativeTo: this.aRoute
     });
   }
@@ -146,7 +142,8 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
         userpage: ['community']
       }
     }], {
-      transition: { name: 'fade', duration: 150 },
+      animated: false,
+      // transition: { name: 'fade', duration: 150 },
       relativeTo: this.aRoute
     });
   }
@@ -157,7 +154,8 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
         userpage: ['message']
       }
     }], {
-      transition: { name: 'fade', duration: 150 },
+      animated: false,
+      // transition: { name: 'fade', duration: 150 },
       relativeTo: this.aRoute
     });
   }
@@ -168,7 +166,8 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
         userpage: ['profile']
       }
     }], {
-      transition: { name: 'fade', duration: 150 },
+      animated: false,
+      // transition: { name: 'fade', duration: 150 },
       relativeTo: this.aRoute
     });
   }

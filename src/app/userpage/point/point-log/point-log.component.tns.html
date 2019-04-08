@@ -13,35 +13,24 @@
           <!-- // item -->
           <StackLayout class="m-x-15 bg-white" height="90" style="border-top-color:#f6f6f6; border-top-width:1;">
 
-            <DockLayout *ngIf="item?.remitter?.id == user.id"
-              stretchLastChild="true"
+            <GridLayout *ngIf="item?.remitter?.id == user.id"
+              columns="75,*"
               class="p-0" width="100%">
-              <Image dock="left" class="m-r-15 m-y-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
+              <Image col="0" class="m-r-15 m-y-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
                 src="{{ item.beneficiary?.avatarUrl || '~/assets/placeholder__user.png' }}"></Image>
-              <Label dock="right" class="h3 p-10 text-error" style="vertical-align:center; text-align:right"
-                text="-{{ padOrLimPoints(item.amount) }}" ></Label>
-              <FlexboxLayout flexDirection="column" justifyContent="center">
-                <Label *ngIf="item.beneficiary?.username" text="{{ padName(item.beneficiary?.username) }}" class="typo-list-heading"></Label>
-                <Label text="{{ item.description }}" class="typo-list-preview" android:style="margin-top:-14;"></Label>
-                <Label class="typo-label" android:style="margin-top:-14;">
-                  <FormattedString>
-                    <Span text="&#xe939;" class="icon text-theme" style="vertical-align:center;"></Span>
-                    <Span text=" {{ item.createdAt | amLocal | amTimeAgo }}"></Span>
-                  </FormattedString>
-                </Label>
-              </FlexboxLayout>
-            </DockLayout>
 
-            <DockLayout *ngIf="item?.remitter?.id != user.id"
-              stretchLastChild="true"
-              class="p-0" width="100%">
-              <Image dock="left" class="m-r-15 m-y-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
-                src="{{ item.remitter?.avatarUrl || '~/assets/placeholder__user.png' }}"></Image>
-              <Label dock="right" class="h3 p-10 text-theme" style="vertical-align:center; text-align:right;"
-                text="+{{ padOrLimPoints(item.amount) }}" ></Label>
-              <FlexboxLayout flexDirection="column" justifyContent="center">
-                <Label *ngIf="item.remitter?.username" text="{{ padName(item.remitter?.username) }}" class="typo-list-heading"></Label>
-                <Label text="{{ item.description }}" class="typo-list-preview" android:style="margin-top:-14;"></Label>
+              <FlexboxLayout col="1"
+                flexDirection="column"
+                justifyContent="center"
+                alignContent="center">
+                <Label *ngIf="item.beneficiary?.username" text="{{ padName(item.beneficiary?.username) }}" class="typo-list-heading"></Label>
+
+                <GridLayout columns="*,auto", rows="auto" android:style="margin-top:-14;">
+                  <Label col="0" text="{{ item.description }}" class="typo-list-preview" verticalAlignment="center"></Label>
+                  <Label col="1" class="typo-card-heading p-l-10 text-error" style="text-align:right;" verticalAlignment="center"
+                    text="-{{ padOrLimPoints(item.amount) }}" ></Label>
+                </GridLayout>
+
                 <Label class="typo-label" android:style="margin-top:-14;">
                   <FormattedString>
                     <Span text="&#xe939;" class="icon text-theme" style="vertical-align:center;"></Span>
@@ -49,7 +38,34 @@
                   </FormattedString>
                 </Label>
               </FlexboxLayout>
-            </DockLayout>
+            </GridLayout>
+
+            <GridLayout *ngIf="item?.remitter?.id != user.id"
+              columns="75,*"
+              class="p-0" width="100%">
+              <Image col="0" class="m-r-15 m-y-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
+                src="{{ item.remitter?.avatarUrl || '~/assets/placeholder__user.png' }}"></Image>
+
+              <FlexboxLayout col="1"
+                flexDirection="column"
+                justifyContent="center"
+                alignContent="center">
+                <Label *ngIf="item.remitter?.username" text="{{ padName(item.remitter?.username) }}" class="typo-list-heading"></Label>
+
+                <GridLayout columns="*,auto", rows="auto" android:style="margin-top:-14;">
+                  <Label col="0" text="{{ item.description }}" class="typo-list-preview" verticalAlignment="center"></Label>
+                  <Label col="1" class="typo-card-heading p-l-10 text-theme" style="text-align:right;" verticalAlignment="center"
+                    text="+{{ padOrLimPoints(item.amount) }}" ></Label>
+                </GridLayout>
+
+                <Label class="typo-label" android:style="margin-top:-14;">
+                  <FormattedString>
+                    <Span text="&#xe939;" class="icon text-theme" style="vertical-align:center;"></Span>
+                    <Span text=" {{ item.createdAt | amLocal | amTimeAgo }}"></Span>
+                  </FormattedString>
+                </Label>
+              </FlexboxLayout>
+            </GridLayout>
 
           </StackLayout>
         </ng-template>

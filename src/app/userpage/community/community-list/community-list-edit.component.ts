@@ -14,7 +14,6 @@ import { GridLayout } from 'tns-core-modules/ui/layouts/grid-layout';
 import { screen } from 'tns-core-modules/platform';
 import { layout } from 'tns-core-modules/utils/utils';
 
-import { ListViewEventData } from 'nativescript-ui-listview';
 import { UserService, User } from '../../../user.service';
 
 import { SystemTrayService } from '../../../system-tray.service';
@@ -32,6 +31,7 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
   selectedList: number[];
   user: User;
   mode: string = 'switch';
+  isSearchMode: boolean = false;
 
   @ViewChild('communityList') rootLayoutRef: ElementRef;
 
@@ -118,7 +118,7 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
     //! simple but not strict
     // return this.userService.draftCommunityIds.toString() != this.selectedList.toString();
 
-    //
+    //! more strict
     return this.userService.draftCommunityIds.filter((el) => !this.selectedList.includes(el)).length > 0 ||
       this.userService.draftCommunityIds.length != this.selectedList.length;
   }
@@ -141,9 +141,7 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
     }
   }
 
-  onItemTap(args: ListViewEventData) {
-    const tItem = args.view.bindingContext;
-
+  onItemTap(tItem: any) {
     if (this.mode == 'switch') {
       this.draft = tItem.id;
     } else if (this.mode == 'edit') {
@@ -186,6 +184,17 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
     }
   }
 
+  searchMode() {
+    this.isSearchMode = !this.isSearchMode;
+  }
+
+  searchAction(e: any) {
+    console.log(e);
+    this.userService.searchCommunities(e.search).subscribe((data: any) => {
+      this.currentList = data;
+    });
+  }
+
   confirmChange() {
     this.routerExt.navigate([{
       outlets: {
@@ -196,15 +205,16 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
 
   submitChange() {
     //
-    console.log(
-      'submit to server',
-      this.userService.draftCommunityIds,
-      // this.userService.draftCommunities
-    );
+    // console.log(
+    //   'submit to server',
+    //   this.userService.draftCommunityIds,
+    //   // this.userService.draftCommunities
+    // );
 
-    this.userService.updateCommunities(this.userService.draftCommunityIds).subscribe((data) => {
-      console.log('submitted', data);
+    this.userService.updateCommunities(this.userService.draftCommunityIds).subscribe((data: any) => {
+      // --
       this.userService.parseUser(data);
+      // --
       this.rootLayoutRef.nativeElement.closeModal();
     });
 
