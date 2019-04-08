@@ -77,6 +77,10 @@ export class ProfileValidatorService {
       passwordConfirm: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^[a-zA-Z0-9_]+$/)]],
     });
 
+    this.resetData();
+  }
+
+  resetData() {
     const { username, firstName, lastName, description, location, emailAddress, status } = this.userService.getCurrentUser();
     const { password } = this.userService.getCurrentLogin();
 
@@ -90,9 +94,5 @@ export class ProfileValidatorService {
       status,
       password
     });
-  }
-
-  resetData() {
-    //
   }
 }

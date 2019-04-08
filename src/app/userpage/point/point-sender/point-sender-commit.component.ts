@@ -1,10 +1,14 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy, AfterViewInit,
+  ViewChild, ElementRef
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormGroup } from '@angular/forms'
 
-import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
-
 import { switchMap } from 'rxjs/operators';
+
+import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
+import { isIOS } from 'tns-core-modules/platform';
 
 import { Page } from 'tns-core-modules/ui/page';
 import { ListViewEventData } from 'nativescript-ui-listview';
@@ -12,7 +16,7 @@ import { ListViewEventData } from 'nativescript-ui-listview';
 import { UserService, User } from '../../../user.service';
 import { PointValidatorService } from '../../point-validator.service';
 
-import { TrayService } from '../../../shared/tray.service';
+import { SystemTrayService } from '../../../system-tray.service';
 
 @Component({
   selector: 'app-point-sender-commit',
@@ -26,8 +30,9 @@ export class PointSenderCommitComponent implements OnInit, OnDestroy, AfterViewI
   tokens: string[];
   sendData: any;
   selectedToken: string;
-  // points: number = 1;
   pForm: FormGroup;
+
+  @ViewChild('forceNumKey') nkbd: ElementRef;
 
   constructor(
     private page: Page,
@@ -36,17 +41,17 @@ export class PointSenderCommitComponent implements OnInit, OnDestroy, AfterViewI
     private routerExt: RouterExtensions,
     private userService: UserService,
     private pvService: PointValidatorService,
-    private tService: TrayService,
+    private tService: SystemTrayService,
   ) {
     page.actionBarHidden = true;
 
     this.tokens = this.userService.getCommunities().map((el) => { return el.tokenSymbol });
-
-    pvService.resetData();
-    this.pForm = pvService.sendForm;
   }
 
   ngOnInit() {
+    this.pvService.resetData();
+    this.pForm = this.pvService.sendForm;
+
     this.pageRoute.activatedRoute
       .pipe(switchMap((aRoute) => aRoute.params))
       .forEach((params) => {
@@ -63,9 +68,9 @@ export class PointSenderCommitComponent implements OnInit, OnDestroy, AfterViewI
         // --
 
         this.userService.getUserDetail(uid).subscribe((data: any) => {
-          this.sendToUser = data;
-          this.pForm.patchValue({ beneficiaryId: this.sendToUser.id });
           const cm: any = this.userService.getCommunityByToken(this.selectedToken);
+
+          this.sendToUser = data;
           this.pForm.patchValue({
             communityId: cm.id,
             beneficiaryId: this.sendToUser.id,
@@ -75,13 +80,27 @@ export class PointSenderCommitComponent implements OnInit, OnDestroy, AfterViewI
           console.log(this.pForm.value, this.pForm.valid);
         });
       });
-  }
 
-  ngOnDestroy() {
+    this.pageRoute.activatedRoute
+      .pipe(switchMap((aRoute) => aRoute.queryParams))
+      .forEach((params) => {
+        if (params.adId) {
+          this.pForm.patchValue({
+            adId: <number>params.adId
+          });
+        }
+      });
   }
 
   ngAfterViewInit() {
+    if (isIOS && this.nkbd) {
+      this.nkbd.nativeElement.keyboardType = 11;
+    }
+
     this.tService.request('snackbar', 'open');
+  }
+
+  ngOnDestroy() {
   }
 
   onCommitted(args) {

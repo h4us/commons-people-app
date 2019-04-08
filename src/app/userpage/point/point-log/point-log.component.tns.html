@@ -1,7 +1,7 @@
 <AbsoluteLayout>
   <StackLayout #sizeAnchor class="util-anchor-full"></StackLayout>
 
-  <GridLayout rows="60,*" width="100%" height="100%">
+  <GridLayout rows="60,*" width="100%" height="100%" class="bg-theme">
     <StackLayout row="0" class="bg-theme">
       <CustomActionBar [title]="title" leftIcon="&#xe92f;" colorScheme="white"></CustomActionBar>
     </StackLayout>
@@ -12,11 +12,16 @@
         <ng-template tkListItemTemplate let-item="item" let-i="index">
           <!-- // item -->
           <StackLayout class="m-x-15 bg-white" height="90" style="border-top-color:#f6f6f6; border-top-width:1;">
-            <GridLayout columns="80,*,60" rows="*" class="p-0">
-              <Image col="0" class="m-r-15 m-y-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
-                src="{{ item.remitter.avatarUrl || '~/assets/placeholder__user.png' }}"></Image>
-              <FlexboxLayout col="1" flexDirection="column" justifyContent="center">
-                <Label text="{{ item.remitter.username }}" class="typo-list-heading"></Label>
+
+            <DockLayout *ngIf="item?.remitter?.id == user.id"
+              stretchLastChild="true"
+              class="p-0" width="100%">
+              <Image dock="left" class="m-r-15 m-y-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
+                src="{{ item.beneficiary?.avatarUrl || '~/assets/placeholder__user.png' }}"></Image>
+              <Label dock="right" class="h3 p-10 text-error" style="vertical-align:center; text-align:right"
+                text="-{{ padOrLimPoints(item.amount) }}" ></Label>
+              <FlexboxLayout flexDirection="column" justifyContent="center">
+                <Label *ngIf="item.beneficiary?.username" text="{{ padName(item.beneficiary?.username) }}" class="typo-list-heading"></Label>
                 <Label text="{{ item.description }}" class="typo-list-preview" android:style="margin-top:-14;"></Label>
                 <Label class="typo-label" android:style="margin-top:-14;">
                   <FormattedString>
@@ -25,8 +30,27 @@
                   </FormattedString>
                 </Label>
               </FlexboxLayout>
-              <Label col="2" class="h3 p-10 text-theme" text="{{ item.amount }}" style="vertical-align:center;"></Label>
-            </GridLayout>
+            </DockLayout>
+
+            <DockLayout *ngIf="item?.remitter?.id != user.id"
+              stretchLastChild="true"
+              class="p-0" width="100%">
+              <Image dock="left" class="m-r-15 m-y-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
+                src="{{ item.remitter?.avatarUrl || '~/assets/placeholder__user.png' }}"></Image>
+              <Label dock="right" class="h3 p-10 text-theme" style="vertical-align:center; text-align:right;"
+                text="+{{ padOrLimPoints(item.amount) }}" ></Label>
+              <FlexboxLayout flexDirection="column" justifyContent="center">
+                <Label *ngIf="item.remitter?.username" text="{{ padName(item.remitter?.username) }}" class="typo-list-heading"></Label>
+                <Label text="{{ item.description }}" class="typo-list-preview" android:style="margin-top:-14;"></Label>
+                <Label class="typo-label" android:style="margin-top:-14;">
+                  <FormattedString>
+                    <Span text="&#xe939;" class="icon text-theme" style="vertical-align:center;"></Span>
+                    <Span text=" {{ item.createdAt | amLocal | amTimeAgo }}"></Span>
+                  </FormattedString>
+                </Label>
+              </FlexboxLayout>
+            </DockLayout>
+
           </StackLayout>
         </ng-template>
         <!-- // header -->
@@ -35,7 +59,7 @@
             <AbsoluteLayout row="0" class="bg-theme">
               <StackLayout class="bg-white" width="100%" height="400" style="border-radius:300;"></StackLayout>
             </AbsoluteLayout>
-            <FlexboxLayout row="0" width="100%" class="bg-clear"
+            <FlexboxLayout row="0" width="100%" class="bg-clear p-x-20"
               flexDirection="column"
               justifyContent="center">
               <Label class="text-theme text-center" text="{{ currentCommunity.tokenSymbol }}" style="font-size:16; font-weight:400;"
@@ -49,7 +73,6 @@
     </StackLayout>
   </GridLayout>
 
-  <FAB #floatingButton
-    (tap)="onFabTap()"
-    class="fab-btn" icon="~/assets/fbtn-card-arrow-72x72.png" backgroundColor="#1f977c"></FAB>
+  <FAB #floatingButton class="fab-btn" icon="~/assets/fbtn-card-arrow-72x72.png" backgroundColor="#1f977c"
+    (tap)="onFabTap()"></FAB>
 </AbsoluteLayout>

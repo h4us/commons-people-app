@@ -93,7 +93,7 @@ url("${this.fontsPath}/NotoSansJP-Regular.otf") format("opentype");
 font-weight: normal;
 font-style: normal;
 }
-* { font-family:NotoSansJP Regular, NotoSansJP-Regular; }
+* { font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular; }
 html { background-color: #f6f6f6; width: 100vw; margin: 0; padding: 0; }
 body { background-color: #f6f6f6; width: 100%; margin: 0; padding: 0; }
 img { max-width: 100%; height: auto; }

@@ -11,19 +11,21 @@
   <ScrollView row="1" width="100%" class="bg-theme-secondary">
     <StackLayout orientation="vertical" class="p-15 form" [formGroup]="pForm">
       <Label *ngIf="field == 'emailAddress'"
-        class="text-center text-dim"
+        class="text-center text-dim typo-message-light" textWrap="true" ios:marginBottom="10"
         text="新しい{{ title }}を入力してください。"></Label>
       <Label *ngIf="field == 'password'"
-        class="text-center text-dim"
+        class="text-center text-dim typo-message-light" textWrap="true" ios:marginBottom="10"
         text="現在の{{ title }}を入力してください。"></Label>
       <!-- // -->
       <TextView *ngIf="field == 'status' || field == 'description'"
+        #activeInput
         class="input"
         [class.error]="firstError"
         [hint]="title"
         [formControlName]="field"
         (returnPress)="onValidate()"></TextView>
       <TextView *ngIf="field == 'emailAddress'"
+        #activeInput
         class="input"
         keyboardType="email"
         [class.error]="firstError"
@@ -34,7 +36,7 @@
         columns="*,48" rows="{{ isIOS ? 48 : 60 }}" style="margin-bottom:0; padding:0;"
         class="input"
         [class.error]="firstError">
-        <TextField
+        <TextField #activeInput
           col="0"
           class="input" style="margin-bottom: 0;"
           [class.error]="firstError"
@@ -47,6 +49,7 @@
           (tap)="togglePassword()"></Label>
       </GridLayout>
       <TextField *ngIf="field != 'status' && field != 'description' && field != 'password' && field != 'emailAddress'"
+        #activeInput
         class="input"
         [class.error]="firstError"
         [hint]="title"
@@ -54,6 +57,7 @@
         (returnPress)="onValidate()"></TextField>
       <!-- // -->
       <TextField *ngIf="field == 'password' || field == 'emailAddress'"
+        #activeInputConfirm
         class="input"
         [class.error]="firstErrorInConfirm"
         hint="{{ title }}を再入力"

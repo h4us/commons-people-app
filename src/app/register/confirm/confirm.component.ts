@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 import { RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
@@ -20,6 +21,7 @@ export class ConfirmComponent implements OnInit {
     private routerExt: RouterExtensions,
     private userService: UserService,
     private rvService: RegisterValidatorService,
+    private aRoute: ActivatedRoute,
     page: Page
   ) {
     page.actionBarHidden = true;
@@ -30,13 +32,19 @@ export class ConfirmComponent implements OnInit {
   }
 
   toEdit(key: string) {
+    let dest = key;
+
     if (key == 'emailAddress') {
-      this.routerExt.navigate(['/register', 'email']);
+      dest = 'email';
     } else if (key == 'username') {
-      this.routerExt.navigate(['/register']);
-    } else {
-      this.routerExt.navigate(['/register', key]);
+      dest = 'entry';
     }
+
+    this.routerExt.navigate([{
+      outlets: {
+        registerpage: [ dest ]
+      }
+    }], { relativeTo: this.aRoute.parent });
   }
 
   getCurrent(key: string) {
@@ -45,11 +53,38 @@ export class ConfirmComponent implements OnInit {
     return (key === 'password') ? ret.replace(/./g, '·') : ret;
   }
 
-  nextPage() {
+  goBack() {
+    // TODO: ?
+    this.routerExt.navigate([{
+      outlets: {
+        registerpage: [ 'password' ]
+      }
+    }], { relativeTo: this.aRoute.parent });
+  }
+
+  goNext() {
     if (this.rForm.valid) {
       //
-      this.userService.createAccount(this.rForm.value).subscribe(() => {
-        this.routerExt.navigate(['/register', 'sent']);
+      const filled = {
+        username: '',
+        emailAddress: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        description: '',
+        location: '',
+        communityList: []
+      }
+      filled.emailAddress = this.rForm.get('emailAddress').value;
+      filled.username = this.rForm.get('username').value;
+      filled.password = this.rForm.get('password').value;
+
+      this.userService.createAccount(filled).subscribe(_ => {
+        this.routerExt.navigate([{
+          outlets: {
+            registerpage: [ 'sent' ]
+          }
+        }], { relativeTo: this.aRoute.parent });
       });
       //
     } else {

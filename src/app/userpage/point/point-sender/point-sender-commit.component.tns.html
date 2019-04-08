@@ -6,7 +6,8 @@
   <GridLayout columns="240*,100*" rows="*" class="p-15 bg-theme-secondary">
     <StackLayout col="0" class="form"
       [formGroup]="pForm">
-      <TextField formControlName="amount" keyboardType="number" class="input"></TextField>
+      <TextField #forceNumKey
+        formControlName="amount" keyboardType="number" class="input"></TextField>
     </StackLayout>
     <RadDataForm row="0" col="1"  class="bg-clear"
       [source]="sendData"

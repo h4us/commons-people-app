@@ -17,7 +17,7 @@ import { layout } from 'tns-core-modules/utils/utils';
 import { ListViewEventData } from 'nativescript-ui-listview';
 import { UserService, User } from '../../../user.service';
 
-import { TrayService } from '../../../shared/tray.service';
+import { SystemTrayService } from '../../../system-tray.service';
 
 @Component({
   selector: 'app-community-list-edit',
@@ -43,7 +43,7 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
     private aRoute: ActivatedRoute,
     private userService: UserService,
     private page: Page,
-    private trayService: TrayService
+    private trayService: SystemTrayService
   ) {
     page.actionBarHidden = true;
   }

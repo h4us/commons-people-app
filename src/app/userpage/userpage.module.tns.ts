@@ -14,6 +14,7 @@ import { MessageModule } from './message/message.module';
 import { ModalProxyService } from './modal-proxy.service';
 import { MessageProxyService } from './message-proxy.service';
 import { NewsService } from './news.service';
+import { PeriodicTasksService } from './periodic-tasks.service';
 
 import { TopicValidatorService } from './topic-validator.service';
 import { ProfileValidatorService } from './profile-validator.service';
@@ -44,6 +45,7 @@ import { NewbieComponent } from './newbie/newbie.component';
     ModalProxyService,
     MessageProxyService,
     NewsService,
+    PeriodicTasksService,
     TopicValidatorService,
     ProfileValidatorService,
     PointValidatorService,

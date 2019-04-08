@@ -47,7 +47,7 @@ export class ProfileEtcComponent implements OnInit {
             .then((content) => {
               // console.log(content);
               // const msg = (text + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
-              this.resourceHtml = `<div style="font-family:NotoSansJP Regular, NotoSansJP-Regular; margin:0; line-height:1.2; font-size:16;">
+              this.resourceHtml = `<div style="font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular; margin:0; line-height:1.2; font-size:16;">
 ${content}
 </div>`;
             })

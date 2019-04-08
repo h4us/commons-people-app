@@ -5,7 +5,7 @@ import {
 import { Router, NavigationEnd } from '@angular/router';
 
 import { interval, Subscription } from 'rxjs';
-import { skipWhile } from 'rxjs/operators';
+import { skipWhile, delay } from 'rxjs/operators';
 
 import { RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
@@ -16,7 +16,7 @@ import { UserService, User } from '../user.service';
 import { RegisterValidatorService } from '../register-validator.service';
 import { SigninValidatorService } from '../signin-validator.service';
 
-import { TrayService } from '../shared/tray.service';
+import { SystemTrayService } from '../system-tray.service';
 
 import { environment } from '~/environments/environment';
 
@@ -48,7 +48,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     private userService:UserService,
     private rvService: RegisterValidatorService,
     private siService: SigninValidatorService,
-    private trayService: TrayService,
+    private trayService: SystemTrayService,
     private page: Page
   ) {
     page.actionBarHidden = true;
@@ -67,33 +67,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.autologin = this.userService.restoreble;
 
     if (this.userService.restoreble) {
-      this.userService.restore().subscribe(
-        (data: User) => this.userService.parseUser(data),
-        (error) => {
-          // TODO: error message
-          console.error(error),
-          this.autologin = false;
-          this.trayService.request('snackbar/home', 'open', {
-            isApproved: true,
-            step: 1,
-            doneMessage: 'ログイン中にエラーが発生しました',
-            barColor: 'error',
-            autoDisposeDelay: 10000
-          })
-        },
-        () => {
-          setTimeout(() => {
-            //
-            console.log(this.userService.getCommunities());
-
-            const cl = this.userService.getCommunities();
-            this.routerExt.navigate([(cl && cl.length > 0) ? 'user' : 'newuser'], {
-              clearHistory: true,
-              transition: { name: 'fade', duration: 300 }
-            })
-          }, 600);
-        }
-      );
+      this.userService.restore().pipe(delay(600)).subscribe(_ => {
+        const cl = this.userService.getCommunities();
+        this.routerExt.navigate([(cl && cl.length > 0) ? 'user' : 'newuser'], {
+          clearHistory: true,
+          transition: { name: 'fade', duration: 300 }
+        })
+      });
     }
 
     // TODO:

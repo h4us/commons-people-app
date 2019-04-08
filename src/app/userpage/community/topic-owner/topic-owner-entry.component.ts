@@ -11,7 +11,6 @@ import { GridLayout } from 'tns-core-modules/ui/layouts/grid-layout';
 import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
 
 import { UserService } from '../../../user.service';
-import { ModalProxyService } from '../../modal-proxy.service';
 
 @Component({
   selector: 'app-topic-owner-entry',
@@ -21,7 +20,9 @@ import { ModalProxyService } from '../../modal-proxy.service';
 export class TopicOwnerEntryComponent implements OnInit {
   title: string = 'プロフィール';
   userId: number;
+  referenceFrom: number;
   profile: any;
+  isOwned: boolean = false;
 
   constructor(
     private page: Page,
@@ -29,25 +30,27 @@ export class TopicOwnerEntryComponent implements OnInit {
     private routerExt: RouterExtensions,
     private aRoute: ActivatedRoute,
     private userService: UserService,
-    private mProxy: ModalProxyService,
   ) {
     page.actionBarHidden = true;
-
-    // if (dParams.context) {
-    //   this.userId = dParams.context.whois;
-    // }
   }
 
   ngOnInit() {
     this.pageRoute.activatedRoute
       .pipe(switchMap((aRoute) => aRoute.params))
       .forEach((params) => {
-        //
         const userId: number = <number>params.id;
         this.userId = userId;
         this.userService.getUserDetail(this.userId).subscribe((data) => {
           this.profile = data;
-        })
+        });
+
+        this.isOwned = userId == this.userService.getCurrentUser().id;
+      });
+
+    this.pageRoute.activatedRoute
+      .pipe(switchMap((aRoute) => aRoute.queryParams))
+      .forEach((params) => {
+          this.referenceFrom = <number>params.referenceFrom;
       });
   }
 
@@ -60,8 +63,11 @@ export class TopicOwnerEntryComponent implements OnInit {
       outlets: {
         topicowner: (['community', 'topic', 'owner', this.userId, 'send'])
       }
-    }], { relativeTo: this.aRoute.parent });
-
-    // this.mProxy.request('send-point');
+    }], {
+      relativeTo: this.aRoute.parent,
+      queryParams: {
+        adId: this.referenceFrom
+      }
+    });
   }
 }

@@ -15,8 +15,8 @@
                 <Label class="typo-list-heading" text="{{ item.name }}"></Label>
                 <Label class="typo-label" android:style="margin-top:-10;">
                   <FormattedString>
-                    <Span class="text-theme" text="{{ item.tokenSymbol }}"></Span>
-                    <Span text=" {{ item.point ? item.point : 0 }}"></Span>
+                    <Span class="text-theme" text="{{ item.tokenSymbol }} "></Span>
+                    <Span [text]="getBalanceFromCommunityId(item.id)"></Span>
                   </FormattedString>
                 </Label>
               </StackLayout>

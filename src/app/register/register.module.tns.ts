@@ -9,9 +9,10 @@ import { SharedModule } from '../shared/shared.module';
 import { ConfirmComponent } from './confirm/confirm.component';
 import { SentComponent } from './sent/sent.component';
 import { FieldComponent } from './field/field.component';
+import { RegisterRootComponent } from './register-root/register-root.component';
 
 @NgModule({
-  declarations: [ConfirmComponent, SentComponent, FieldComponent],
+  declarations: [ConfirmComponent, SentComponent, FieldComponent, RegisterRootComponent],
   imports: [
     RegisterRoutingModule,
     NativeScriptCommonModule,

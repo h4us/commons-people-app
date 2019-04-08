@@ -11,11 +11,11 @@ import { Page } from 'tns-core-modules/ui/page';
 import { SystemTrayService } from '../../system-tray.service';
 
 @Component({
-  selector: 'app-signin-root',
-  templateUrl: './signin-root.component.html',
-  styleUrls: ['./signin-root.component.scss']
+  selector: 'app-register-root',
+  templateUrl: './register-root.component.html',
+  styleUrls: ['./register-root.component.scss']
 })
-export class SigninRootComponent implements OnInit, OnDestroy {
+export class RegisterRootComponent implements OnInit {
 
   locked: boolean = false;
   lSubscription: Subscription;
@@ -30,7 +30,8 @@ export class SigninRootComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    //
+    console.log('hello');
+    // .. in constructor?
     if (!this.lSubscription) {
       this.lSubscription = this.trayService.userpageLock$.subscribe((state: boolean) => {
         this.locked = state;
@@ -39,7 +40,7 @@ export class SigninRootComponent implements OnInit, OnDestroy {
 
     this.routerExt.navigate([{
       outlets: {
-        signinpage: ['entry']
+        registerpage: ['entry']
       }
     }], { relativeTo: this.aRoute });
   }

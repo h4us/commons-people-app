@@ -117,7 +117,7 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   styled(text: string) {
     // TODO:
     const msg = (text + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
-    return `<div style="font-family:NotoSansJP Regular, NotoSansJP-Regular; margin:0; line-height:1.2; font-size:14;">
+    return `<div style="font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular; margin:0; line-height:1.2; font-size:14;">
 ${msg}
 </div>`;
   }

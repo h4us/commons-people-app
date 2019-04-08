@@ -114,6 +114,10 @@ textfield.input,
   background-color: $theme-error;
 }
 
+.bg-warning {
+  background-color: $theme-warning;
+}
+
 // text color
 .text-white {
   color: #fff;
@@ -367,13 +371,13 @@ textfield.input,
 
 .typo-nav {
   font-size: $theme-fs-extra-small;
-  font-family: "NotoSansJP Medium", "NotoSansJP-Medium";
+  font-family: "NotoSansJP Medium", "NotoSansJP-Medium", "Noto Sans JP Medium";
 }
 
 //
 .typo-list-preview {
   font-size: $theme-fs-small;
-  font-family: "NotoSansJP Light", "NotoSansJP-Light";
+  font-family: "NotoSansJP Light", "NotoSansJP-Light", "Noto Sans JP Light";
 }
 .typo-list-small,
 .typo-label {
@@ -383,32 +387,32 @@ textfield.input,
 //
 .typo-list-heading {
   font-size: $theme-fs-medium;
-  font-family: "NotoSansJP Medium", "NotoSansJP-Medium";
+  font-family: "NotoSansJP Medium", "NotoSansJP-Medium", "Noto Sans JP Medium";
   font-weight: 500;
 }
 
 .typo-message-light {
   font-size: $theme-fs-medium;
   line-height: 1.1;
-  font-family: "NotoSansJP Regular", "NotoSansJP-Regular";
+  font-family: "NotoSansJP Light", "NotoSansJP-Light", "Noto Sans JP Light";
 }
 
 .typo-message {
   font-size: $theme-fs-medium;
   line-height: 1.2;
-  font-family: "NotoSansJP Regular", "NotoSansJP-Regular";
+  font-family: "NotoSansJP Regular", "NotoSansJP-Regular", "Noto Sans JP Regular";
 }
 
 //
 .typo-page {
   font-size: $theme-fs-large;
   line-height: 1.75;
-  font-family: "NotoSansJP Light", "NotoSansJP-Light";
+  font-family: "NotoSansJP Light", "NotoSansJP-Light", "Noto Sans JP Light";
 }
 
 .typo-card-heading {
   font-size: $theme-fs-large;
-  font-family: "NotoSansJP Medium", "NotoSansJP-Medium";
+  font-family: "NotoSansJP Medium", "NotoSansJP-Medium", "Noto Sans JP Medium";
   font-weight: 500;
 }
 
@@ -416,7 +420,7 @@ textfield.input,
 .typo-heading,
 .typo-section-heading {
   font-size: $theme-fs-extra-large;
-  font-family: "NotoSansJP Medium", "NotoSansJP-Medium";
+  font-family: "NotoSansJP Medium", "NotoSansJP-Medium", "Noto Sans JP Medium";
   font-weight: 500;
 }
 

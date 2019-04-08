@@ -70,23 +70,12 @@ export class VelificationformComponent implements OnInit, OnDestroy {
     // --
     // TODO: TEST, redirect, snackbar ?
     // --
-    this.userService.sendVelification(this.sForm.get('emailAddress').value).subscribe(
-      (data: any) => {
-        // this.routerExt.navigate(['/signin']);
-        this.routerExt.navigate([{
-          outlets: {
-            signinpage: [ 'entry' ]
-          }
-        }], { relativeTo: this.aRoute.parent });
-      },
-      (error: any) => {
-        console.error(error);
-        this.routerExt.navigate([{
-          outlets: {
-            signinpage: [ 'entry' ]
-          }
-        }], { relativeTo: this.aRoute.parent });
-      }
-    );
+    this.userService.sendVelification(this.sForm.get('emailAddress').value).subscribe(_ => {
+      this.routerExt.navigate([{
+        outlets: {
+          signinpage: [ 'sent' ]
+        }
+      }], { relativeTo: this.aRoute.parent });
+    });
   }
 }

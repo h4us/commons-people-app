@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { Subscription } from 'rxjs';
+import { Subscription, fromEvent } from 'rxjs';
+import { take, switchMap, delay } from 'rxjs/operators'
 
 import { RouterExtensions } from 'nativescript-angular/router';
 
@@ -31,7 +32,7 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
   msgSubscription: Subscription;
   mdlSubscription: Subscription
 
-  @ViewChild('floatingButton') fbtn: ElementRef;
+  @ViewChild('floatingButton') fbtnRef: ElementRef;
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
   fbtnEl: Button;
   anchor: StackLayout;
@@ -70,19 +71,25 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    this.fbtnEl = <Button>this.fbtn.nativeElement;
+    this.fbtnRef.nativeElement.opactiy = 0;
+
+    this.fbtnEl = <Button>this.fbtnRef.nativeElement;
     this.anchor = <StackLayout>this.anchorRef.nativeElement;
   }
 
   ngAfterViewInit() {
-    setTimeout(() => {
+    fromEvent(this.fbtnRef.nativeElement, 'loaded').pipe(
+      take(1), delay(1)
+    ).subscribe(_ => {
       const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
       const aW = this.anchor.getMeasuredWidth() / screen.mainScreen.scale;
       const eW = this.fbtnEl.getMeasuredWidth() / screen.mainScreen.scale;
       const eH = this.fbtnEl.getMeasuredHeight() / screen.mainScreen.scale;
-      AbsoluteLayout.setLeft(this.fbtnEl, aW - eW - (eW * 0.33));
-      AbsoluteLayout.setTop(this.fbtnEl, aH - eH - (eH * 0.33));
-    }, 100);
+
+      AbsoluteLayout.setLeft(this.fbtnRef.nativeElement, aW - eW - (eW * 0.33));
+      AbsoluteLayout.setTop(this.fbtnRef.nativeElement, aH - eH - (eH * 0.33));
+      this.fbtnRef.nativeElement.opacity = 1;
+    });
   }
 
   ngOnDestroy() {

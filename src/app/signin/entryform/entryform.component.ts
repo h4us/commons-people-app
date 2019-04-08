@@ -3,14 +3,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
+import { delay } from 'rxjs/operators';
 
 import { RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
 import { isIOS } from 'tns-core-modules/platform';
+import { ad, ios } from 'tns-core-modules/utils/utils';
 
 import { UserService, User } from '../../user.service';
-import { TrayService } from '../../shared/tray.service';
+import { SystemTrayService } from '../../system-tray.service';
 import { SigninValidatorService } from '../../signin-validator.service';
+
+declare var UIApplication;
 
 @Component({
   selector: 'app-entryform',
@@ -36,8 +40,8 @@ export class EntryformComponent implements OnInit, OnDestroy {
     private aRoute: ActivatedRoute,
     private userService: UserService,
     private siService: SigninValidatorService,
-    private trayService: TrayService,
-    private page: Page
+    private trayService: SystemTrayService,
+    private page: Page,
   ) {
     page.actionBarHidden = true;
 
@@ -87,23 +91,29 @@ export class EntryformComponent implements OnInit, OnDestroy {
   }
 
   login() {
+    if (isIOS) {
+      ios.getter(UIApplication, UIApplication.sharedApplication).keyWindow.endEditing(true);
+    } else {
+      ad.dismissSoftInput();
+    }
     this.trayService.lockUserpageArea();
     this.userService.login(
       this.sForm.get('username').value,
       this.sForm.get('password').value
-    ).subscribe(
-      (data: User) => {
-        this.userService.parseUser(data)
-      },
-      (error) => { console.error(error) },
-      () => {
-        const cl = this.userService.getCommunities();
-        setTimeout(() => {
-          this.routerExt.navigate([(cl && cl.length > 0) ? 'user' : 'newuser'], {
-            clearHistory: true
-          })
-        }, 500);
-      }
-    );
+    ).pipe(
+      delay(300)
+    ).subscribe(_  => {
+      const cl = this.userService.getCommunities();
+
+      //
+      this.trayService.unLockUserpageArea();
+      //
+
+      this.routerExt.navigate([(cl && cl.length > 0) ? 'user' : 'newuser'], {
+        clearHistory: true
+      });
+    }, (err) => {
+      this.trayService.showError(err);
+    });
   }
 }

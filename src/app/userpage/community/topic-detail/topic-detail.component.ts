@@ -1,9 +1,12 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, ComponentRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
-import { Page } from 'tns-core-modules/ui/page';
+import { Observable, Subscription, fromEvent } from 'rxjs';
+import { take, switchMap, delay } from 'rxjs/operators';
 
+import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
+
+import { Page } from 'tns-core-modules/ui/page';
 import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout';
 import { GridLayout } from 'tns-core-modules/ui/layouts/grid-layout';
 import { FlexboxLayout } from 'tns-core-modules/ui/layouts/flexbox-layout';
@@ -11,20 +14,17 @@ import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
 import { screen, isIOS } from 'tns-core-modules/platform';
 import { layout } from 'tns-core-modules/utils/utils';
 import * as application from 'tns-core-modules/application';
-
 import { ImageSource } from 'tns-core-modules/image-source';
 import { ImageAsset } from 'tns-core-modules/image-asset';
 import * as fs from 'tns-core-modules/file-system';
-import * as bgHttp from 'nativescript-background-http';
 
-import { Observable, Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import * as bgHttp from 'nativescript-background-http';
 
 import { ModalProxyService } from '../../modal-proxy.service';
 import { TopicValidatorService } from '../../topic-validator.service';
 import { UserService, Topic } from '../../../user.service';
 
-import { TrayService } from '../../../shared/tray.service'
+import { SystemTrayService } from '../../../system-tray.service'
 
 @Component({
   selector: 'app-topic-detail',
@@ -56,7 +56,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     private pageRoute: PageRoute,
     private userService: UserService,
     private tvService: TopicValidatorService,
-    private trayService: TrayService,
+    private trayService: SystemTrayService,
     private page: Page,
     private aRoute: ActivatedRoute,
     private mProxy: ModalProxyService,
@@ -114,21 +114,25 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         //
       });
 
+    this.ovBcRef.nativeElement.opacity = 0;
     this.ovBc = <GridLayout>this.ovBcRef.nativeElement;
     this.anchor = <StackLayout>this.anchorRef.nativeElement;
   }
 
   ngAfterViewInit() {
-    setTimeout(() => {
+    fromEvent(this.ovBcRef.nativeElement, 'loaded').pipe(
+      take(1), delay(1)
+    ).subscribe(_ => {
       const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
-      AbsoluteLayout.setTop(this.ovBc, aH - (this.ovBc.getMeasuredHeight() / screen.mainScreen.scale));
-    }, 100);
+      const tH = this.ovBc.getMeasuredHeight() / screen.mainScreen.scale;
+      AbsoluteLayout.setTop(this.ovBcRef.nativeElement, aH - tH);
+      this.ovBcRef.nativeElement.opacity = 1;
+    });
 
     if (this.isPreview) {
       this.trayService.request('snackbar/topiceditor', 'open', {
         doneMessage: '作成しています..',
         cancelAsClose: false
-        // autoNextStep: false
       });
     }
   }
@@ -172,7 +176,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
 
   openProfileDialog(who?: number) {
     if (!this.isPreview) {
-      this.mProxy.request('topic-owner', { whois: who });
+      this.mProxy.request('topic-owner', { whois: who, owned: this.topic.id });
     }
   }
 

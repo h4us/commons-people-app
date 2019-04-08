@@ -3,14 +3,14 @@ import {
   ElementRef, ComponentRef, ViewContainerRef, ViewChild
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+
+import { Subscription, fromEvent } from 'rxjs';
+import { take, delay } from 'rxjs/operators'
 
 import { RouterExtensions } from 'nativescript-angular/router';
 import { ModalDialogService, ModalDialogOptions } from 'nativescript-angular/modal-dialog';
 
 import { Page } from 'tns-core-modules/ui/page';
-// import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
-// import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout';
 import { screen, isIOS } from 'tns-core-modules/platform';
 import * as application from 'tns-core-modules/application';
 
@@ -23,8 +23,9 @@ import { PointSenderComponent } from '../point/point-sender/point-sender.compone
 
 import { ModalProxyService } from '../modal-proxy.service';
 import { MessageProxyService } from '../message-proxy.service';
+import { PeriodicTasksService } from '../periodic-tasks.service';
 
-import { TrayService } from '../../shared/tray.service';
+import { SystemTrayService } from '../../system-tray.service';
 
 @Component({
   selector: 'app-userpage-root',
@@ -46,14 +47,14 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
     private routerExt: RouterExtensions,
     private modalService: ModalDialogService,
     private messageService: MessageProxyService,
+    private pTasksService: PeriodicTasksService,
     private page: Page,
     private vcRef: ViewContainerRef,
     private aRoute: ActivatedRoute,
     private mProxy: ModalProxyService,
-    private trayService: TrayService,
+    private trayService: SystemTrayService,
   ) {
     page.actionBarHidden = true;
-    // page.backgroundSpanUnderStatusBar = true;
 
     this.mSubscription = mProxy.requestModal$.subscribe((data: any) => {
       // TODO:
@@ -132,9 +133,9 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    setTimeout(() => {
-      const aH = this.uRoot.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
-      const sc: number = 1 / screen.mainScreen.scale;
+    fromEvent(this.uRoot.nativeElement, 'loaded').pipe(
+      take(1), delay(1)
+    ).subscribe(_ => {
       if (isIOS) {
         let safeAreaSpan: number = 0;
         if (application.ios.window.safeAreaInsets) {
@@ -142,14 +143,16 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         this.trayService.trayPosition = screen.mainScreen.heightDIPs - (safeAreaSpan);
       } else {
+        const aH = this.uRoot.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
         this.trayService.trayPosition = aH;
       }
-    }, 100);
+    });
   }
 
   ngOnDestroy() {
     this.mSubscription.unsubscribe();
     this.lSubscription.unsubscribe();
+    this.pTasksService.stop();
   }
 
   onOuterTouch(): boolean {

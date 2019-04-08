@@ -1,30 +1,52 @@
-<AbsoluteLayout #topicOwner>
-  <!-- // -->
-  <Image *ngIf="profile"
+<AbsoluteLayout #topicOwner backgroundColor="#000">
+
+  <Image
     iosOverflowSafeArea="true"
-    row="0" src="{{ profile.avatarUrl || '~/assets/placeholder__topic@2x.png' }}"
-    stretch="aspectFill" width="100%" height="100%"></Image>
-  <!-- // -->
-  <GridLayout rows="60,*" width="100%" height="100%" class="bg-clear">
-    <CustomActionBar row="0" [title]="title" leftIcon="&#xea02;" colorScheme="white"
-      [cancelAction]="[closeModal, topicOwner]"></CustomActionBar>
-    <!-- // -->
-    <ScrollView row="1" class="bg-clear">
-      <FlexboxLayout *ngIf="profile"
+    stretch="aspectFill" width="100%" height="100%" opacity="0.4"
+    row="0" src="{{ profile?.avatarUrl || '~/assets/placeholder__topic@2x.png' }}"></Image>
+
+  <DockLayout stretchLasthChild="true" width="100%" height="100%" class="bg-clear">
+    <StackLayout dock="top" height="60">
+      <CustomActionBar  row="0" [title]="title" leftIcon="&#xea02;" colorScheme="white"
+        [cancelAction]="[closeModal, topicOwner]"></CustomActionBar>
+    </StackLayout>
+
+    <ScrollView>
+      <FlexboxLayout
         flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        style="margin:20 15 80; background:linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,.5))">
-        <Image src="{{ profile.avatarUrl || '~/assets/placeholder__user.png' }}"
-          stretch="aspectFill" height="165" width="165" style="border-radius:80; margin:40 0;"></Image>
-        <Label class="h2" text="{{ profile.username }}"></Label>
-        <Label textWrap="true" text="{{ profile.description || '' }}" style="line-height:1.75"></Label>
-        <GridLayout columns="auto">
-          <Button text="ポイントを送る" class="btn btn-primary btn-rounded-lg" style="padding:10 20;"
-            (tap)="sendPoint()"></Button>
-        </GridLayout>
+        alignItems="flex-start"
+        justifyContent="space-around"
+        style="padding:0 15;">
+
+        <AbsoluteLayout marginBottom="60">
+          <FlexboxLayout
+            class="p-x-15 p-y-20" width="100%"
+            flexDirection="column"
+            justifyContent="space-around"
+            alignItems="center"
+            style="margin-top:82.5; padding-top:82.5; background:linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,.5));">
+
+            <StackLayout>
+              <Label class="typo-heading" text="{{ profile?.username }}"></Label>
+            </StackLayout>
+
+            <StackLayout minHeight="40">
+              <Label class="typo-message-light" textWrap="true" text="{{ profile?.description || '' }}"></Label>
+            </StackLayout>
+
+            <GridLayout *ngIf="!isOwned" columns="auto">
+              <Button text="ポイントを送る" class="btn btn-primary btn-rounded-lg" style="padding:10 25;"
+                (tap)="sendPoint()"></Button>
+            </GridLayout>
+          </FlexboxLayout>
+
+          <GridLayout columns="*" width="100%">
+            <Image src="{{ profile?.avatarUrl || '~/assets/placeholder__user.png' }}"
+              stretch="aspectFill" height="165" width="165" style="border-radius:80;"></Image>
+          </GridLayout>
+        </AbsoluteLayout>
       </FlexboxLayout>
     </ScrollView>
-  </GridLayout>
-  <!-- // -->
+  </DockLayout>
+
 </AbsoluteLayout>

@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
 
-import { ModalDialogParams, ModalDialogOptions } from 'nativescript-angular/modal-dialog';
+import { ModalDialogParams } from 'nativescript-angular/modal-dialog';
 
 @Component({
   selector: 'app-topic-owner',
@@ -12,8 +12,9 @@ import { ModalDialogParams, ModalDialogOptions } from 'nativescript-angular/moda
 })
 export class TopicOwnerComponent implements OnInit {
   title: string = 'プロフィール';
-  userId: number = -1;
-  profile: any;
+
+  userId: number;
+  referenceFrom: number;
 
   constructor(
     private page: Page,
@@ -25,6 +26,7 @@ export class TopicOwnerComponent implements OnInit {
 
     if (dParams.context) {
       this.userId = dParams.context.whois;
+      this.referenceFrom = dParams.context.owned;
     }
   }
 
@@ -33,6 +35,11 @@ export class TopicOwnerComponent implements OnInit {
       outlets: {
         topicowner: (['community', 'topic', 'owner', this.userId])
       }
-    }], { relativeTo: this.aRoute });
+    }], {
+      relativeTo: this.aRoute,
+      queryParams: {
+        referenceFrom: this.referenceFrom
+      }
+    });
   }
 }

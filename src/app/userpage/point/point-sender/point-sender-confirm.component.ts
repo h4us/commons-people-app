@@ -23,7 +23,7 @@ import { PointValidatorService } from '../../point-validator.service';
 
 // import { SnackbarLikeComponent } from '../../../shared/snackbar-like/snackbar-like.component';
 
-import { TrayService } from '../../../shared/tray.service';
+import { SystemTrayService } from '../../../system-tray.service';
 
 
 @Component({
@@ -43,11 +43,8 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
   transactionDone: boolean = false;
 
   @ViewChild('pointSenderConfirm') rootLayoutRef: ElementRef;
-  // @ViewChild('overlayButtonContainerForPreview') ovBcPrevRef: ElementRef;
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
-  // @ViewChild('snackBar') snackBar: SnackbarLikeComponent;
   rootLayout: AbsoluteLayout;
-  // ovBcPrev: FlexboxLayout;
   ovBcPrev: GridLayout;
   anchor: StackLayout;
 
@@ -60,7 +57,7 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
     private routerExt: RouterExtensions,
     private userService: UserService,
     private pvService: PointValidatorService,
-    private trayService: TrayService,
+    private trayService: SystemTrayService,
   ) {
     page.actionBarHidden = true;
 
@@ -77,6 +74,7 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
           this.sendToUser = data;
         });
       });
+
     this.pageRoute.activatedRoute
       .pipe(switchMap((aRoute) => aRoute.queryParams))
       .forEach((params) => {
@@ -84,6 +82,7 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
         this.tokenSymbol = <string>params.tokenSymbol;
         this.currentCommunity = this.userService.getCommunityByToken(this.tokenSymbol);
       });
+    // --
 
     this.anchor = <StackLayout>this.anchorRef.nativeElement;
     this.rootLayout = <AbsoluteLayout>this.rootLayoutRef.nativeElement;
@@ -91,6 +90,9 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
 
   ngAfterViewInit() {
     const currentOutlet = this.aRoute.outlet != 'userpage' ?  this.aRoute.outlet : '';
+
+    console.log(currentOutlet);
+
     this.registerSnackbarActions();
     this.trayService.request(`snackbar/${currentOutlet}`, 'open', {
       doneMessage: '送信しています..',
@@ -155,13 +157,15 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
   // TODO:
   onConfirm() {
     const currentOutlet = this.aRoute.outlet;
-    const outletParam = {};
 
-    // TODO:
-    this.userService.createTransactions(this.pForm.value).subscribe(
-      (res) => {
-        console.log(res);
+    const pt = Object.assign({} , this.pForm.value);
+    pt.amount = parseInt(pt.amount);
+    pt.description = `@${ new Date() }`;
+    if (pt.adId == null) { delete pt.adId; }
 
+    console.log('send transaction: data -> ', pt);
+
+    this.userService.createTransactions(pt).subscribe(_ => {
         this.transactionDone = true;
         this.trayService.request(`snackbar/${(currentOutlet == 'userpage') ? '' : currentOutlet}`, 'close')
 
@@ -176,44 +180,7 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
             this.rootLayout.closeModal();
           }
         }, 600);
-
-      },
-      (err) => {
-        console.error('error status ->' , err);
-
-        if(this.tNotifySubscription && this.aRoute.outlet == 'userpage') {
-          this.tNotifySubscription.unsubscribe();
-
-          this.transactionDone = true;
-          this.trayService.request('snackbar/', 'close')
-
-          setTimeout(() => {
-            this.trayService.request('snackbar/', 'open', {
-              isApproved: true,
-              step: 1,
-              doneMessage: 'ポイントを送信しました (ダミ―メッセージ)'
-            });
-
-            this.routerExt.navigate([{
-              outlets: { userpage: ['point'] },
-            }], {
-              relativeTo: this.aRoute.parent,
-            });
-          }, 600);
-        } else {
-          this.transactionDone = true;
-          this.trayService.request(`snackbar/${currentOutlet}`, 'close');
-          setTimeout(() => {
-            this.rootLayout.closeModal({
-              snackbarRedirect: {
-                id: 'snackbar/',
-                doneMessage: 'ポイントを送信しました'
-              }
-            });
-          }, 600);
-        }
-      });
-    // --
+    }, (err) => this.trayService.showError(err));
   }
 
   cancelConfirm() {

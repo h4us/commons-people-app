@@ -141,13 +141,36 @@ export class FieldComponent implements OnInit, OnDestroy {
     //
   }
 
-  nextPage() {
+  goBack() {
+    const c = this.stepAt.findIndex((el) => el.field == this.field) - 1;
+
+    if (c >= 0) {
+      this.routerExt.navigate([{
+        outlets: {
+          registerpage: [c == 0 ? 'entry' :  this.stepAt[c].path ]
+        }
+      }], { relativeTo: this.aRoute.parent });
+    } else {
+      this.routerExt.navigate(['']);
+    }
+  }
+
+  goNext() {
     if (this.fieldIsValid) {
       const c = this.stepAt.findIndex((el) => el.field == this.field) + 1;
+
       if (c >= this.stepAt.length) {
-        this.routerExt.navigate(['/register', 'confirm']);
+        this.routerExt.navigate([{
+          outlets: {
+            registerpage: [ 'confirm' ]
+          }
+        }], { relativeTo: this.aRoute.parent });
       } else {
-        this.routerExt.navigate(['/register', this.stepAt[c].path]);
+        this.routerExt.navigate([{
+          outlets: {
+            registerpage: [ this.stepAt[c].path ]
+          }
+        }], { relativeTo: this.aRoute.parent });
       }
     } else {
       // For safe

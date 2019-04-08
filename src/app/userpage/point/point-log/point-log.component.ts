@@ -4,7 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
 
-import { switchMap } from 'rxjs/operators';
+import { fromEvent } from 'rxjs';
+import { take, switchMap, delay } from 'rxjs/operators'
 
 import { Button } from 'tns-core-modules/ui/button';
 import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
@@ -12,8 +13,7 @@ import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout';
 import { screen } from 'tns-core-modules/platform';
 import { layout } from 'tns-core-modules/utils/utils';
 
-import { UserService } from '../../../user.service';
-import { ModalProxyService } from '../../modal-proxy.service';
+import { UserService, User } from '../../../user.service';
 
 @Component({
   selector: 'app-point-log',
@@ -25,8 +25,9 @@ export class PointLogComponent implements OnInit, AfterViewInit {
   currentCommunity: any;
   currentBalanceInfo: any;
   currentList: any[] = [];
+  user: User;
 
-  @ViewChild('floatingButton') fbtn: ElementRef;
+  @ViewChild('floatingButton') fbtnRef: ElementRef;
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
   fbtnEl: Button;
   anchor: StackLayout;
@@ -36,7 +37,6 @@ export class PointLogComponent implements OnInit, AfterViewInit {
     private aRoute: ActivatedRoute,
     private pageRoute: PageRoute,
     private userService: UserService,
-    private mProxy: ModalProxyService,
     private page: Page,
   ) {
     page.actionBarHidden = true;
@@ -47,6 +47,8 @@ export class PointLogComponent implements OnInit, AfterViewInit {
       .pipe(switchMap((aRoute) => aRoute.params))
       .forEach((params) => {
         const desireId: number = <number>params.id;
+
+        this.user = this.userService.getCurrentUser();
         this.currentCommunity = this.userService.getCommunity(desireId);
         this.title = this.currentCommunity.name;
 
@@ -58,8 +60,7 @@ export class PointLogComponent implements OnInit, AfterViewInit {
           if (tr && tr.length > 0) {
             this.currentList = tr;
           } else {
-            // TEST:
-            // TODO: no-point image
+            // TEST
             this.currentList = Array(30).fill({
               remitter: {
                 username: 'testuser'
@@ -68,7 +69,7 @@ export class PointLogComponent implements OnInit, AfterViewInit {
                 username: 'testuser'
               },
               amount: 100,
-              description: 'test',
+              description: 'this is dummy',
               createdAt: new Date()
             });
             // --
@@ -76,25 +77,49 @@ export class PointLogComponent implements OnInit, AfterViewInit {
         });
       });
 
-    this.fbtnEl = <Button>this.fbtn.nativeElement;
+    this.fbtnRef.nativeElement.opacity = 0;
+
+    this.fbtnEl = <Button>this.fbtnRef.nativeElement;
     this.anchor = <StackLayout>this.anchorRef.nativeElement;
   }
 
   ngAfterViewInit() {
-    setTimeout(() => {
+    fromEvent(this.fbtnRef.nativeElement, 'loaded').pipe(
+      take(1), delay(1)
+    ).subscribe(_ => {
       const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
       const aW = this.anchor.getMeasuredWidth() / screen.mainScreen.scale;
       const eW = this.fbtnEl.getMeasuredWidth() / screen.mainScreen.scale;
       const eH = this.fbtnEl.getMeasuredHeight() / screen.mainScreen.scale;
-      AbsoluteLayout.setLeft(this.fbtnEl, aW - eW - (eW * 0.33));
-      AbsoluteLayout.setTop(this.fbtnEl, aH - eH - (eH * 0.33));
-    }, 100);
+
+      AbsoluteLayout.setLeft(this.fbtnRef.nativeElement, aW - eW - (eW * 0.33));
+      AbsoluteLayout.setTop(this.fbtnRef.nativeElement, aH - eH - (eH * 0.33));
+      this.fbtnRef.nativeElement.opacity = 1;
+    });
   }
 
-  onFabTap(args?: any) {
+  onFabTap() {
     this.routerExt.navigate(['../../select', this.currentCommunity.id ], {
       relativeTo: this.aRoute
     });
-    // this.mProxy.request('send-point', { communityId: this.currentCommunity.id });
+  }
+
+  padName(n: string): string {
+    // if (n.length < 15) {
+    //   // const p = Array(15 - n.length).fill('M');
+    //   // return n + p.join('');
+    //   // return 'MMMMMMMMMMMMMMM';
+    // } else {
+    //   return n;
+    // }
+    return n;
+  }
+
+  padOrLimPoints(n: number): string {
+    if (n.toString().length > 8) {
+      return n.toString().slice(0, 4) + '.e+' + (n.toString().length - 4);
+    } else {
+      return n.toString();
+    }
   }
 }

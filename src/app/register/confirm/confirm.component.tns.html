@@ -1,16 +1,17 @@
 <DockLayout stretchLasthChild="true" class="bg-theme-secondary">
   <StackLayout dock="top">
-    <CustomActionBar [title]="title" leftIcon="&#xe92f;"></CustomActionBar>
+    <CustomActionBar [title]="title" leftIcon="&#xe92f;"
+      (onCancel)="goBack()"></CustomActionBar>
   </StackLayout>
   <StackLayout class="p-15" dock="bottom">
     <Button text="この内容で仮登録" class="btn btn-primary btn-rounded-lg" width="50%"
-      (tap)="nextPage()"></Button>
+      (tap)="goNext()"></Button>
   </StackLayout>
   <!-- // -->
   <PreviousNextView>
     <ScrollView>
       <StackLayout class="p-15 form" [formGroup]="rForm">
-        <HtmlView class="bg-clear" html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular;'>以下の内容で仮登録します。<br>よろしいですか？</p>"></HtmlView>
+        <HtmlView class="bg-clear" html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular;'>以下の内容で仮登録します。<br>よろしいですか？</p>"></HtmlView>
 
         <DockLayout class="input-like m-b-10"
           stretchLasthChild="true"

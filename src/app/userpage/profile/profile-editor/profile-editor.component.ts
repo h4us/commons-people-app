@@ -1,4 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy, AfterViewInit,
+  ViewChild, ElementRef
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormGroup } from '@angular/forms'
 
@@ -12,7 +15,7 @@ import { Page } from 'tns-core-modules/ui/page';
 import { isIOS } from 'tns-core-modules/platform';
 
 import { UserService } from '../../../user.service';
-import { TrayService } from '../../../shared/tray.service';
+import { SystemTrayService } from '../../../system-tray.service';
 import { ProfileValidatorService } from '../../profile-validator.service';
 
 @Component({
@@ -20,7 +23,7 @@ import { ProfileValidatorService } from '../../profile-validator.service';
   templateUrl: './profile-editor.component.html',
   styleUrls: ['./profile-editor.component.scss']
 })
-export class ProfileEditorComponent implements OnInit, OnDestroy {
+export class ProfileEditorComponent implements OnInit, OnDestroy, AfterViewInit {
   title: string = '';
   field: string = '';
   pForm: FormGroup;
@@ -38,13 +41,15 @@ export class ProfileEditorComponent implements OnInit, OnDestroy {
 
   private pfSub: Subscription;
 
+  @ViewChild('activeInput') aInput: ElementRef;
+
   constructor(
     private page: Page,
     private routerExt: RouterExtensions,
     private aRoute: ActivatedRoute,
     private pageRoute: PageRoute,
     private userService: UserService,
-    private trayService: TrayService,
+    private trayService: SystemTrayService,
     private pvService: ProfileValidatorService,
   ){
     page.actionBarHidden = true;
@@ -91,6 +96,12 @@ export class ProfileEditorComponent implements OnInit, OnDestroy {
     });
 
     this.lastCommit = this.pForm.value;
+  }
+
+  ngAfterViewInit() {
+    if (this.field == 'emailAddress' && this.aInput) {
+      this.aInput.nativeElement.autocapitalizationType = 'none';
+    }
   }
 
   ngOnDestroy() {

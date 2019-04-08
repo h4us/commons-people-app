@@ -13,7 +13,7 @@ import { RouterExtensions } from 'nativescript-angular/router';
 import { screen } from 'tns-core-modules/platform';
 
 // import { NavigationTransition, Frame } from 'tns-core-modules/ui/frame';
-import { TrayService } from '../tray.service';
+import { SystemTrayService } from '../../system-tray.service';
 
 @Component({
   selector: 'app-navfooter',
@@ -37,7 +37,7 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
     private router: Router,
     private routerExt: RouterExtensions,
     private aRoute: ActivatedRoute,
-    private trayService: TrayService,
+    private trayService: SystemTrayService,
   ) {
     // TODO:
     this.rSubscription = this.router.events.subscribe(event => {

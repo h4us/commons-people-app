@@ -1,7 +1,8 @@
 <DockLayout stretchLasthChild="true" class="bg-theme-secondary">
   <StackLayout dock="top">
     <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="{{ touched && fieldIsValid ? '&#xe92b;' : '' }}"
-      (onAprove)="nextPage()"></CustomActionBar>
+      (onCancel)="goBack()"
+      (onAprove)="goNext()"></CustomActionBar>
   </StackLayout>
   <PreviousNextView>
     <ScrollView>
@@ -9,13 +10,13 @@
         <!-- // -->
         <HtmlView *ngIf="field == 'username'"
           class="bg-clear"
-          html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular;'>ユーザーネームを設定してください。<br>15文字以内、半角英数と記号（_）が使用できます。</p>"></HtmlView>
+          html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular;'>ユーザーネームを設定してください。<br>15文字以内、半角英数と記号（_）が使用できます。</p>"></HtmlView>
         <HtmlView *ngIf="field == 'emailAddress'"
           class="bg-clear"
-          html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular;'>メールアドレスを設定してください。</p>"></HtmlView>
+          html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular;'>メールアドレスを設定してください。</p>"></HtmlView>
         <HtmlView *ngIf="field == 'password'"
           class="bg-clear"
-          html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular;'>パスワードを設定してください。<br>8文字以上、半角英数と記号（_）が使用できます。</p>"></HtmlView>
+          html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular;'>パスワードを設定してください。<br>8文字以上、半角英数と記号（_）が使用できます。</p>"></HtmlView>
         <!-- // -->
         <GridLayout *ngIf="field == 'password'"
           columns="*,48" rows="{{ isIOS ? 48 : 60 }}" style="padding:0;"

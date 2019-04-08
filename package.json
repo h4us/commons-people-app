@@ -1,12 +1,12 @@
 {
   "name": "People",
   "nativescript": {
-    "id": "net.inafact.People",
+    "id": "love.commonspeople.app",
     "tns-android": {
       "version": "5.3.0"
     }
   },
-  "version": "0.0.0",
+  "version": "0.9.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

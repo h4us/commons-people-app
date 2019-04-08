@@ -2,10 +2,9 @@ import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, Vie
 import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 
-import { Subscription, Subject, of, from } from 'rxjs';
-import { switchMap, mergeMap } from 'rxjs/operators'
+import { Subscription, Subject, of, from, fromEvent } from 'rxjs';
+import { take, switchMap, delay, map } from 'rxjs/operators';
 
-import { map } from 'rxjs/operators';
 import { Page } from 'tns-core-modules/ui/page';
 import { Button } from 'tns-core-modules/ui/button';
 import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
@@ -21,7 +20,7 @@ import { UserService } from '../../../user.service';
 import { ModalProxyService } from '../../modal-proxy.service';
 import { NewsService, News } from '../../news.service';
 
-import { TrayService } from '../../../shared/tray.service';
+import { SystemTrayService } from '../../../system-tray.service';
 
 @Component({
   selector: 'app-community-root',
@@ -58,20 +57,19 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     private mProxy: ModalProxyService,
     private page: Page,
     private vcRef: ViewContainerRef,
-    private tService: TrayService
+    private tService: SystemTrayService
   ) {
     page.actionBarHidden = true;
-    // page.backgroundSpanUnderStatusBar = true;
 
     from(this._sub).pipe(
-      switchMap((t: any) => { return this.userService.getTopics() })
+      switchMap(_ => { return this.userService.getTopics() })
     ).subscribe((data: any) => {
       const _data: any = data.map((el) => { el['tpl'] = 'topics'; return el; })
       this.topics = _data;
       this.currentList = _data;
     });
 
-    this._subs = this.userService.updateRequest$.subscribe((msg: string) => {
+    this._subs = this.userService.updateRequest$.subscribe(_ => {
       // --
       this.currentCommunity = this.userService.getCommunity();
       this._sub.next(true);
@@ -103,6 +101,8 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
       this.newsService.fetch();
     }
 
+    this.fbtnRef.nativeElement.opacity = 0;
+    this.ftglRef.nativeElement.opacity = 0;
     this.fbtnEl = <Button>this.fbtnRef.nativeElement;
     this.ftgl = <FlexboxLayout>this.ftglRef.nativeElement;
     this.anchor = <StackLayout>this.anchorRef.nativeElement;
@@ -113,19 +113,28 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   ngAfterViewInit() {
-    setTimeout(() => {
+    fromEvent(this.fbtnRef.nativeElement, 'loaded').pipe(
+      take(1), delay(1)
+    ).subscribe(_ => {
       const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
       const aW = this.anchor.getMeasuredWidth() / screen.mainScreen.scale;
-
       const eW = this.fbtnEl.getMeasuredWidth() / screen.mainScreen.scale;
       const eH = this.fbtnEl.getMeasuredHeight() / screen.mainScreen.scale;
 
+      AbsoluteLayout.setLeft(this.fbtnRef.nativeElement, aW - eW - (eW * 0.33));
+      AbsoluteLayout.setTop(this.fbtnRef.nativeElement, aH - eH - (eH * 0.33));
+      this.fbtnRef.nativeElement.opacity = 1;
+    });
+
+    fromEvent(this.ftglRef.nativeElement, 'loaded').pipe(
+      take(1), delay(1)
+    ).subscribe(_ => {
+      const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
       const tH = this.ftgl.getMeasuredHeight() / screen.mainScreen.scale;
 
-      AbsoluteLayout.setLeft(this.fbtnEl, aW - eW - (eW * 0.33));
-      AbsoluteLayout.setTop(this.fbtnEl, aH - eH - (eH * 0.33));
-      AbsoluteLayout.setTop(this.ftgl, aH - tH);
-    }, 100);
+      AbsoluteLayout.setTop(this.ftglRef.nativeElement, aH - tH);
+      this.ftglRef.nativeElement.opacity = 1;
+    });
   }
 
   get news() {
@@ -206,7 +215,7 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   styled(text: string) {
     // TODO:
     const content = (text + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
-    return `<div style="font-family:NotoSansJP Regular, NotoSansJP-Regular; margin:0; line-height:1.2; font-size:14;">
+    return `<div style="font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular; margin:0; line-height:1.2; font-size:14;">
 ${content}
 </div>`;
   }

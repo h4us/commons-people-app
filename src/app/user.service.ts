@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Observable, Subject, forkJoin, from, of, zip } from 'rxjs';
-import { distinct, switchMap, map, mergeAll, filter } from 'rxjs/operators';
+import { distinct, switchMap, map, mergeAll, filter, tap } from 'rxjs/operators';
 
 import { ImageAsset } from 'tns-core-modules/image-asset';
 import { ImageSource } from 'tns-core-modules/image-source';
@@ -47,9 +47,11 @@ export interface Topic {
 };
 // --
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable(
+  // {
+  //   providedIn: 'root'
+  // }
+)
 export class UserService {
   // --
   private apiUrl: string = environment.apiBaseURL;
@@ -92,7 +94,12 @@ export class UserService {
     this.loginData.username = username;
     this.loginData.password = password;
 
-    return this.http.post(`${this.apiUrl}login`, this.loginData);
+    return this.http.post(`${this.apiUrl}login`, this.loginData).pipe(
+      tap((data: unknown) => {
+        console.log('standard logged in', data);
+        this.parseUser(<User>data)
+      })
+    );
   }
 
   get restoreble(): boolean {
@@ -102,15 +109,22 @@ export class UserService {
   restore(): Observable<any> {
     this.loginData.username = this._sStorage.getSync({ key: 'username' });
     this.loginData.password = this._sStorage.getSync({ key: 'password' });
-
-    return this.http.post(`${this.apiUrl}login`, this.loginData);
+    return this.http.post(`${this.apiUrl}login`, this.loginData).pipe(
+      tap((data: unknown) => {
+        this.parseUser(<User>data)
+      })
+    );
   }
 
   logout(): Observable<any> {
     // TODO:
     this._isLoggedIn = false;
     this._restoreble = false;
-
+    this.user = null;
+    this.loginData = {
+      username: null,
+      password: null
+    };
     return zip(
       from(this._sStorage.removeAll()),
       this.http.post(`${this.apiUrl}logout`, null)
@@ -118,10 +132,13 @@ export class UserService {
   }
 
   createAccount(data): Observable<any> {
-    return zip(
-      from(this._sStorage.removeAll()),
-      this.http.post(`${this.apiUrl}create-account`, data)
-    );
+    console.log(data);
+
+    // return zip(
+    //   from(this._sStorage.removeAll()),
+    //   this.http.post(`${this.apiUrl}create-account`, data)
+    // );
+    return this.http.post(`${this.apiUrl}create-account`, data)
   }
 
   deleteAccount(): Observable<any> {
@@ -151,7 +168,7 @@ export class UserService {
     return this.loginData;
   }
 
-  sendVelification(email:string = ''): any {
+  sendVelification(email:string = ''): Observable<any> {
     return this.http.post(`${this.apiUrl}passwordreset`, { emailAddress:email });
   }
 
@@ -383,6 +400,10 @@ export class UserService {
       threadId: id,
       text: msg
     });
+  }
+
+  getUnreadMessages(): Observable<any> {
+    return this.http.get(`${this.apiUrl}message-threads/unread-count`);
   }
 
   /*

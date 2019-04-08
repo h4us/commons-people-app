@@ -22,7 +22,7 @@ import * as nsHttp from 'tns-core-modules/http';
 import { ImageCropper, OptionsCommon }  from 'nativescript-imagecropper';
 
 import { UserService, User } from '../../../user.service';
-import { TrayService } from '../../../shared/tray.service';
+import { SystemTrayService } from '../../../system-tray.service';
 import { ModalProxyService } from '../../modal-proxy.service';
 import { ProfileValidatorService } from '../../profile-validator.service';
 
@@ -51,17 +51,23 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
     private aRoute: ActivatedRoute,
     private page: Page,
     private userService: UserService,
-    private trayService: TrayService,
+    private trayService: SystemTrayService,
     private pvService: ProfileValidatorService,
   ) {
     page.actionBarHidden = true;
 
-    this.pForm = pvService.sendForm;
-    this.imagePickerContext = imagepicker.create({ mode: 'single' });
-    this.session = bgHttp.session('image-upload');
+    // this.pvService.resetData();
+    // this.pForm = pvService.sendForm;
+    // this.imagePickerContext = imagepicker.create({ mode: 'single' });
+    // this.session = bgHttp.session('image-upload');
   }
 
   ngOnInit() {
+    this.pvService.resetData();
+    this.pForm = this.pvService.sendForm;
+    this.imagePickerContext = imagepicker.create({ mode: 'single' });
+    this.session = bgHttp.session('image-upload');
+
     this.user = this.userService.getCurrentUser();
     this.currentList = this.userService.getCommunities();
 

@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { TrayService } from './tray.service';
+import { PeriodicTasksService } from './periodic-tasks.service';
 
-describe('TrayService', () => {
+describe('PeriodicTasksService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: TrayService = TestBed.get(TrayService);
+    const service: PeriodicTasksService = TestBed.get(PeriodicTasksService);
     expect(service).toBeTruthy();
   });
 });

@@ -17,6 +17,7 @@ import { UserService, User } from '../../../user.service';
 export class PointRootComponent implements OnInit {
   //
   currentList: any[];
+  balanceList: any[];
   user: User;
   allZero: boolean = true;
 
@@ -32,10 +33,16 @@ export class PointRootComponent implements OnInit {
   ngOnInit() {
     this.currentList = this.userService.getCommunities();
     this.user = this.userService.getCurrentUser();
+    this.balanceList = this.user.balanceList;
 
     if (this.user.balanceList && this.user.balanceList.length > 0) {
-      this.allZero = !this.user.balanceList.every((el) => el.balance > 0);
+      this.allZero = this.user.balanceList.every((el) => el.balance == 0);
     }
+  }
+
+  getBalanceFromCommunityId(id: number): number {
+    const bl: any  = this.balanceList.find((el) => el.communityId == id);
+    return bl ? bl.balance : 0;
   }
 
   onItemTap(args: ListViewEventData) {

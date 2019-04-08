@@ -8,7 +8,7 @@
   <GridLayout *ngIf="isApproved"
     row="1"
     columns="60,*,60" rows="60"
-    [ngClass]="{ 'bg-theme': barColor == 'theme', 'bg-error': barColor == 'error' }">
+    [ngClass]="{ 'bg-theme': barColor == 'theme', 'bg-error': barColor == 'error', 'bg-warning': barColor == 'warning' }">
     <Label col="1" class="text-center text-white" textWrap="true" verticalAlignment="center"
       [text]="doneMessage"></Label>
     <Label col="2" class="p-y-10 text-center icon text-white" style="vertical-align:center; font-size:24;" text="&#xea02;"

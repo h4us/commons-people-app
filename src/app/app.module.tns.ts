@@ -1,4 +1,5 @@
 import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { NativeScriptModule } from 'nativescript-angular/nativescript.module';
 import { registerElement } from 'nativescript-angular';
@@ -22,11 +23,16 @@ import { UserpageModule } from './userpage/userpage.module';
 import { SharedModule } from './shared/shared.module';
 
 //
-import { DemoModule } from './demo/demo.module';
+import { UserService } from './user.service';
+import { SystemTrayService } from './system-tray.service';
+import { AppHttpInterceptor } from './http.interceptor';
 
 //
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
+
+//
+import { DemoModule } from './demo/demo.module';
 
 @NgModule({
   declarations: [
@@ -49,6 +55,14 @@ import { HomeComponent } from './home/home.component';
     DemoModule,
   ],
   providers: [
+    UserService,
+    SystemTrayService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AppHttpInterceptor,
+      deps: [ UserService, SystemTrayService ],
+      multi: true
+    }
   ],
   bootstrap: [AppComponent],
   schemas: [NO_ERRORS_SCHEMA]

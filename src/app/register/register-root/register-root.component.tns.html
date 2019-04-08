@@ -1,6 +1,6 @@
 <AbsoluteLayout width="100%" height="100%">
   <StackLayout width="100%" height="100%">
-    <page-router-outlet name="signinpage"></page-router-outlet>
+    <page-router-outlet name="registerpage"></page-router-outlet>
   </StackLayout>
 
   <StackLayout width="100%" height="100%" backgroundColor="rgba(0,0,0,.33)"
@@ -9,7 +9,7 @@
     (tap)="onOuterTouch()"></StackLayout>
 
   <CustomSnackbarLike #snackBar
-    containerId="signin"
+    containerId="register"
     approveMessage="この内容でよろしいですか？"
     doneMessage="送信が完了しました。"></CustomSnackbarLike>
 </AbsoluteLayout>

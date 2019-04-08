@@ -10,6 +10,7 @@
         [formControlName]="field"
         (returnPress)="onValidate()"></TextView>
       <TextField *ngIf="field == 'points'"
+        #forceNumKey
         class="input"
         keyboardType="number"
         [hint]="title"

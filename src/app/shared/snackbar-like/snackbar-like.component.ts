@@ -1,6 +1,6 @@
 import {
-  Component, OnInit, OnDestroy, OnChanges, AfterViewInit,
-  Input, Output, EventEmitter, SimpleChanges,
+  Component, OnInit, OnDestroy, AfterViewInit,
+  Input, Output, EventEmitter,
   ViewChild, ElementRef
 } from '@angular/core';
 
@@ -10,20 +10,19 @@ import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
 import { screen } from 'tns-core-modules/platform';
 import { layout } from 'tns-core-modules/utils/utils';
 
-import { Subscription, Subject, of, interval } from 'rxjs';
-import { debounceTime, delay, skipWhile } from 'rxjs/operators';
+import { Subscription, Subject, of, interval, fromEvent } from 'rxjs';
+import { take, debounceTime, delay, skipWhile } from 'rxjs/operators';
 
-import { TrayService } from '../tray.service';
+import { SystemTrayService } from '../../system-tray.service';
 
 @Component({
   selector: 'CustomSnackbarLike',
   templateUrl: './snackbar-like.component.html',
   styleUrls: ['./snackbar-like.component.scss']
 })
-export class SnackbarLikeComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
+export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() approveMessage: string = 'この内容でよろしいですか？';
   @Input() doneMessage: string = '送信しました';
-  // @Input() colorScheme: string;
 
   @Output() onCancel = new EventEmitter<string>();
   @Output() onApprove = new EventEmitter<string>();
@@ -49,17 +48,77 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, OnChanges, Afte
   @ViewChild('componentRoot') cRootRef: ElementRef;
 
   stepReport = new Subject<number>();
+
   tRequestSubscription: Subscription;
+  tErrorSubscription: Subscription;
   tPositionSubscription: Subscription;
   sReportSubscription: Subscription;
   aCloseSubscription: Subscription;
 
   constructor(
-    private router:RouterExtensions,
-    private trayService: TrayService,
-  ) {
+    private trayService: SystemTrayService,
+  ) {}
+
+  ngOnInit() {
+    // TODO:
+    this.cRootRef.nativeElement.opacity = 0;
+
+    if (!this.tRequestSubscription
+        && !this.tErrorSubscription
+        && !this.tPositionSubscription
+        && !this.sReportSubscription) {
+      this.registerSubscriptions();
+    }
+  }
+
+  ngAfterViewInit() {
+    fromEvent(this.cRootRef.nativeElement, 'loaded').pipe(
+      take(1), delay(1)
+    ).subscribe(_ => {
+      if (this.positionRef != this.trayService.lastMeasuredPosition) {
+        this.positionRef = this.trayService.lastMeasuredPosition;
+      }
+      this.resetPosition();
+    });
+
+    // const sb = interval(30).pipe(skipWhile(() => {
+    //   return !this.trayService.lastMeasuredPosition;
+    // })).subscribe(() => {
+    //   this.positionRef = this.trayService.lastMeasuredPosition;
+    //   AbsoluteLayout.setTop(this.cRootRef.nativeElement, this.positionRef - this.baseOffset);
+    //   sb.unsubscribe();
+    // });
+  }
+
+  ngOnDestroy() {
+    console.log(`destroied snackbar container @${this.containerId}`);
+    this.tRequestSubscription.unsubscribe();
+    this.tPositionSubscription.unsubscribe();
+    this.tErrorSubscription.unsubscribe();
+    this.sReportSubscription.unsubscribe();
+
+    if (this.aCloseSubscription && !this.aCloseSubscription.closed) {
+      this.aCloseSubscription.unsubscribe();
+    }
+  }
+
+  set step(n: number) {
+    this.stepReport.next(n);
+    this._step = n;
+  }
+
+  get step(): number {
+    return this._step;
+  }
+
+  registerSubscriptions() {
+    // TODO:
+    // - animation cancellation
+    // - improve desctuction
+    // - error variations
+    // - cleanup
+    // --
     this.sReportSubscription = this.stepReport.asObservable().subscribe((n: number) => {
-      // TODO: cleanup
       if (n == 1 && this.autoCloseOnApproved && this.isShown) {
         this.aCloseSubscription = of(null).pipe(
           delay(this.autoDisposeDelay)
@@ -73,18 +132,67 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, OnChanges, Afte
       }
     });
 
-    this.tPositionSubscription = trayService.trayPosition$.subscribe((data: any) => {
+    this.tPositionSubscription = this.trayService.trayPosition$.subscribe((data: any) => {
       if (typeof data == 'number') {
         this.positionRef = data;
-      } else {
-        const p = data.position || this.basePosition;
-        const s = data.safeArea || 0;
-        this.positionRef = p - s;
       }
+
+      // else {
+      //   const p = data.position || this.basePosition;
+      //   const s = data.safeArea || 0;
+      //   this.positionRef = p - s;
+      // }
+
       this.resetPosition();
     });
 
-    this.tRequestSubscription = trayService.requestFromUser$.pipe(debounceTime(150)).subscribe((data: any) => {
+    this.tErrorSubscription = this.trayService.errorReport$.pipe(debounceTime(150)).subscribe((data: any) => {
+      console.log(`open by insternal error @${this.containerId}, status: ${data.status} / ${data.statusText} `, this.positionRef);
+
+      this.cRootRef.nativeElement.translateY = 200;
+      this.cRootRef.nativeElement.opacity = 0;
+      this.isShown = true;
+      this.isApproved = true;
+      this.step = 1;
+      this.canUserDisposable = true;
+      this.autoDisposeDelay = 10000;
+
+      if (data.status == -1) {
+        this.barColor = 'warning';
+        this.doneMessage = 'ネットワーク接続に失敗しました';
+      } else if (data.status == 400) {
+        this.barColor = 'error';
+        this.doneMessage = 'データの取得に失敗しました';
+        this.autoDisposeDelay = 5000;
+      } else if (data.status == 401) {
+        this.barColor = 'warning';
+        this.doneMessage = '認証に失敗しました';
+      } else if (data.status == 468) {
+        this.barColor = 'warning';
+        this.doneMessage = 'すでに使用されているメールアドレスです';
+      } else {
+        this.barColor = 'error';
+        this.doneMessage = 'サーバーエラー';
+        this.autoDisposeDelay = 5000;
+      }
+
+      this.trayService.notify(`snackbar/${this.containerId}`, 'willRise');
+
+      setTimeout(() => {
+        AbsoluteLayout.setTop(this.cRootRef.nativeElement, this.positionRef - this.baseOffset);
+        this.cRootRef.nativeElement.animate({
+          translate: { x:0, y:0 },
+          opacity: 1,
+          duration: 300,
+          curve: AnimationCurve.easeOut
+        }).then(() => {
+          this.cRootRef.nativeElement.translateY = 0;
+          this.trayService.notify(`snackbar/${this.containerId}`, 'riseAnimationDone');
+        }, () => {});
+      }, 100);
+    });
+
+    this.tRequestSubscription = this.trayService.requestFromUser$.pipe(debounceTime(150)).subscribe((data: any) => {
       if (data[0] == `snackbar/${this.containerId}`) {
         console.log(data);
 
@@ -135,58 +243,19 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, OnChanges, Afte
         }
 
         if (data[1] == 'prev') {
+          //
         }
 
       }
     });
   }
 
-  ngOnInit() {
-    // TODO:
-    this.cRootRef.nativeElement.opacity = 0;
-
-    const sb = interval(30).pipe(skipWhile(() => {
-      return !this.trayService.lastMeasuredPosition;
-    })).subscribe(() => {
-      this.positionRef = this.trayService.lastMeasuredPosition;
-      // this.baseOffset = Math.min(this.cRootRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale, 120);
+  resetPosition(pos?: number) {
+    if (pos) {
+      AbsoluteLayout.setTop(this.cRootRef.nativeElement, pos);
+    } else {
       AbsoluteLayout.setTop(this.cRootRef.nativeElement, this.positionRef - this.baseOffset);
-      sb.unsubscribe();
-    });
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-
-  }
-
-  ngAfterViewInit() {
-    // TODO:
-    // if (this.trayService.lastMeasuredPosition) {
-    //   setTimeout(() => {
-    //     this.positionRef = this.trayService.lastMeasuredPosition;
-    //     // this.baseOffset = Math.min(this.cRootRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale, 120);
-    //     AbsoluteLayout.setTop(this.cRootRef.nativeElement, this.positionRef - this.baseOffset);
-    //     console.log('last stored poistion?', this.trayService.lastMeasuredPosition, this.baseOffset);
-    //   }, 100)
-    // }
-  }
-
-  ngOnDestroy() {
-    console.log(`destroied snackbar container @${this.containerId}`);
-    this.tRequestSubscription.unsubscribe();
-    this.tPositionSubscription.unsubscribe();
-  }
-
-  set step(n: number) {
-    this.stepReport.next(n);
-    this._step = n;
-  }
-  get step(): number {
-    return this._step;
-  }
-
-  resetPosition(pos?: Number) {
-    AbsoluteLayout.setTop(this.cRootRef.nativeElement, this.positionRef - this.baseOffset);
+    }
   }
 
   cancelOrBack() {
