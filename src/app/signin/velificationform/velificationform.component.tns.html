@@ -15,6 +15,7 @@
           html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular;'>パスワード再設定のリンクをお送りしますので、<br>登録済みのメールアドレスを入力してください。</p>"></HtmlView>
 
         <TextField
+          #activeInput
           class="input"
           [class.error]="firstErrors.emailAddress"
           hint="メールアドレス"
@@ -26,6 +27,7 @@
           class="text-error typo-annotation"
           text="必須のフィールドです"></Label>
         <TextField
+          #activeInputConfirm
           class="input"
           [class.error]="firstErrors.emailAddressConfirm"
           hint="メールアドレスを再入力"

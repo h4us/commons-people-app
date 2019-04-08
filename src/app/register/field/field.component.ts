@@ -1,4 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy, AfterViewInit,
+  ViewChild, ElementRef
+} from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 
@@ -17,7 +20,7 @@ import { RegisterValidatorService } from '../../register-validator.service';
   templateUrl: './field.component.html',
   styleUrls: ['./field.component.scss']
 })
-export class FieldComponent implements OnInit, OnDestroy {
+export class FieldComponent implements OnInit, OnDestroy, AfterViewInit {
   // TODO:
   stepAt: any[] = [
     {
@@ -53,6 +56,9 @@ export class FieldComponent implements OnInit, OnDestroy {
   private touched: boolean = false;
 
   private rfSub: Subscription;
+
+  @ViewChild('activeInput') aInput: ElementRef;
+  @ViewChild('activeInputConfirm') aInputConfirm: ElementRef;
 
   constructor(
     private router: Router,
@@ -123,6 +129,16 @@ export class FieldComponent implements OnInit, OnDestroy {
         }
 
       });
+  }
+
+  ngAfterViewInit() {
+    if (this.field == 'emailAddress' && this.aInput) {
+      this.aInput.nativeElement.autocapitalizationType = 'none';
+    }
+
+    if (this.field == 'emailAddress' && this.aInputConfirm) {
+      this.aInputConfirm.nativeElement.autocapitalizationType = 'none';
+    }
   }
 
   ngOnDestroy() {

@@ -36,6 +36,7 @@
         </GridLayout>
         <!-- // -->
         <TextField *ngIf="field != 'password'"
+          #activeInput
           class="input"
           keyboardType="{{ field == 'emailAddress' ? 'email' : 'url' }}"
           [class.error]="firstError"
@@ -57,6 +58,7 @@
         </GridLayout>
         <!-- // -->
         <TextField *ngIf="field != 'password' && needConfirmInput"
+          #activeInputConfirm
           class="input"
           keyboardType="{{ field == 'emailAddress' ? 'email' : 'url' }}"
           [class.error]="firstError"

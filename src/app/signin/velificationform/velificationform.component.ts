@@ -1,4 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy, AfterViewInit,
+  ViewChild, ElementRef
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 
@@ -15,7 +18,7 @@ import { SigninValidatorService } from '../../signin-validator.service';
   templateUrl: './velificationform.component.html',
   styleUrls: ['./velificationform.component.scss']
 })
-export class VelificationformComponent implements OnInit, OnDestroy {
+export class VelificationformComponent implements OnInit, OnDestroy, AfterViewInit {
   title: string = 'パスワードを再設定'
   sForm: FormGroup;
 
@@ -30,6 +33,9 @@ export class VelificationformComponent implements OnInit, OnDestroy {
   private sfSub: Subscription;
 
   email: string = '';
+
+  @ViewChild('activeInput') aInput: ElementRef;
+  @ViewChild('activeInputConfirm') aInputConfirm: ElementRef;
 
   constructor(
     private routerExt: RouterExtensions,
@@ -60,6 +66,17 @@ export class VelificationformComponent implements OnInit, OnDestroy {
     //
     this.fieldIsValid = this.sForm.get('emailAddress').valid && this.sForm.get('emailAddressConfirm').valid;
     this.confirmIsValid = this.sForm.get('emailAddress').value == this.sForm.get('emailAddressConfirm').value;
+  }
+
+
+  ngAfterViewInit() {
+    if (this.aInput) {
+      this.aInput.nativeElement.autocapitalizationType = 'none';
+    }
+
+    if (this.aInputConfirm) {
+      this.aInputConfirm.nativeElement.autocapitalizationType = 'none';
+    }
   }
 
   ngOnDestroy() {
