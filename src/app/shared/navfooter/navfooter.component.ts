@@ -59,7 +59,7 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
             this.navMode = (this.router.url.match(/\/select|send|confirm/)) ? 'dm' : 'default';
           } else if (this.router.url.indexOf('userpage:message') >= 0) {
             this._navActive = 'message';
-            this.navMode = (this.router.url.indexOf('/log') >= 0) ? 'dm' : 'default';
+            this.navMode = (this.router.url.indexOf('/log') >= 0 || this.router.url.indexOf('/settings') >= 0) ? 'dm' : 'default';
           } else if (this.router.url.indexOf('userpage:profile') >= 0) {
             this._navActive = 'profile';
             this.navMode = 'default';

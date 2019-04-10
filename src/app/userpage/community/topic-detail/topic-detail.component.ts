@@ -139,7 +139,6 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy() {
     if(this.tNotifySubscription) {
-      console.log('clear subscription @topiceditor');
       this.trayService.request('snackbar/topiceditor', 'close');
       this.tNotifySubscription.unsubscribe();
     }
@@ -201,6 +200,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   onConfirm() {
     if (this.tvService.sendForm.valid) {
       let req: Observable<any>;
+
       if (this.tvService.editTo) {
         req = this.userService.updateTopic(this.tvService.editTo, this.tvService.sendForm.value)
       } else {
@@ -224,14 +224,13 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
             androidNotificationTitle: 'Uploading image session by commonsapp',
           };
           let task: bgHttp.Task;
-          let lastEvent = '';
           const params = [
             { name: 'photo', filename: this.topic.photoUrl, mimeType: 'image/png' }
           ];
           task = this.session.multipartUpload(params, request);
-          task.on('progress', (e) => {
-            console.log(e);
-          });
+          // task.on('progress', (e) => {
+          //   console.log(e);
+          // });
           this.tasks.push(task);
         }
 

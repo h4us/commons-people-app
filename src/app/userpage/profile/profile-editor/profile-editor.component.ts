@@ -42,6 +42,7 @@ export class ProfileEditorComponent implements OnInit, OnDestroy, AfterViewInit 
   private pfSub: Subscription;
 
   @ViewChild('activeInput') aInput: ElementRef;
+  @ViewChild('activeInputConfirm') aInputConfirm: ElementRef;
 
   constructor(
     private page: Page,
@@ -109,8 +110,14 @@ export class ProfileEditorComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   ngAfterViewInit() {
-    if (this.field == 'emailAddress' && this.aInput) {
-      this.aInput.nativeElement.autocapitalizationType = 'none';
+    if (this.field == 'emailAddress') {
+      if (this.aInput) {
+        this.aInput.nativeElement.autocapitalizationType = 'none';
+      }
+
+      if (this.aInputConfirm) {
+        this.aInputConfirm.nativeElement.autocapitalizationType = 'none';
+      }
     }
   }
 

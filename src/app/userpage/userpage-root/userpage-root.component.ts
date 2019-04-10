@@ -68,7 +68,11 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
         if (data instanceof Array && data.length > 1) {
           options.context = data[1];
         }
-        this.modalService.showModal(TopicEditorComponent, options);
+        this.modalService.showModal(TopicEditorComponent, options).then(() => {
+          setTimeout(() => {
+            mProxy.switchBack('topic');
+          }, 200);
+        });
       } else if (data === 'topic-owner' || (data instanceof Array && data.length > 0 && data[0] === 'topic-owner' )) {
         // TODO:
         if (data instanceof Array && data.length > 1) {

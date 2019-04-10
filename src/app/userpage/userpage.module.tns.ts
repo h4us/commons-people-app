@@ -19,6 +19,7 @@ import { PeriodicTasksService } from './periodic-tasks.service';
 import { TopicValidatorService } from './topic-validator.service';
 import { ProfileValidatorService } from './profile-validator.service';
 import { PointValidatorService } from './point-validator.service';
+import { MessageThreadValidatorService } from './message-thread-validator.service';
 
 import { UserpageRootComponent } from './userpage-root/userpage-root.component';
 import { NewbieComponent } from './newbie/newbie.component';
@@ -49,6 +50,7 @@ import { NewbieComponent } from './newbie/newbie.component';
     TopicValidatorService,
     ProfileValidatorService,
     PointValidatorService,
+    MessageThreadValidatorService,
   ],
   schemas: [NO_ERRORS_SCHEMA]
 })

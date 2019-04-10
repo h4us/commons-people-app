@@ -24,14 +24,16 @@
         [hint]="title"
         [formControlName]="field"
         (returnPress)="onValidate()"></TextView>
-      <TextView *ngIf="field == 'emailAddress'"
+
+      <TextField *ngIf="field == 'emailAddress'"
         #activeInput
         class="input"
         keyboardType="email"
         [class.error]="firstError"
         [hint]="title"
         [formControlName]="field"
-        (returnPress)="onValidate()"></TextView>
+        (returnPress)="onValidate()"></TextField>
+
       <GridLayout *ngIf="field == 'password'"
         columns="*,48" rows="{{ isIOS ? 48 : 60 }}" style="margin-bottom:0; padding:0;"
         class="input"
@@ -48,6 +50,7 @@
           text="{{ isSecure ? '&#xe95c;' : '&#xe95d;' }}"
           (tap)="togglePassword()"></Label>
       </GridLayout>
+
       <TextField *ngIf="field != 'status' && field != 'description' && field != 'password' && field != 'emailAddress'"
         #activeInput
         class="input"
@@ -55,14 +58,25 @@
         [hint]="title"
         [formControlName]="field"
         (returnPress)="onValidate()"></TextField>
+
       <!-- // -->
-      <TextField *ngIf="field == 'password' || field == 'emailAddress'"
+      <TextField *ngIf="field == 'password'"
         #activeInputConfirm
         class="input"
         [class.error]="firstErrorInConfirm"
         hint="{{ title }}を再入力"
         formControlName="{{ field }}Confirm"
         (returnPress)="onValidate()"></TextField>
+
+      <TextField *ngIf="field == 'emailAddress'"
+        #activeInputConfirm
+        class="input"
+        keyboardType="email"
+        [class.error]="firstErrorInConfirm"
+        hint="{{ title }}を再入力"
+        formControlName="{{ field }}Confirm"
+        (returnPress)="onValidate()"></TextField>
+
       <!-- // -->
       <Label *ngIf="firstError?.required"
         class="text-error typo-annotation"

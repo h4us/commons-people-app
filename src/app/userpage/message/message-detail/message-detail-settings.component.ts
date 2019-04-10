@@ -3,8 +3,9 @@ import { ActivatedRoute } from '@angular/router';
 import { FormGroup } from '@angular/forms'
 
 import { Subscription } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
-import { RouterExtensions } from 'nativescript-angular/router';
+import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
 import { action } from 'tns-core-modules/ui/dialogs';
 import { isIOS } from 'tns-core-modules/platform';
@@ -23,20 +24,22 @@ import { ImageCropper, OptionsCommon }  from 'nativescript-imagecropper';
 
 import { UserService, User } from '../../../user.service';
 import { SystemTrayService } from '../../../system-tray.service';
-import { ModalProxyService } from '../../modal-proxy.service';
-import { ProfileValidatorService } from '../../profile-validator.service';
 
+import { MessageProxyService } from '../../message-proxy.service';
+import { MessageThreadValidatorService }  from '../../message-thread-validator.service';
 
 @Component({
-  selector: 'app-profile-root',
-  templateUrl: './profile-root.component.html',
-  styleUrls: ['./profile-root.component.scss']
+  selector: 'app-message-detail-settings',
+  templateUrl: './message-detail-settings.component.html',
+  styleUrls: ['./message-detail.component.scss']
 })
-export class ProfileRootComponent implements OnInit, OnDestroy {
+export class MessageDetailSettingsComponent implements OnInit, OnDestroy {
+  title: string = '';
+  threadObj: any;
   currentList: any[];
 
   user: User;
-  pForm: FormGroup;
+  gForm: FormGroup;
   tSubs: Subscription;
 
   docPath: any;
@@ -49,60 +52,76 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
   constructor(
     private routerExt: RouterExtensions,
     private aRoute: ActivatedRoute,
+    private pageRoute: PageRoute,
     private page: Page,
     private userService: UserService,
     private trayService: SystemTrayService,
-    private pvService: ProfileValidatorService,
+    private messageService: MessageProxyService,
+    private mvService: MessageThreadValidatorService
   ) {
     page.actionBarHidden = true;
 
-    // this.pvService.resetData();
-    // this.pForm = pvService.sendForm;
-    // this.imagePickerContext = imagepicker.create({ mode: 'single' });
-    // this.session = bgHttp.session('image-upload');
+    this.gForm = mvService.sendForm;
   }
 
   ngOnInit() {
-    this.pvService.resetData();
-    this.pForm = this.pvService.sendForm;
+    // TODO:
+    this.pageRoute.activatedRoute
+      .pipe(switchMap((aRoute) => aRoute.params))
+      .forEach((params) => {
+        const desireId: number = <number>params.id;
+        this.title = `ダイレクトメッセージ: ${desireId}`;
+
+        // TODO:
+        if (this.messageService.activeThreads) {
+          const _thread = this.messageService.activeThreads.filter((el) => el.id == desireId);
+          if (_thread.length > 0) {
+            this.threadObj = _thread[0];
+            this.title = this.threadObj.title;
+          }
+        }
+
+        this.messageService.fetchMessages(desireId);
+      });
+    // --
+
     this.imagePickerContext = imagepicker.create({ mode: 'single' });
     this.session = bgHttp.session('image-upload');
 
     this.user = this.userService.getCurrentUser();
     this.currentList = this.userService.getCommunities();
-
     this.docPath = fs.path.normalize(`${fs.knownFolders.documents().path}`);
 
     this.tSubs = this.trayService.notifyToUser$.subscribe((data: any) => {
-      if (data && data.length > 1 && data[0] == 'snackbar/') {
-        if (data[1] == 'approveOrNext') {
+      // if (data && data.length > 1 && data[0] == 'snackbar/') {
+      //   if (data[1] == 'approveOrNext') {
 
-          this.trayService.lockUserpageArea();
+      //     this.trayService.lockUserpageArea();
 
-          this.userService.logout().subscribe(
-            () => {},
-            (err) => {
-              console.error(err, '..force logout');
-              this.routerExt.navigate([''], {
-                clearHistory: true
-              });
-            },
-            () => {
-              setTimeout(() => {
-                this.trayService.request('snackbar/', 'close', { waitFor: 'logout' });
-              }, 1500);
-            }
-          );
-        }
+      //     this.userService.logout().subscribe(
+      //       () => {},
+      //       (err) => {
+      //         console.error(err, '..force logout');
+      //         this.routerExt.navigate([''], {
+      //           clearHistory: true
+      //         });
+      //       },
+      //       () => {
+      //         setTimeout(() => {
+      //           this.trayService.request('snackbar/', 'close', { waitFor: 'logout' });
+      //         }, 1500);
+      //       }
+      //     );
+      //   }
 
-        if (data[1] == 'disposeAnimationDone' && data.length > 2) {
-          if (data[2].waitFor && data[2].waitFor == 'logout') {
-            this.routerExt.navigate([''], {
-              clearHistory: true
-            })
-          }
-        }
-      }
+      //   if (data[1] == 'disposeAnimationDone' && data.length > 2) {
+      //     if (data[2].waitFor && data[2].waitFor == 'logout') {
+      //       this.routerExt.navigate([''], {
+      //         clearHistory: true
+      //       })
+      //     }
+      //   }
+      // }
     });
   }
 
@@ -111,29 +130,21 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
   }
 
   toEdit(field:string) {
-    this.routerExt.navigate([`../profile/edit`, field], {
-      relativeTo: this.aRoute
-    });
-  }
-
-  gotoCommunityPage(args: any) {
-    this.userService.switchCommunity(args.id);
-    this.routerExt.navigate([{
-      outlets: { userpage: [ 'community' ] }
-    }], {
-      relativeTo: this.aRoute.parent
-    });
+    // this.routerExt.navigate([`../profile/edit`, field], {
+    //   relativeTo: this.aRoute
+    // });
   }
 
   getCurrent(key): any {
-    const c: any = this.pForm.get(key);
+    const c: any = this.gForm.get(key);
     let ret = c ? c.value : '';
-    return (key === 'password') ? ret.replace(/./g, '·') : ret;
+
+    return ret;
   }
 
   getAvatar() {
     // TODO:
-    return this.selectedPhoto || (this.user.avatarUrl  || '~/assets/placeholder__user@2x.png');
+    return this.selectedPhoto || (this.user.avatarUrl  || '~/assets/placeholder__group@2x.png');
   }
 
   photoDialog() {
@@ -342,17 +353,21 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
     });
   }
 
-  logout () {
-    this.trayService.request('snackbar/', 'open', {
-      approveMessage: 'サインアウトしますか？',
-      doneMessage: 'サインアウトしています...',
-      canUserDisposable: false
-    });
+  unsubscribeGroupMessage () {
+    // this.trayService.request('snackbar/', 'open', {
+    //   approveMessage: 'サインアウトしますか？',
+    //   doneMessage: 'サインアウトしています...',
+    //   canUserDisposable: false
+    // });
+  }
+
+  aproveAction() {
+
   }
 
   toChildPage() {
-    this.routerExt.navigate([`../profile/etc`], {
-      relativeTo: this.aRoute
-    });
+    // this.routerExt.navigate([`../profile/etc`], {
+    //   relativeTo: this.aRoute
+    // });
   }
 }

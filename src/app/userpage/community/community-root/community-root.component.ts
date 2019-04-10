@@ -38,7 +38,9 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   isPreview: boolean = false;
 
   private _news: News[];
-  private _subs: Subscription;
+
+  private uSubscription: Subscription;
+  private mSubscription: Subscription;
   private _sub = new Subject<any>();
 
   @ViewChild('floatingButton') fbtnRef: ElementRef;
@@ -60,7 +62,11 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     private tService: SystemTrayService
   ) {
     page.actionBarHidden = true;
+  }
 
+  //
+  ngOnInit() {
+    //
     from(this._sub).pipe(
       switchMap(_ => { return this.userService.getTopics() })
     ).subscribe((data: any) => {
@@ -69,17 +75,23 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
       this.currentList = _data;
     });
 
-    this._subs = this.userService.updateRequest$.subscribe(_ => {
+    this.uSubscription = this.userService.updateRequest$.subscribe(_ => {
       // --
       this.currentCommunity = this.userService.getCommunity();
       this._sub.next(true);
       this.newsService.fetch(`?categories=${this.userService.currentCommunityId}`);
       // --
     });
-  }
 
-  //
-  ngOnInit() {
+    this.mSubscription = this.mProxy.switchBack$.subscribe((data: any) => {
+      if (data == 'topic') {
+        console.log('after create reload!')
+        this.currentCommunity = this.userService.getCommunity();
+        this._sub.next(true);
+      }
+    });
+
+    //
     if (this.aRoute.snapshot.url.filter((el) => el.path == 'preview').length > 0) {
       this.isPreview = true;
       this.userService.searchCommunities(encodeURI(this.aRoute.snapshot.params.name)).subscribe((data: any) => {
@@ -109,7 +121,8 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   ngOnDestroy() {
-    this._subs.unsubscribe();
+    this.uSubscription.unsubscribe();
+    this.mSubscription.unsubscribe();
   }
 
   ngAfterViewInit() {

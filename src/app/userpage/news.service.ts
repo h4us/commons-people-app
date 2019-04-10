@@ -52,6 +52,7 @@ export class News {
 export class NewsService {
   //
   private blogUrl: string = 'http://52.195.4.66';
+  // private blogUrl: string = 'https://news.test.commonspeople.love';
   private wpApiEndpoint: string = '/wp-json/wp/v2/';
   // --
 

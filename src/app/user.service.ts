@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 
 import { Observable, Subject, forkJoin, from, of, zip } from 'rxjs';
-import { distinct, concatMap, toArray, mergeAll, concatAll, tap } from 'rxjs/operators';
+import { distinct, concatMap, toArray, map, mergeAll, concatAll, tap } from 'rxjs/operators';
 
 import { ImageAsset } from 'tns-core-modules/image-asset';
 import { ImageSource } from 'tns-core-modules/image-source';
@@ -97,7 +97,7 @@ export class UserService {
     return this.http.post(`${this.apiUrl}login`, this.loginData).pipe(
       tap((data: unknown) => {
         console.log('standard logged in', data);
-        this.parseUser(<User>data)
+        this.parseUser(<User>data, true);
       })
     );
   }
@@ -111,7 +111,8 @@ export class UserService {
     this.loginData.password = this._sStorage.getSync({ key: 'password' });
     return this.http.post(`${this.apiUrl}login`, this.loginData).pipe(
       tap((data: unknown) => {
-        this.parseUser(<User>data)
+        console.log('restore logged in', data);
+        this.parseUser(<User>data, true)
       })
     );
   }
@@ -125,6 +126,7 @@ export class UserService {
       username: null,
       password: null
     };
+
     return zip(
       from(this._sStorage.removeAll()),
       this.http.post(`${this.apiUrl}logout`, null)
@@ -175,7 +177,7 @@ export class UserService {
   /*
    * user
    */
-  parseUser(data: User): User {
+  parseUser(data: User, initPhase?: boolean): User {
     this.user = {
       id: data.id,
       username: data.username,
@@ -191,15 +193,17 @@ export class UserService {
       status: data.status
     }
 
-    this._isLoggedIn = true;
-
-    if (this.user.communityList.length > 0) {
+    if (this.user.communityList.length > 0 && this._currentCommunityId < 0) {
       this._currentCommunityId =  this.user.communityList[0].id;
     }
 
-    this._sStorage.set({ key: 'username', value: this.loginData.username });
-    this._sStorage.set({ key: 'password', value: this.loginData.password })
-    this._sStorage.set({ key: 'lastLogin', value: new Date().toString() });
+    if (initPhase) {
+      this._isLoggedIn = true;
+
+      this._sStorage.set({ key: 'username', value: this.loginData.username });
+      this._sStorage.set({ key: 'password', value: this.loginData.password })
+      this._sStorage.set({ key: 'lastLogin', value: new Date().toString() });
+    }
 
     return this.user;
   }
@@ -235,16 +239,35 @@ export class UserService {
 
     const t: number = targetCommunity || this._currentCommunityId;
     const allowChar: string = '0123456789aAbBcCdDeEfFgGhHiIjJkKlLnNmMoOpPqQrRsStTuUvVwWxXyYzZ_';
-    let q: string = query ? `&q=${query}` : '';
+
+    let q: string = query || '';
     if (q == '') {
-      return from(allowChar).pipe(
-        concatMap((c: string) => this.http.get(`${this.apiUrl}users?communityId=${t}&q=${c}`)),
+      const hParams: string[] = [];
+      for (const c of allowChar) {
+        hParams.push(
+          [
+            `communityId=${t}`,
+            `q=${c}`,
+            // `pagenation[page]=0&pagenation[size]=10&pagenation[sort]=ASC`
+          ].join('&')
+        );
+      }
+
+      return from(hParams).pipe(
+        concatMap((hp: any) => this.http.get(`${this.apiUrl}users?${hp}`)),
+        map((res: any) => res.userList),
         concatAll(),
         distinct((el: any) => el.id),
         toArray()
       );
     } else {
-      return this.http.get(`${this.apiUrl}users?communityId=${t}${q}`);
+      const hParam: string = [
+        `communityId=${t}`,
+        `q=${q}`,
+        // `pagenation[page]=0&pagenation[size]=10&pagenation[sort]=ASC`
+      ].join('&');
+
+      return this.http.get(`${this.apiUrl}users?${hParam}`);
     }
   }
 
@@ -309,9 +332,13 @@ export class UserService {
     }
 
     if (params.length > 0) {
-      ret = this.http.get(`${this.apiUrl}communities?${params.join('&')}`);
+      ret = this.http.get(`${this.apiUrl}communities?${params.join('&')}`).pipe(
+        map((res: any) => res.communityList)
+      );
     } else {
-      ret = this.http.get(`${this.apiUrl}communities`);
+      ret = this.http.get(`${this.apiUrl}communities`).pipe(
+        map((res: any) => res.communityList)
+      );
     }
 
     return ret
@@ -321,7 +348,9 @@ export class UserService {
   updateCommunities(communities: Array<number>): Observable<any> {
     return this.http.post(`${this.apiUrl}users/${this.user.id}/communities`, {
       communityList: communities
-    });
+    }).pipe(
+      tap((data: unknown) => this.parseUser(<User>data))
+    );
   }
 
   /*
@@ -343,7 +372,9 @@ export class UserService {
     }
 
     if (params.length > 0) {
-      ret = this.http.get(`${this.apiUrl}ads?${params.join('&')}`);
+      ret = this.http.get(`${this.apiUrl}ads?${params.join('&')}`).pipe(
+        map((res: any) => res.adList)
+      );
     }
 
     return ret;
@@ -390,16 +421,22 @@ export class UserService {
     }
 
     if (params.length > 0) {
-      ret =this.http.get(`${this.apiUrl}message-threads?${params.join('&')}`);
+      ret = this.http.get(`${this.apiUrl}message-threads?${params.join('&')}`).pipe(
+        map((res: any) => res.messageThreadList)
+      );
     } else {
-      ret =this.http.get(`${this.apiUrl}message-threads`);
+      ret = this.http.get(`${this.apiUrl}message-threads`).pipe(
+        map((res: any) => res.messageThreadList)
+      );
     }
 
     return ret;
   }
 
   getMessages(id: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}message-threads/${id}/messages`);
+    return this.http.get(`${this.apiUrl}message-threads/${id}/messages`).pipe(
+      map((res: any) => res.messageList)
+    );
   }
 
   sendMessages(id: number, msg: string): Observable<any> {
@@ -436,7 +473,9 @@ export class UserService {
 
   getTransactions(targetCommunity?: number): Observable<any> {
     const t: number = targetCommunity || this._currentCommunityId;
-    return this.http.get(`${this.apiUrl}transactions?communityId=${t}`);
+    return this.http.get(`${this.apiUrl}transactions?communityId=${t}`).pipe(
+      map((res: any) => res.transactionList)
+    );
   }
 
   createTransactions(data: any): Observable<any> {
@@ -446,25 +485,23 @@ export class UserService {
   /*
    * profiles
    */
-  updateProfile(key:any, data:any): Observable<any> {
-    let ret: Observable<any> = this.http.post(`${this.apiUrl}users/${this.user.id}`, data);
-
-    if (key === 'status') {
-      ret = this.http.post(`${this.apiUrl}users/${this.user.id}/status`, data);
-    } else if (key === 'avatarUrl') {
-      // TODO:
-      ret = this.http.post(`${this.apiUrl}users/${this.user.id}/avatar`, data, {
-        headers: new HttpHeaders({ 'Content-Type': 'multipart/form-data' })
-      });
-    } else if (key === 'emailAddress') {
-      // TODO:
-      ret = this.http.post(`${this.apiUrl}users/${this.user.id}/emailaddress`, data);
-    } else if (key === 'password') {
-      // TODO:
-      ret = this.http.post(`${this.apiUrl}users/${this.user.id}/password`, data);
-    }
-
-    return ret;
-  }
+  // updateProfile(key:any, data:any): Observable<any> {
+  //   let ret: Observable<any> = this.http.post(`${this.apiUrl}users/${this.user.id}`, data);
+  //   if (key === 'status') {
+  //     ret = this.http.post(`${this.apiUrl}users/${this.user.id}/status`, data);
+  //   } else if (key === 'avatarUrl') {
+  //     // TODO:
+  //     ret = this.http.post(`${this.apiUrl}users/${this.user.id}/avatar`, data, {
+  //       headers: new HttpHeaders({ 'Content-Type': 'multipart/form-data' })
+  //     });
+  //   } else if (key === 'emailAddress') {
+  //     // TODO:
+  //     ret = this.http.post(`${this.apiUrl}users/${this.user.id}/emailaddress`, data);
+  //   } else if (key === 'password') {
+  //     // TODO:
+  //     ret = this.http.post(`${this.apiUrl}users/${this.user.id}/password`, data);
+  //   }
+  //   return ret;
+  // }
 
 };

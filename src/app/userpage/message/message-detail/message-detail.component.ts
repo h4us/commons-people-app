@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { FormControl, FormGroup } from '@angular/forms';
 
@@ -51,6 +52,8 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   @ViewChild('mContent') mContentRef: ElementRef;
 
   constructor(
+    private router: Router,
+    private aRoute: ActivatedRoute,
     private routerExt: RouterExtensions,
     private pageRoute: PageRoute,
     private page: Page,
@@ -143,8 +146,11 @@ ${msg}
     this.mProxy.request('send-point');
   }
 
-  editThread() {
-    console.log('edit thread');
-    // this.mProxy.request('send-point');
+  goToSettings() {
+    this.routerExt.navigate([{
+      outlets: { userpage: [ 'message', 'settings', this.threadObj.id ]  }
+    }], {
+      relativeTo: this.aRoute.parent
+    })
   }
 }
