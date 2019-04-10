@@ -267,7 +267,9 @@ export class UserService {
         // `pagenation[page]=0&pagenation[size]=10&pagenation[sort]=ASC`
       ].join('&');
 
-      return this.http.get(`${this.apiUrl}users?${hParam}`);
+      return this.http.get(`${this.apiUrl}users?${hParam}`).pipe(
+        map((res: any) => res.userList)
+      );
     }
   }
 
