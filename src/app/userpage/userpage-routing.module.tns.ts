@@ -25,6 +25,7 @@ import { TopicSearchComponent } from './community/topic-search/topic-search.comp
 import { MessageRootComponent } from './message/message-root/message-root.component';
 import { MessageDetailComponent } from './message/message-detail/message-detail.component';
 import { MessageDetailSettingsComponent } from './message/message-detail/message-detail-settings.component';
+import { MessageDetailSettingsFieldComponent } from './message/message-detail/message-detail-settings-field.component';
 import { MessageSearchComponent } from './message/message-search/message-search.component';
 
 import { ProfileRootComponent } from './profile/profile-root/profile-root.component';
@@ -153,6 +154,11 @@ const routes: Routes = [
         outlet: 'userpage'
       },
 
+      {
+        path:'message/settings/:id/:field',
+        component: MessageDetailSettingsFieldComponent,
+        outlet: 'userpage'
+      },
 
       {
         path: 'point/request',

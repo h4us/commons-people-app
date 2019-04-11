@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { Observable, Subject, of, from, timer } from 'rxjs';
-import { tap, delay } from "rxjs/operators";
+import { tap } from "rxjs/operators";
+
+import { RouterExtensions } from 'nativescript-angular/router';
 
 import { UserService } from './user.service';
 
@@ -18,6 +20,7 @@ export class SystemTrayService {
   private trayPositionSource = new Subject<any>();
   private userpageLockSource = new Subject<boolean>();
   private navShowHideSource = new Subject<boolean>();
+  private unreadMessagesSource = new Subject<any>();
 
   //
   errorReport$ = this.errorReportSource.asObservable();
@@ -31,6 +34,9 @@ export class SystemTrayService {
   navShowHide$ = this.navShowHideSource.asObservable();
 
   //
+  unreadMessages$ = this.unreadMessagesSource.asObservable();
+
+  //
   trayPosition$ = this.trayPositionSource.asObservable();
   lastMeasuredPosition: any;
 
@@ -40,6 +46,7 @@ export class SystemTrayService {
   constructor(
     private userService: UserService,
     private router: Router,
+    private routerExt: RouterExtensions,
   ) {}
 
   //
@@ -60,24 +67,32 @@ export class SystemTrayService {
   }
 
   showError(errType: any) {
+    //
     console.log(
       '[reported error]',
       errType,
-      // this.router.url,
-      // this.router.routerState.root,
-      // this.router.routerState.root.component,
-      // this.router.routerState.root.children
     );
 
     // TODO: modify / transform
     let errMessage = errType;
+
+    // TODO: critcal error handling, variations
+    if ((errMessage && errMessage.status) && (
+      errMessage.status == 503 ||
+        errMessage.status == 504
+    )) {
+      timer(5000).subscribe(_ => {
+        this.userService.logout(false).subscribe(_ => {
+          if (this.router.url == '/') this.routerExt.navigate(['signin'])
+        });
+      });
+    }
 
     //
     if (this._isLocked) {
       timer(1000).pipe(
         tap(_ => this.unLockUserpageArea()),
       ).subscribe(_ => {
-        console.log('report!');
         this.errorReportSource.next(errMessage);
       })
     } else {
@@ -105,6 +120,10 @@ export class SystemTrayService {
   hideNavigation() {
     this._isShown = false;
     this.navShowHideSource.next(false);
+  }
+
+  unreadCount(data: any) {
+    this.unreadMessagesSource.next(data);
   }
 
   //

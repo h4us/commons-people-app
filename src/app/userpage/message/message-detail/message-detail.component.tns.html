@@ -21,7 +21,9 @@
         (tap)="onActiveContentArea()"
         (touch)="onActiveContentArea()">
         <!-- // -->
-        <StackLayout row="0">
+        <StackLayout>
+          <ActivityIndicator *ngIf="messageLog?.length == 0" busy="true" width="20"></ActivityIndicator>
+
           <ng-template ngFor let-item [ngForOf]="messageLog" let-i="index">
             <StackLayout class="p-x-30 p-y-15 bg-theme-secondary">
               <GridLayout *ngIf="(item.createdBy && (item.createdBy == user.id)); else elseBlock" columns="*" rows="*" class="bg-clear">

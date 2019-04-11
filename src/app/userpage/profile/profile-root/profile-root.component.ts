@@ -55,11 +55,6 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
     private pvService: ProfileValidatorService,
   ) {
     page.actionBarHidden = true;
-
-    // this.pvService.resetData();
-    // this.pForm = pvService.sendForm;
-    // this.imagePickerContext = imagepicker.create({ mode: 'single' });
-    // this.session = bgHttp.session('image-upload');
   }
 
   ngOnInit() {
@@ -133,6 +128,7 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
 
   getAvatar() {
     // TODO:
+
     return this.selectedPhoto || (this.user.avatarUrl  || '~/assets/placeholder__user@2x.png');
   }
 
@@ -183,9 +179,11 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
                         { name: 'photo', filename: pngfile, mimeType: 'image/png' }
                       ];
                       task = this.session.multipartUpload(params, request);
-                      // task.on('progress', (e) => {
-                      //   console.log(e);
-                      // });
+                      task.on('progress', (e: any) => {
+                        if (e.currentBytes >= e.totalBytes) {
+                          this.userService.updateSelf().subscribe();
+                        }
+                      });
                       this.tasks.push(task);
                     }
 
@@ -248,9 +246,11 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
                             { name: 'photo', filename: pngfile, mimeType: 'image/png' }
                           ];
                           task = this.session.multipartUpload(params, request);
-                          // task.on('progress', (e) => {
-                          //   console.log(e);
-                          // });
+                          task.on('progress', (e: any) => {
+                            if (e.currentBytes >= e.totalBytes) {
+                              this.userService.updateSelf().subscribe();
+                            }
+                          });
                           this.tasks.push(task);
                         }
 
@@ -321,9 +321,11 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
                   { name: 'photo', filename: pngfile, mimeType: 'image/png' }
                 ];
                 task = this.session.multipartUpload(params, request);
-                // task.on('progress', (e) => {
-                //   console.log(e);
-                // });
+                task.on('progress', (e: any) => {
+                  if (e.currentBytes >= e.totalBytes) {
+                    this.userService.updateSelf().subscribe();
+                  }
+                });
                 this.tasks.push(task);
               }
 

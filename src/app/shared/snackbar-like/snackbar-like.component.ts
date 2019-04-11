@@ -168,8 +168,19 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.barColor = 'warning';
         this.doneMessage = '認証に失敗しました';
       } else if (data.status == 468) {
+        //
         this.barColor = 'warning';
-        this.doneMessage = 'すでに使用されているメールアドレスです';
+
+        if (data.error && data.error.key == 'error.notEnoughFunds') {
+          this.doneMessage = '残高不足です';
+        } else if (data.error && data.error.key == 'emailAddressTaken') {
+          this.doneMessage = 'すでに使用されているメールアドレスです';
+        } else if (data.error && data.error.key == 'usernameTaken') {
+          this.doneMessage = 'すでに使用されているユーザー名です';
+        } else {
+          this.doneMessage = 'アプリケーションエラー';
+        }
+        //
       } else {
         this.barColor = 'error';
         this.doneMessage = 'サーバーエラー';

@@ -1,19 +1,22 @@
 import {
-  Component, OnInit, OnDestroy,
+  Component, OnInit, OnDestroy, AfterViewInit,
   Input, Output, EventEmitter,
   ViewChild, ElementRef
 } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, FormBuilder } from '@angular/forms';
+import { Router, NavigationStart, NavigationEnd } from '@angular/router';
 
-import { fromEvent } from 'rxjs';
-import { take, delay, debounceTime } from 'rxjs/operators';
+import { Subscription, fromEvent, interval, timer } from 'rxjs';
+import { takeUntil, delay, debounceTime } from 'rxjs/operators';
+
+import { isIOS } from 'tns-core-modules/platform';
 
 @Component({
   selector: 'CustomSearchbox',
   templateUrl: './custom-searchbox.component.html',
   styleUrls: ['./custom-searchbox.component.scss']
 })
-export class CustomSearchboxComponent implements OnInit, OnDestroy {
+export class CustomSearchboxComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @Input() debugBorder: boolean = false;
 
@@ -31,31 +34,31 @@ export class CustomSearchboxComponent implements OnInit, OnDestroy {
 
   keywords = new FormControl('');
 
+  // private rSubscription: Subscription;
+  private kSubscription: Subscription;
+
   constructor() {
     // TODO:
-    this.keywords.valueChanges.pipe(
+    this.kSubscription = this.keywords.valueChanges.pipe(
       debounceTime(3000)
     ).subscribe((val) => {
-      // console.log(val);
       this.onSearch.emit({ search: val });
     });
   }
 
   ngOnInit() {
-    //
-    if (this.focusAtInit) {
-      this.sInput.nativeElement.focus();
-    }
+  }
 
-    // fromEvent(this.sInput.nativeElement, 'loaded').pipe(
-    //   take(1), delay(1)
-    // ).subscribe(_ => {
-    //   this.sInput.nativeElement.focus();
-    // });
+  ngAfterViewInit() {
+    if (this.focusAtInit) {
+      timer(isIOS ? 200 : 100, 100).pipe(
+        takeUntil(fromEvent(this.sInput.nativeElement, 'focus'))
+      ).subscribe(_ => this.sInput.nativeElement.focus())
+    }
   }
 
   ngOnDestroy() {
-    //
+    this.kSubscription.unsubscribe();
   }
 
   onTapFollowAction() {

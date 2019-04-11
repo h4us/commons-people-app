@@ -59,14 +59,18 @@
         [formControlName]="field"
         (returnPress)="onValidate()"></TextField>
 
-      <!-- // -->
-      <TextField *ngIf="field == 'password'"
-        #activeInputConfirm
+      <GridLayout *ngIf="field == 'password'"
+        columns="*" rows="{{ isIOS ? 48 : 60 }}" style="margin-bottom:10; margin-top:10; padding:0;"
         class="input"
-        [class.error]="firstErrorInConfirm"
-        hint="{{ title }}を再入力"
-        formControlName="{{ field }}Confirm"
-        (returnPress)="onValidate()"></TextField>
+        [class.error]="firstErrorInConfirm">
+        <TextField #activeInputConfirm
+          col="0"
+          class="input" style="margin-bottom: 0;"
+          [secure]="isSecure"
+          [class.error]="firstErrorInConfirm"
+          hint="{{ title }}を再入力"
+          formControlName="{{ field }}Confirm"></TextField>
+      </GridLayout>
 
       <TextField *ngIf="field == 'emailAddress'"
         #activeInputConfirm

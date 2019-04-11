@@ -31,12 +31,13 @@ export class MessageProxyService {
   }
 
   fetchThreads(targetCommunity?: number) {
-    // TODO:
     let source: Observable<any>;
     if (targetCommunity) {
+      // TODO:
       source = this.userService.getMessageThreads().pipe(
         map((el: any) => {
-          return el.filter((iel) => (iel.communityId == targetCommunity) || (typeof iel.ad == 'undefined' && !iel.group))
+          return el.filter((iel) => iel.communityId == targetCommunity)
+          // return el.filter((iel) => (iel.communityId == targetCommunity) || (typeof iel.ad == 'undefined' && !iel.group))
         })
       );
     } else {
@@ -48,18 +49,19 @@ export class MessageProxyService {
         this._activeThreads = data;
         this.threadsSource.next(data);
       },
-      (err) => console.error(err),
-      () => { console.log('get threads'); }
+      (err) => console.error(err)
     );
   }
 
   searchThreads(input: any, targetCommunity?: number) {
-    // TODO:
     let source: Observable<any>;
+
     if (targetCommunity) {
+      // TODO:
       source = this.userService.getMessageThreads(input).pipe(
         map((el: any) => {
-          return el.filter((iel) => (iel.communityId == targetCommunity) || (typeof iel.ad == 'undefined' && !iel.group))
+          return el.filter((iel) => iel.communityId == targetCommunity)
+          // return el.filter((iel) => (iel.communityId == targetCommunity) || (typeof iel.ad == 'undefined' && !iel.group))
         })
       );
     } else {
@@ -72,7 +74,6 @@ export class MessageProxyService {
         this.threadsSource.next(data);
       },
       (err) => console.error(err),
-      () => { console.log('get threads'); }
     );
   }
 
@@ -85,8 +86,7 @@ export class MessageProxyService {
           this._incommingMessage = data;
           this.messagesSource.next(data);
         },
-        (err) => console.error(err),
-        () => { console.log('get messages,', dest); }
+        (err) => console.error(err)
       );
     }
   }
@@ -98,9 +98,6 @@ export class MessageProxyService {
         console.log('send', data);
       },
       (err) => console.error(err),
-      () => {
-        this.fetchMessages();
-      }
     );
   }
 }

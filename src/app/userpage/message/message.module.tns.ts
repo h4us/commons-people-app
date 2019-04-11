@@ -19,13 +19,14 @@ import { ThreadEditorComponent } from './thread-editor/thread-editor.component';
 import { MessageEditorComponent } from './message-editor/message-editor.component';
 import { MessageDetailComponent } from './message-detail/message-detail.component';
 import { MessageDetailSettingsComponent } from './message-detail/message-detail-settings.component';
+import { MessageDetailSettingsFieldComponent } from './message-detail/message-detail-settings-field.component';
 import { MessageSearchComponent } from './message-search/message-search.component';
 
 @NgModule({
   declarations: [
     MessageRootComponent,
     ThreadEditorComponent, MessageEditorComponent,
-    MessageDetailComponent, MessageDetailSettingsComponent,
+    MessageDetailComponent, MessageDetailSettingsComponent, MessageDetailSettingsFieldComponent,
     MessageSearchComponent
   ],
   imports: [

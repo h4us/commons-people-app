@@ -17,6 +17,7 @@
         <HtmlView *ngIf="field == 'password'"
           class="bg-clear"
           html="<p style='text-align:center; font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular;'>パスワードを設定してください。<br>8文字以上、半角英数と記号（_）が使用できます。</p>"></HtmlView>
+
         <!-- // -->
         <GridLayout *ngIf="field == 'password'"
           columns="*,48" rows="{{ isIOS ? 48 : 60 }}" style="padding:0;"
@@ -34,6 +35,7 @@
             text="{{ isSecure ? '&#xe95c;' : '&#xe95d;' }}"
             (tap)="togglePassword()"></Label>
         </GridLayout>
+
         <!-- // -->
         <TextField *ngIf="field != 'password'"
           #activeInput
@@ -42,6 +44,7 @@
           [class.error]="firstError"
           [hint]="title"
           [formControlName]="field"></TextField>
+
         <!-- // -->
         <GridLayout *ngIf="field == 'password' && needConfirmInput"
           columns="*" rows="{{ isIOS ? 48 : 60 }}" style="padding:0;"
@@ -56,6 +59,7 @@
             formControlName="{{ field }}Confirm"
             (returnPress)="onValidate()"></TextField>
         </GridLayout>
+
         <!-- // -->
         <TextField *ngIf="field != 'password' && needConfirmInput"
           #activeInputConfirm

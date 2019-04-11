@@ -22,6 +22,16 @@ export class ProfileEtcComponent implements OnInit {
   field: string;
   resourceHtml: string;
 
+  labelsForPage = {
+    agreement: {
+      title: '利用規約',
+    },
+
+    deleteAcount: {
+      title: 'アカウントの削除',
+    },
+  };
+
   constructor(
     private page: Page,
     private routerExt: RouterExtensions,
@@ -39,7 +49,7 @@ export class ProfileEtcComponent implements OnInit {
         //
         const fld: string = <string>params.field;
         if (fld) {
-          this.title = fld;
+          this.title = this.labelsForPage[fld].title;
           this.field = fld;
 
           const _assets = fs.knownFolders.currentApp().getFolder('assets');
@@ -57,7 +67,7 @@ ${content}
   }
 
   gotoChild(child: string) {
-    console.log('child', child);
+
     this.routerExt.navigate([{
       outlets: {
         userpage: ['profile', 'etc', child]

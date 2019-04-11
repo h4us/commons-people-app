@@ -24,10 +24,17 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private _navActive: string;
   private rSubscription: Subscription;
-  private tSubscription: Subscription;
+  private tShowHideSubscription: Subscription;
+  private tUnreadSubscription: Subscription;
 
   navMode: string = 'default';
   iPoint: number = 0;
+  whichIndicate = {
+    point: false,
+    community: false,
+    message: false,
+    profile: false
+  }
 
   @ViewChild('navPoint') npRef: ElementRef;
   npEl: AbsoluteLayout;
@@ -68,8 +75,13 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    this.tSubscription = this.trayService.navShowHide$.subscribe((flag: boolean) => {
+    this.tShowHideSubscription = this.trayService.navShowHide$.subscribe((flag: boolean) => {
       this.navMode = flag ? 'default' : 'dm';
+    });
+
+    this.tUnreadSubscription = this.trayService.unreadMessages$.subscribe((res :any) => {
+      // TODO:
+      this.whichIndicate.point = res.count > 0;
     });
   }
 
@@ -112,7 +124,8 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy() {
     this.rSubscription.unsubscribe();
-    this.tSubscription.unsubscribe();
+    this.tShowHideSubscription.unsubscribe();
+    this.tUnreadSubscription.unsubscribe();
   }
 
   get navActive(): string {
@@ -121,7 +134,7 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
 
   indicated(key: string): string {
     // TODO: dummy
-    return (key == 'point') ? 'visible' : 'collapsed';
+    return this.whichIndicate[key] ? 'visible' : 'collapsed';
   }
 
   gotoPoints() {

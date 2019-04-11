@@ -3,18 +3,26 @@
     <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="&#xe92b;"
       (onAprove)="onConfirm()"></CustomActionBar>
   </StackLayout>
-  <GridLayout columns="240*,100*" rows="*" class="p-15 bg-theme-secondary">
+
+  <GridLayout columns="*,125" rows="*" class="p-x-15 bg-theme-secondary">
+
     <StackLayout col="0" class="form"
       [formGroup]="pForm">
       <TextField #forceNumKey
         formControlName="amount" keyboardType="number" class="input"></TextField>
     </StackLayout>
-    <RadDataForm row="0" col="1"  class="bg-clear"
-      [source]="sendData"
-      (propertyCommitted)="onCommitted($event)">
-      <TKEntityProperty tkDataFormProperty name="tokens" displayName="" index="0" [valuesProvider]="tokens">
-        <TKPropertyEditor tkEntityPropertyEditor type="Picker"></TKPropertyEditor>
-      </TKEntityProperty>
-    </RadDataForm>
+
+    <FlexboxLayout col="1"
+      flexDirectoin="column">
+      <RadDataForm class="bg-clear"
+        [source]="sendData"
+        (propertyCommitted)="onCommitted($event)">
+        <TKEntityProperty tkDataFormProperty name="tokens" displayName="" index="0" [valuesProvider]="tokens">
+          <TKPropertyEditor tkEntityPropertyEditor type="Picker"></TKPropertyEditor>
+        </TKEntityProperty>
+      </RadDataForm>
+    </FlexboxLayout>
+
   </GridLayout>
+
 </DockLayout>

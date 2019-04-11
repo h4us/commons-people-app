@@ -88,12 +88,25 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
         });
       } else if (data === 'thread-edit'){
         this.modalService.showModal(ThreadEditorComponent, options);
-      } else if (data === 'thread-new'){
+      }  else if (data === 'thread-new'){
         this.modalService.showModal(MessageEditorComponent, options).then((data: any) => {
           // TODO:
           if (data && data.willCreate) {
             setTimeout(() => {
               mProxy.switchBack('thread-new', data.willCreate);
+            }, 200);
+          }
+          // --
+        });
+      } else if (data === 'thread-add-member' || (data instanceof Array && data.length > 0 && data[0] === 'thread-add-member' )) {
+        if (data instanceof Array && data.length > 1) {
+          options.context = data[1];
+        }
+        this.modalService.showModal(MessageEditorComponent, options).then((data: any) => {
+          // TODO:
+          if (data && data.willAdd) {
+            setTimeout(() => {
+              mProxy.switchBack('thread-add-member', data.willAdd);
             }, 200);
           }
           // --

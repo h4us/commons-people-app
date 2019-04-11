@@ -247,7 +247,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       });
     } else {
       //
-      console.log('validation error')
+
     }
   }
 

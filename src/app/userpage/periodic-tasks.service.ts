@@ -6,39 +6,44 @@ import { distinct, switchMap, map, mergeAll, filter, tap } from 'rxjs/operators'
 import { UserpageModule } from './userpage.module';
 
 import { UserService } from '../user.service';
+import { SystemTrayService } from '../system-tray.service';
 
 @Injectable({
   providedIn: UserpageModule
 })
 export class PeriodicTasksService {
   ticker: Observable<any>;
+
   tSubs: Subscription;
+  tickerSubs: Subscription;
 
   constructor(
-    private userServie: UserService
+    private userServie: UserService,
+    private trayService: SystemTrayService,
   ) {
-    this.ticker = interval(20 * 1000).pipe(
+    this.ticker = interval(10 * 1000).pipe(
       switchMap((n:number) => this.userServie.getUnreadMessages()),
       tap(() => {
         //
-        console.log('periodic service says:', new Date())
+
         //
-      }),
-      map((res: any) => console.log('unread count ?', res))
+      })
     );
 
     this.start();
   }
 
   start() {
-    if (!this.tSubs || this.tSubs.closed) {
-      this.tSubs = this.ticker.subscribe();
+    if (!this.tickerSubs || this.tickerSubs.closed) {
+      this.tickerSubs = this.ticker.subscribe((res: any) => {
+        this.trayService.unreadCount(res);
+      });
     }
   }
 
   stop() {
-    if (this.tSubs) {
-      this.tSubs.unsubscribe();
+    if (this.tickerSubs) {
+      this.tickerSubs.unsubscribe();
     }
   }
 }

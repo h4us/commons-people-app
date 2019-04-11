@@ -58,7 +58,6 @@ export class PointRootComponent implements OnInit {
   gotoCommunity() {
     this.router.navigate(['../community'], {
       relativeTo: this.aRoute,
-      // transition: { name: 'fade', duration: 150 },
     });
   }
 

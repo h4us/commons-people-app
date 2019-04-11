@@ -10,6 +10,8 @@ import { Page } from 'tns-core-modules/ui/page';
 import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
 import { DockLayout } from 'tns-core-modules/ui/layouts/dock-layout';
 
+import { ModalDialogParams } from 'nativescript-angular/modal-dialog';
+
 import { UserService } from '../../../user.service';
 
 @Component({
@@ -22,8 +24,11 @@ export class MessageEditorComponent implements OnInit {
 
   selected: number[] = [];
   currentList: any[] = [];
+  ignore: number[] = [];
+  inCommunity: number = -1;
 
   isSearchMode: boolean = false;
+  editorContext: string = 'new';
 
   constructor(
     private page: Page,
@@ -31,12 +36,23 @@ export class MessageEditorComponent implements OnInit {
     private aRoute: ActivatedRoute,
     private routerExt: RouterExtensions,
     private userService: UserService,
+    private dParams: ModalDialogParams,
   ) {
     page.actionBarHidden = true;
+
+    if (dParams.context && dParams.context.ignore) {
+      this.ignore = dParams.context.ignore.map((el) => el.id);
+    }
+    if (dParams.context && dParams.context.inCommunity) {
+      this.inCommunity = dParams.context.inCommunity;
+    }
+    if (dParams.context && dParams.context.editorContext) {
+      this.editorContext = dParams.context.editorContext;
+    }
   }
 
   ngOnInit() {
-    this.userService.searchUsers(this.userService.currentCommunityId)
+    this.userService.searchUsers(this.inCommunity > -1 ?  this.inCommunity : this.userService.currentCommunityId)
       .subscribe((data: any) => {
         this.currentList = data;
       });
@@ -56,28 +72,32 @@ export class MessageEditorComponent implements OnInit {
   }
 
   ok(layout: AbsoluteLayout | DockLayout) {
-    if (this.selected.length === 1) {
-      this.userService.tapDirectMessageThread(this.selected[0]).subscribe((data: any) => {
-        layout.closeModal({
-          willCreate: data.id
+    if (this.editorContext == 'new') {
+      if (this.selected.length === 1) {
+        this.userService.tapDirectMessageThread(this.selected[0]).subscribe((data: any) => {
+          layout.closeModal({
+            willCreate: data.id
+          });
         });
-      });
-    } else if (this.selected.length > 1) {
-      //
-      let names: any[] = this.selected.map((id: number) => this.currentList.find((el: any) => el.id == id));
-      names.push(this.userService.getCurrentUser());
-      names = names.map((el: any) => el.username);
+      } else if (this.selected.length > 1) {
+        //
+        let names: any[] = this.selected.map((id: number) => this.currentList.find((el: any) => el.id == id));
+        names.push(this.userService.getCurrentUser());
+        names = names.map((el: any) => el.username);
 
-      //
-      this.userService.createGroupMessageThread({
-        title: names.join(),
-        communityId: this.userService.currentCommunityId,
-        memberIds: this.selected
-      }).subscribe((data: any) => {
-        layout.closeModal({
-          willCreate: data.id
+        //
+        this.userService.createGroupMessageThread({
+          title: names.join(),
+          communityId: (this.inCommunity > -1 ?  this.inCommunity : this.userService.currentCommunityId),
+          memberIds: this.selected
+        }).subscribe((data: any) => {
+          layout.closeModal({
+            willCreate: data.id
+          });
         });
-      });
+      }
+    } else {
+      layout.closeModal({ willAdd: this.selected });
     }
   }
 
@@ -86,10 +106,9 @@ export class MessageEditorComponent implements OnInit {
   }
 
   searchAction(e: any) {
-    this.userService.searchUsers(this.userService.currentCommunityId, e.search)
+    this.userService.searchUsers(this.inCommunity > -1 ?  this.inCommunity : this.userService.currentCommunityId, e.search)
       .subscribe((data: any) => {
         this.currentList = data;
       });
-    // console.log(e);
   }
 }

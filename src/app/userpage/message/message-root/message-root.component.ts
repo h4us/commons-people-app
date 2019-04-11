@@ -60,7 +60,6 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
       (data) => { this.currentList = data; }
     );
     this.messageService.fetchThreads(this.currentCommunityId);
-    // this.messageService.fetchThreads();
 
     //
     this.mdlSubscription = this.mProxy.switchBack$.subscribe((data) => {
@@ -97,17 +96,13 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
     this.mdlSubscription.unsubscribe();
   }
 
-  onItemTap(args: ListViewEventData) {
-    const tItem = args.view.bindingContext;
-
+  onItemTap(tItem: any) {
     this.routerExt.navigate(['../message/log', tItem.id], {
       relativeTo: this.aRoute
     });
   }
 
   onNavItemTap(args: any) {
-    // onNavItemTap(args: ListViewEventData) {
-    // const tItem = args.view.bindingContext;
     const tItem = args;
 
     this.currentCommunityId = tItem.id;
@@ -123,5 +118,4 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
       relativeTo: this.aRoute
     });
   }
-
 }

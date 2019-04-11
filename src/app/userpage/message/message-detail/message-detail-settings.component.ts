@@ -40,7 +40,9 @@ export class MessageDetailSettingsComponent implements OnInit, OnDestroy {
 
   user: User;
   gForm: FormGroup;
+
   tSubs: Subscription;
+  mSubs: Subscription;
 
   docPath: any;
   session: any;
@@ -65,25 +67,43 @@ export class MessageDetailSettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // TODO:
     this.pageRoute.activatedRoute
       .pipe(switchMap((aRoute) => aRoute.params))
       .forEach((params) => {
         const desireId: number = <number>params.id;
+
+        //! direct message
         this.title = `ダイレクトメッセージ: ${desireId}`;
 
-        // TODO:
+        //! group message | TODO:
         if (this.messageService.activeThreads) {
           const _thread = this.messageService.activeThreads.filter((el) => el.id == desireId);
           if (_thread.length > 0) {
             this.threadObj = _thread[0];
             this.title = this.threadObj.title;
+
+            this.gForm.patchValue({
+              title: this.threadObj.title,
+              memberIds: this.threadObj.parties.map((el: any) => el.id)
+            });
           }
+
+          this.mSubs = this.messageService.activeThreads$.subscribe(() => {
+            const _thread = this.messageService.activeThreads.filter((el) => el.id == desireId);
+            if (_thread.length > 0) {
+              this.threadObj = _thread[0];
+              this.title = this.threadObj.title;
+
+              this.gForm.patchValue({
+                title: this.threadObj.title,
+                memberIds: this.threadObj.parties.map((el: any) => el.id)
+              });
+            }
+          });
         }
 
-        this.messageService.fetchMessages(desireId);
+        // this.messageService.fetchMessages(desireId);
       });
-    // --
 
     this.imagePickerContext = imagepicker.create({ mode: 'single' });
     this.session = bgHttp.session('image-upload');
@@ -93,58 +113,53 @@ export class MessageDetailSettingsComponent implements OnInit, OnDestroy {
     this.docPath = fs.path.normalize(`${fs.knownFolders.documents().path}`);
 
     this.tSubs = this.trayService.notifyToUser$.subscribe((data: any) => {
-      // if (data && data.length > 1 && data[0] == 'snackbar/') {
-      //   if (data[1] == 'approveOrNext') {
+      if (data && data.length > 1 && data[0] == 'snackbar/') {
+        if (data[1] == 'approveOrNext') {
+          this.trayService.unLockUserpageArea();
+          this.userService.unsubscribeGroupMessageThread(this.threadObj.id).subscribe(_ => {
+            this.routerExt.navigate([{
+              outlets: { userpage: [ 'message'] }
+            }], {
+              relativeTo: this.aRoute.parent
+            });
+          });
+        }
 
-      //     this.trayService.lockUserpageArea();
-
-      //     this.userService.logout().subscribe(
-      //       () => {},
-      //       (err) => {
-      //         console.error(err, '..force logout');
-      //         this.routerExt.navigate([''], {
-      //           clearHistory: true
-      //         });
-      //       },
-      //       () => {
-      //         setTimeout(() => {
-      //           this.trayService.request('snackbar/', 'close', { waitFor: 'logout' });
-      //         }, 1500);
-      //       }
-      //     );
-      //   }
-
-      //   if (data[1] == 'disposeAnimationDone' && data.length > 2) {
-      //     if (data[2].waitFor && data[2].waitFor == 'logout') {
-      //       this.routerExt.navigate([''], {
-      //         clearHistory: true
-      //       })
-      //     }
-      //   }
-      // }
+        if (data[1] == 'cancelOrBack') {
+          //
+          this.trayService.unLockUserpageArea();
+        }
+      }
     });
   }
 
   ngOnDestroy() {
+    this.mSubs.unsubscribe();
     this.tSubs.unsubscribe();
   }
 
   toEdit(field:string) {
-    // this.routerExt.navigate([`../profile/edit`, field], {
-    //   relativeTo: this.aRoute
-    // });
+    this.routerExt.navigate([{
+      outlets: { userpage: [ 'message', 'settings', this.threadObj.id, field] }
+    }], {
+      relativeTo: this.aRoute.parent
+    });
   }
 
   getCurrent(key): any {
     const c: any = this.gForm.get(key);
     let ret = c ? c.value : '';
 
+    if (key == 'memberIds') {
+      ret = this.threadObj.parties.map((el: any) => el.username).join(', ');
+    }
+
     return ret;
   }
 
-  getAvatar() {
+  getThreadImage() {
     // TODO:
-    return this.selectedPhoto || (this.user.avatarUrl  || '~/assets/placeholder__group@2x.png');
+    return this.selectedPhoto || (this.threadObj.photoUrl  || '~/assets/placeholder__group@2x.png');
   }
 
   photoDialog() {
@@ -173,13 +188,13 @@ export class MessageDetailSettingsComponent implements OnInit, OnDestroy {
                   .then((args: any) => {
                     if(args.image !== null){
                       const croppedImage: ImageSource = args.image;
-                      const pngfile: string = `${this.docPath}/face-${Date.now()}.png`;
+                      const pngfile: string = `${this.docPath}/group-icon-${Date.now()}.png`;
                       const success: boolean = croppedImage.saveToFile(pngfile, 'png');
                       // 2.
                       this.selectedPhoto = pngfile;
                       //
                       const request = {
-                        url: `${this.userService.endpoint}/users/${this.user.id}/avatar`,
+                        url: `${this.userService.endpoint}/message-threads/${this.threadObj.id}/photo`,
                         method: 'POST',
                         headers: {
                           'Content-Type': 'multipart/form-data',
@@ -238,13 +253,13 @@ export class MessageDetailSettingsComponent implements OnInit, OnDestroy {
                       .then((args: any) => {
                         if(args.image !== null){
                           const croppedImage: ImageSource = args.image;
-                          const pngfile: string = `${this.docPath}/face.png`;
+                          const pngfile: string = `${this.docPath}/group-icon-${Date.now()}.png`;
                           const success: boolean = croppedImage.saveToFile(pngfile, 'png');
                           // 2.
                           this.selectedPhoto = pngfile;
                           //
                           const request = {
-                            url: `${this.userService.endpoint}/users/${this.user.id}/avatar`,
+                            url: `${this.userService.endpoint}/message-threads/${this.threadObj.id}/photo`,
                             method: 'POST',
                             headers: {
                               'Content-Type': 'multipart/form-data',
@@ -311,13 +326,13 @@ export class MessageDetailSettingsComponent implements OnInit, OnDestroy {
             .then((args: any) => {
               if(args.image !== null){
                 const croppedImage: ImageSource = args.image;
-                const pngfile: string = `${this.docPath}/face-${Date.now()}.png`;
+                const pngfile: string = `${this.docPath}/group-icon-${Date.now()}.png`;
                 const success: boolean = croppedImage.saveToFile(pngfile, 'png');
 
                 this.selectedPhoto = pngfile;
 
                 const request = {
-                  url: `${this.userService.endpoint}/users/${this.user.id}/avatar`,
+                  url: `${this.userService.endpoint}/message-threads/${this.threadObj.id}/photo`,
                   method: 'POST',
                   headers: {
                     'Content-Type': 'multipart/form-data',
@@ -354,20 +369,16 @@ export class MessageDetailSettingsComponent implements OnInit, OnDestroy {
   }
 
   unsubscribeGroupMessage () {
-    // this.trayService.request('snackbar/', 'open', {
-    //   approveMessage: 'サインアウトしますか？',
-    //   doneMessage: 'サインアウトしています...',
-    //   canUserDisposable: false
-    // });
+    this.trayService.lockUserpageArea();
+
+    this.trayService.request('snackbar/', 'open', {
+      approveMessage: 'グループから退会しますか？',
+      doneMessage: '退会しました',
+      // canUserDisposable: false
+    });
   }
 
   aproveAction() {
 
-  }
-
-  toChildPage() {
-    // this.routerExt.navigate([`../profile/etc`], {
-    //   relativeTo: this.aRoute
-    // });
   }
 }

@@ -117,7 +117,7 @@ export class UserService {
     );
   }
 
-  logout(): Observable<any> {
+  logout(completely: boolean = true): Observable<any> {
     // TODO:
     this._isLoggedIn = false;
     this._restoreble = false;
@@ -127,15 +127,22 @@ export class UserService {
       password: null
     };
 
-    return zip(
-      from(this._sStorage.removeAll()),
-      this.http.post(`${this.apiUrl}logout`, null)
-    );
+    let ret: Observable<any> = of(null);
+
+    if (completely) {
+      // console.log('hard logout');
+      ret = zip(
+        from(this._sStorage.removeAll()),
+        this.http.post(`${this.apiUrl}logout`, null)
+      );
+    } else {
+      // console.log('soft logout');
+    }
+
+    return ret;
   }
 
   createAccount(data): Observable<any> {
-    console.log(data);
-
     // return zip(
     //   from(this._sStorage.removeAll()),
     //   this.http.post(`${this.apiUrl}create-account`, data)
@@ -248,14 +255,14 @@ export class UserService {
           [
             `communityId=${t}`,
             `q=${c}`,
-            // `pagenation[page]=0&pagenation[size]=10&pagenation[sort]=ASC`
+            // `pagination[page]=0&pagenation[size]=10&pagenation[sort]=ASC`
           ].join('&')
         );
       }
 
       return from(hParams).pipe(
         concatMap((hp: any) => this.http.get(`${this.apiUrl}users?${hp}`)),
-        map((res: any) => res.userList),
+        map((res: any) => res.userList ? res.userList : res),
         concatAll(),
         distinct((el: any) => el.id),
         toArray()
@@ -264,11 +271,11 @@ export class UserService {
       const hParam: string = [
         `communityId=${t}`,
         `q=${q}`,
-        // `pagenation[page]=0&pagenation[size]=10&pagenation[sort]=ASC`
+        // `pagination[page]=0&pagenation[size]=10&pagenation[sort]=ASC`
       ].join('&');
 
       return this.http.get(`${this.apiUrl}users?${hParam}`).pipe(
-        map((res: any) => res.userList)
+        map((res: any) => res.userList ? res.userList : res)
       );
     }
   }
@@ -283,15 +290,35 @@ export class UserService {
       ret = this.http.post(`${this.apiUrl}users/${this.user.id}`, data);
     }
 
-    return ret;
+    return ret.pipe(
+      tap((data: unknown) => {
+        this.parseUser(<User>data)
+      })
+    );
   }
 
   updateUserEmailAddress(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}users/${this.user.id}/emailaddress`, data);
+    return this.http.post(`${this.apiUrl}users/${this.user.id}/emailaddress`, data).pipe(
+      tap((data: unknown) => {
+        this.parseUser(<User>data)
+      })
+    );
   }
 
   updateUserPassword(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}users/${this.user.id}/passwordreset`, data);
+    return this.http.post(`${this.apiUrl}users/${this.user.id}/passwordreset`, data).pipe(
+      tap((data: unknown) => {
+        this.parseUser(<User>data)
+      })
+    );
+  }
+
+  updateSelf(): Observable<any> {
+    return this.http.get(`${this.apiUrl}user`).pipe(
+      tap((data: unknown) => {
+        this.parseUser(<User>data)
+      })
+    );
   }
 
   /*
@@ -335,11 +362,11 @@ export class UserService {
 
     if (params.length > 0) {
       ret = this.http.get(`${this.apiUrl}communities?${params.join('&')}`).pipe(
-        map((res: any) => res.communityList)
+        map((res: any) => res.communityList ? res.communityList : res)
       );
     } else {
       ret = this.http.get(`${this.apiUrl}communities`).pipe(
-        map((res: any) => res.communityList)
+        map((res: any) => res.communityList ? res.communityList : res)
       );
     }
 
@@ -373,9 +400,14 @@ export class UserService {
       params.push(`filter=${query}`)
     }
 
+    // TODO:
+    params.push(`pagination[page]=0&pagination[size]=10&pagination[sort]=ASC`)
+
     if (params.length > 0) {
       ret = this.http.get(`${this.apiUrl}ads?${params.join('&')}`).pipe(
-        map((res: any) => res.adList)
+        map((res: any) => res.adList ? res.adList : res),
+        // TODO:
+        map((res: any) => res.sort((a, b) => (new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime()) ? -1 : 1))
       );
     }
 
@@ -401,6 +433,14 @@ export class UserService {
     return this.http.post(`${this.apiUrl}message-threads/group`, data);
   }
 
+  updateGroupMessageThread(id: number, data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}message-threads/${id}/group`, data);
+  }
+
+  unsubscribeGroupMessageThread(id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}message-threads/${id}/unsubscribe`, null);
+  }
+
   tapDirectMessageThread(id: number): Observable<any> {
     return this.http.post(`${this.apiUrl}message-threads/user/${id}`, { userId: id });
   }
@@ -424,11 +464,11 @@ export class UserService {
 
     if (params.length > 0) {
       ret = this.http.get(`${this.apiUrl}message-threads?${params.join('&')}`).pipe(
-        map((res: any) => res.messageThreadList)
+        map((res: any) => res.messageThreadList ? res.messageThreadList : res)
       );
     } else {
       ret = this.http.get(`${this.apiUrl}message-threads`).pipe(
-        map((res: any) => res.messageThreadList)
+        map((res: any) => res.messageThreadList ? res.messageThreadList : res)
       );
     }
 
@@ -437,7 +477,7 @@ export class UserService {
 
   getMessages(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}message-threads/${id}/messages`).pipe(
-      map((res: any) => res.messageList)
+      map((res: any) => res.messageList ? res.messageList : res)
     );
   }
 

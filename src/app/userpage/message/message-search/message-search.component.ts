@@ -83,7 +83,7 @@ export class MessageSearchComponent implements OnInit, OnDestroy, AfterViewInit 
 
   onNavItemTap(args: any) {
     this.filterBy = <string>args;
-    console.log('switched', this.filterBy);
+
   }
 
   cancelAction() {

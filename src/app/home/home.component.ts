@@ -56,7 +56,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       if (event instanceof NavigationEnd) {
         if (this.router.url == '/') {
           this.rvService.resetData();
-          // this.siService.resetData();
         }
       }
     });

@@ -7,9 +7,11 @@
         <CustomSearchbox
           placeholder="メッセージを検索"
           followContent="キャンセル"
+          focusAtInit="true"
           (onSearch)="searchAction($event)"
           (onTapFollowContent)="cancelAction()"></CustomSearchbox>
       </StackLayout>
+
       <!-- // -->
       <StackLayout orientation="horizontal" width="100%" height="58" class="bg-white p-x-15">
         <ScrollView orientation="horizontal">
@@ -47,9 +49,6 @@
           </CardView>
         </StackLayout>
       </ng-template>
-      <!-- // header -->
-      <!-- <ng-template tkListViewHeader>
-           </ng-template> -->
     </RadListView>
   </GridLayout>
 </AbsoluteLayout>

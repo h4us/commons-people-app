@@ -1,10 +1,9 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-
 import { FormControl, FormGroup } from '@angular/forms';
 
-import { Subscription, interval } from 'rxjs';
-import { skipWhile, switchMap, debounceTime, filter, tap, delay } from 'rxjs/operators';
+import { Observable, Subscription, interval, timer } from 'rxjs';
+import { distinct, bufferToggle, buffer, skipWhile, switchMap, debounceTime, filter, tap, delay, concatAll, toArray } from 'rxjs/operators';
 
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
@@ -34,7 +33,7 @@ import { MessageProxyService } from '../../message-proxy.service';
 export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   title: string = '';
   user: User;
-  messageLog: any[];
+  messageLog: any[] = [];
   threadObj: any;
 
   limH: number = 70;
@@ -45,6 +44,7 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   sendText = new FormControl('');
 
   mSubscription: Subscription;
+  fSubscription: Subscription;
   tCSubs: Subscription;
 
   @ViewChild('sendTray') sTrayRef: ElementRef;
@@ -68,14 +68,31 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     this.user = this.userService.getCurrentUser();
     this.mSubscription = this.messageService.incommingMessage$.subscribe(
       (data) => {
-        this.messageLog = data;
-        if (this.messageLog.length > 0) {
-          setTimeout(() => {
-            // TODO: scroll behavior
-            const sc: number = this.mContentRef.nativeElement.scrollableHeight;
-            this.mContentRef.nativeElement.scrollToVerticalOffset(sc, this.firstFetchFlag);
-            this.firstFetchFlag = true;
-          }, 40);
+        // TODO:
+        // - scroll behavior
+        // - performance
+        if (this.messageLog.length == 0) {
+          this.messageLog = data;
+
+          if (this.messageLog.length > 0) {
+            setTimeout(() => {
+              const sc: number = this.mContentRef.nativeElement.scrollableHeight;
+              this.mContentRef.nativeElement.scrollToVerticalOffset(sc, this.firstFetchFlag);
+              this.firstFetchFlag = true;
+            }, 40);
+          }
+        } else {
+          if (data.length > this.messageLog.length) {
+            const nmsg = data.slice(this.messageLog.length).filter((el) => {
+              return this.messageLog.findIndex((iel) => el.id == iel.id) < 0
+            });
+            this.messageLog = this.messageLog.concat(nmsg);
+            setTimeout(() => {
+              // TODO: scroll behavior
+              const sc: number = this.mContentRef.nativeElement.scrollableHeight;
+              this.mContentRef.nativeElement.scrollToVerticalOffset(sc, this.firstFetchFlag);
+            }, 40);
+          }
         }
       }
     );
@@ -96,11 +113,16 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
         }
 
         this.messageService.fetchMessages(desireId);
+
+        this.fSubscription = timer(3000, 2000).subscribe((data: any) => {
+          this.messageService.fetchMessages(desireId);
+        });
       });
   }
 
   ngOnDestroy() {
     this.mSubscription.unsubscribe();
+    this.fSubscription.unsubscribe();
     this.tCSubs.unsubscribe();
   }
 
