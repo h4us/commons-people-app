@@ -22,6 +22,8 @@ import { NewsService, News } from '../../news.service';
 
 import { SystemTrayService } from '../../../system-tray.service';
 
+import { environment } from '~/environments/environment';
+
 @Component({
   selector: 'app-community-root',
   templateUrl: './community-root.component.html',
@@ -31,11 +33,14 @@ import { SystemTrayService } from '../../../system-tray.service';
 export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit {
   //
   currentCommunity: any;
-  currentList: any[] = [];
   topics: any[];
-  profile: any[];
+  profile: any;
   currentTab: string = 'topics';
   isPreview: boolean = false;
+  currentPaging: any = {
+    topics: 0,
+    news: 10
+  }
 
   private _news: News[];
 
@@ -46,19 +51,18 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   @ViewChild('floatingButton') fbtnRef: ElementRef;
   @ViewChild('floatingToggle') ftglRef: ElementRef;
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
-  fbtnEl: Button;
-  ftgl: FlexboxLayout;
+  @ViewChild('scrollView') scRef: ElementRef;
   anchor: StackLayout;
+
+  isProd: boolean = environment.production;
 
   constructor(
     private routerExt: RouterExtensions,
     private aRoute: ActivatedRoute,
-    private pagRoute: PageRoute,
     private userService: UserService,
     private newsService: NewsService,
     private mProxy: ModalProxyService,
     private page: Page,
-    private vcRef: ViewContainerRef,
     private tService: SystemTrayService
   ) {
     page.actionBarHidden = true;
@@ -70,24 +74,35 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     from(this._sub).pipe(
       switchMap(_ => { return this.userService.getTopics() })
     ).subscribe((data: any) => {
-      const _data: any = data.map((el) => { el['tpl'] = 'topics'; return el; })
+      const _data: any = data.map((el) => { return el; })
       this.topics = _data;
-      this.currentList = _data;
+      this.profile = {
+        description: this.currentCommunity.description || ''
+      }
+      this.currentPaging = {
+        topics: 0,
+        news: 10
+      }
     });
 
     this.uSubscription = this.userService.updateRequest$.subscribe(_ => {
       // --
       this.currentCommunity = this.userService.getCommunity();
+      // this.newsService.clear();
+      // this.newsService.fetch(`?community_id=${this.userService.currentCommunityId}&per_page=10`);
       this._sub.next(true);
-      this.newsService.fetch(`?categories=${this.userService.currentCommunityId}`);
       // --
     });
 
     this.mSubscription = this.mProxy.switchBack$.subscribe((data: any) => {
       if (data == 'topic') {
-        console.log('after create reload!')
         this.currentCommunity = this.userService.getCommunity();
         this._sub.next(true);
+      }
+
+      if (data == 'switch-community') {
+        this.newsService.clear();
+        this.newsService.fetch(`?community_id=${this.currentCommunity.id}&per_page=10`);
       }
     });
 
@@ -95,28 +110,29 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     if (this.aRoute.snapshot.url.filter((el) => el.path == 'preview').length > 0) {
       this.isPreview = true;
       this.userService.searchCommunities(encodeURI(this.aRoute.snapshot.params.name)).subscribe((data: any) => {
-        // TODO:
+        // TODO..:
         this.currentCommunity = data[0];
-        this.currentList = [
-          {
-            tpl: 'profile',
-            description: this.currentCommunity.description
-          }
-        ];
+        this.profile = {
+          description: this.currentCommunity.description || ''
+        }
         this.currentTab = 'profile';
-        this.newsService.fetch(`?categories=${this.currentCommunity.id}`);
+        this.newsService.clear();
+        this.currentPaging = {
+          topics: 0,
+          news: 10
+        }
+        this.newsService.fetch(`?community_id=${this.currentCommunity.id}&per_page=10`);
         // --
       });
     } else {
       this.currentCommunity = this.userService.getCommunity();
+      this.newsService.clear();
+      this.newsService.fetch(`?community_id=${this.userService.currentCommunityId}&per_page=10`);
       this._sub.next(true);
-      this.newsService.fetch();
     }
 
     this.fbtnRef.nativeElement.opacity = 0;
     this.ftglRef.nativeElement.opacity = 0;
-    this.fbtnEl = <Button>this.fbtnRef.nativeElement;
-    this.ftgl = <FlexboxLayout>this.ftglRef.nativeElement;
     this.anchor = <StackLayout>this.anchorRef.nativeElement;
   }
 
@@ -131,8 +147,8 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     ).subscribe(_ => {
       const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
       const aW = this.anchor.getMeasuredWidth() / screen.mainScreen.scale;
-      const eW = this.fbtnEl.getMeasuredWidth() / screen.mainScreen.scale;
-      const eH = this.fbtnEl.getMeasuredHeight() / screen.mainScreen.scale;
+      const eW = this.fbtnRef.nativeElement.getMeasuredWidth() / screen.mainScreen.scale;
+      const eH = this.fbtnRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
 
       AbsoluteLayout.setLeft(this.fbtnRef.nativeElement, aW - eW - (eW * 0.33));
       AbsoluteLayout.setTop(this.fbtnRef.nativeElement, aH - eH - (eH * 0.33));
@@ -143,7 +159,7 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
       take(1), delay(1)
     ).subscribe(_ => {
       const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
-      const tH = this.ftgl.getMeasuredHeight() / screen.mainScreen.scale;
+      const tH = this.ftglRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
 
       AbsoluteLayout.setTop(this.ftglRef.nativeElement, aH - tH);
       this.ftglRef.nativeElement.opacity = 1;
@@ -155,15 +171,13 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     return this._news;
   }
 
-  onItemTap(args: ListViewEventData) {
-    const tItem = args.view.bindingContext;
-
+  onItemTap(tItem: any) {
     if (this.currentTab === 'topics') {
       this.routerExt.navigate(['../community/topic', tItem.id], {
         relativeTo: this.aRoute
       });
     } else if (this.currentTab === 'news' && !this.isPreview) {
-      this.routerExt.navigate(['../community/news', tItem.id], {
+      this.routerExt.navigate(['../community/news', tItem.ID], {
         relativeTo: this.aRoute
       });
     }
@@ -173,26 +187,27 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     this.currentTab = args;
 
     if (args === 'topics') {
-      this.currentList = this.topics;
-      AbsoluteLayout.setLeft(this.fbtnEl, layout.toDeviceIndependentPixels(screen.mainScreen.widthPixels - (screen.mainScreen.scale * (20 + 60))));
+      this.userService.updateTopicsLastViewTime(this.currentCommunity.id).subscribe(_ => {
+        this.userService.updateSelf().subscribe();
+      });
+      AbsoluteLayout.setLeft(
+        this.fbtnRef.nativeElement,
+        layout.toDeviceIndependentPixels(screen.mainScreen.widthPixels - (screen.mainScreen.scale * (20 + 60)))
+      );
     } else if (args === 'news') {
-      this._news = this.newsService.items;
-      this.currentList = this._news;
-      AbsoluteLayout.setLeft(this.fbtnEl, -300);
+      this.userService.updateNewsLastViewTime(this.currentCommunity.id).subscribe(_ => {
+        this.userService.updateSelf().subscribe();
+      });
+      AbsoluteLayout.setLeft(this.fbtnRef.nativeElement, -300);
     } else {
-      this.currentList = [
-        {
-          tpl: 'profile',
-          description: this.currentCommunity.description
-        }
-      ];
-      AbsoluteLayout.setLeft(this.fbtnEl, -300);
+      AbsoluteLayout.setLeft(this.fbtnRef.nativeElement, -300);
     }
   }
 
   searchAction() {
     this.routerExt.navigate(['./topics/search'], {
-      relativeTo: this.aRoute
+      relativeTo: this.aRoute,
+      transition: { name: 'fade', duration: 150 },
     });
   }
 
@@ -204,10 +219,25 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     this.mProxy.request('switch-community');
   }
 
-  templateSelector(item: any, index: number, items: any) {
-    return item.tpl;
+  onMoreReadTap() {
+    if (this.currentTab === 'topics') {
+      this.currentPaging.topics += 1;
+    } else if (this.currentTab === 'news') {
+      this.newsService.fetch(`?community_id=${this.userService.currentCommunityId}&per_page=10&offset=${this.currentPaging.news}`, false).subscribe(_ => {
+        this.currentPaging.news += 10;
+        setTimeout(() => {
+          const sc: number = this.scRef.nativeElement.scrollableHeight;
+          this.scRef.nativeElement.scrollToVerticalOffset(sc, true);
+        }, 200);
+      });
+    }
   }
 
+  // templateSelector(item: any, index: number, items: any) {
+  //   return item.tpl;
+  // }
+
+  // --
   toDraft() {
     const inDraft: number = this.userService.draftCommunityIds.indexOf(this.currentCommunity.id);
     if (inDraft < 0) {
@@ -224,12 +254,5 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   get inDraft(): boolean {
     return (this.currentCommunity && (this.userService.draftCommunityIds.indexOf(this.currentCommunity.id) > -1));
   }
-
-  styled(text: string) {
-    // TODO:
-    const content = (text + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
-    return `<div style="font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular; margin:0; line-height:1.2; font-size:14;">
-${content}
-</div>`;
-  }
+  // --
 }

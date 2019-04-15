@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
+
+import { Observable } from 'rxjs';
+import { switchMap, map, tap } from 'rxjs/operators';
 
 import { UserpageModule } from './userpage.module';
-// import { CommunityModule } from './community.module';
 
 import { HttpClient } from '@angular/common/http';
+
+import { environment } from '~/environments/environment';
 
 export class News {
   /*
@@ -34,53 +37,56 @@ export class News {
   categories: number[];
   tags: number[];
 
-  /*
-   * extra params;
-   */
-  tpl: string = 'news';
-
   constructor() {
-    //
     //
   }
 };
 
 @Injectable({
   providedIn: UserpageModule
-  // providedIn: CommunityModule
 })
 export class NewsService {
   //
-  private blogUrl: string = 'http://52.195.4.66';
-  // private blogUrl: string = 'https://news.test.commonspeople.love';
-  private wpApiEndpoint: string = '/wp-json/wp/v2/';
-  // --
+  // private blogUrl: string = 'http://52.195.4.66/wp-json/wp/v2/';
+  private blogUrl: string = environment.newsFeedURL;
 
   private _items: News[] = [];
+  private _item: News;
 
   constructor(private http:HttpClient) {
     //
   }
 
-  fetch(query: string = ''): News[] {
-    this.http
-      .get(`${this.blogUrl}${this.wpApiEndpoint}posts${query}`)
-      .pipe(map((data: any) => {
-        return data.map((el) => { el['tpl'] = 'news'; return el; });
-      }))
-      .subscribe(
-        (data: any) => {
-          this._items = data;
-        },
-        (err: any) => console.error(err),
-        // () => console.log('done')
-      );
+  fetch(query: string = '', subscribeAuto: boolean = true): Observable<any> {
+    const ret = this.http.get(`${this.blogUrl}info${query}`).pipe(
+      tap((res: any) => {
+        this._items = this._items.concat(res);
+      }),
+    )
 
-    //
-    return this._items;
+    if (subscribeAuto) {
+      ret.subscribe();
+    }
+
+    return ret;
+  }
+
+  fetchPost(id: number): Observable<any> {
+    return this.http.get(`${this.blogUrl}info/${id}`).pipe(
+      tap((res: any) => { this._item = res }),
+    );
   }
 
   get items(): News[] {
     return this._items;
+  }
+
+  get item(): News {
+    return this._item;
+  }
+
+  // TODO:
+  clear() {
+    this._items = [];
   }
 }

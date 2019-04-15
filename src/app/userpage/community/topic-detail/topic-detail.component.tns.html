@@ -57,7 +57,10 @@
         <StackLayout row="2" class="hr-light m-x-15 m-t-10"></StackLayout>
       </GridLayout>
       <StackLayout class="p-x-15" style="margin-bottom:120;">
-        <Label textWrap="true" class="typo-page bg-white" text="{{ topic.description }} The order of route configuration matters. The router accepts the first route that matches a navigation request path. When all routes were in one AppRoutingModule, you put the default and wildcard routes last, after the /heroes route, so that the router had a chance to match a URL to the /heroes route before hitting the wildcard route and navigating to 'Page not found'.The routes are no longer in one file. They are distributed across two modules, AppRoutingModule and HeroesRoutingModule.Each routing module augments the route configuration in the order of import. If you list AppRoutingModule first, the wildcard route will be registered before the hero routes. The wildcard route—which matches every URL—will intercept the attempt to navigate to a hero route."></Label>
+        <Label *ngIf="isProd" textWrap="true" class="typo-page bg-white" text="{{ topic.description }}"></Label>
+        <Label *ngIf="!isProd" textWrap="true" class="typo-page bg-white" text="{{ topic.description }}
+-- auto insert long text @dev build only --
+The order of route configuration matters. The router accepts the first route that matches a navigation request path. When all routes were in one AppRoutingModule, you put the default and wildcard routes last, after the /heroes route, so that the router had a chance to match a URL to the /heroes route before hitting the wildcard route and navigating to 'Page not found'.The routes are no longer in one file. They are distributed across two modules, AppRoutingModule and HeroesRoutingModule.Each routing module augments the route configuration in the order of import. If you list AppRoutingModule first, the wildcard route will be registered before the hero routes. The wildcard route—which matches every URL—will intercept the attempt to navigate to a hero route."></Label>
       </StackLayout>
     </StackLayout>
   </ScrollView>

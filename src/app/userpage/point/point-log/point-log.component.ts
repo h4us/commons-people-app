@@ -58,6 +58,9 @@ export class PointLogComponent implements OnInit, AfterViewInit {
         this.userService.getTransactions(desireId).subscribe((tr: any) => {
           if (tr && tr.length > 0) {
             this.currentList = tr;
+            this.userService.updateTransactionsLastViewTime(this.currentCommunity.id).subscribe(_ => {
+              this.userService.updateSelf().subscribe();
+            });
           } else {
             // TEST
             this.currentList = Array(30).fill({
@@ -99,7 +102,8 @@ export class PointLogComponent implements OnInit, AfterViewInit {
 
   onFabTap() {
     this.routerExt.navigate(['../../select', this.currentCommunity.id ], {
-      relativeTo: this.aRoute
+      relativeTo: this.aRoute,
+      transition: { name: 'fade', duration: 150 },
     });
   }
 

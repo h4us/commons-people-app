@@ -112,7 +112,9 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
           // --
         });
       } else if (data === 'switch-community') {
-        this.modalService.showModal(CommunityListComponent, options);
+        this.modalService.showModal(CommunityListComponent, options).then(() => {
+          mProxy.switchBack('switch-community');
+        });
       } else if (data === 'send-point' || (data instanceof Array && data.length > 0 && data[0] === 'send-point' )) {
         // TODO:
         if (data instanceof Array && data.length > 1) {

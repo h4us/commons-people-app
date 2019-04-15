@@ -161,7 +161,11 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
     const pt = Object.assign({} , this.pForm.value);
     pt.amount = parseInt(pt.amount);
     pt.description = `送金完了`;
-    if (pt.adId == null) { delete pt.adId; }
+    if (pt.adId == null) {
+      delete pt.adId;
+    } else {
+      pt.adId = parseInt(pt.adId);
+    }
 
     console.log('send transaction: data -> ', pt);
 

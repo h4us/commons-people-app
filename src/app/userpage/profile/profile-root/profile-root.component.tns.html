@@ -82,7 +82,7 @@
                   <Label class="typo-label" android:style="margin-top:-14;">
                     <FormattedString>
                       <Span class="text-theme" text="{{ item.tokenSymbol }}"></Span>
-                      <Span text=" {{ item.point ? item.point : 0 }}"></Span>
+                      <Span [text]="getBalanceBy(item.id)"></Span>
                     </FormattedString>
                   </Label>
                 </FlexboxLayout>

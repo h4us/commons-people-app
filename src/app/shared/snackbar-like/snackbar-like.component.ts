@@ -147,7 +147,7 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     this.tErrorSubscription = this.trayService.errorReport$.pipe(debounceTime(150)).subscribe((data: any) => {
-      console.log(`open by insternal error @${this.containerId}, status: ${data.status} / ${data.statusText} `, this.positionRef);
+      console.log(`open by internal error reporter @${this.containerId}, status: ${data.status} / ${data.statusText} `, this.positionRef);
 
       this.cRootRef.nativeElement.translateY = 200;
       this.cRootRef.nativeElement.opacity = 0;

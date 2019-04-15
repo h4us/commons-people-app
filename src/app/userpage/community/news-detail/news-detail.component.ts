@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 
-import { switchMap } from 'rxjs/operators';
+import { switchMap, tap } from 'rxjs/operators';
 
 import * as fs from 'tns-core-modules/file-system';
 
@@ -46,14 +46,25 @@ export class NewsDetailComponent implements OnInit, OnDestroy {
       .forEach((params) => {
         //
         const desireId: number = <number>params.id;
-        this.postObj = this.newsService.items.find((el) => {
-          return el.id == desireId;
-        });
 
-        if (android) {
-          console.log('Android device uses default WebView');
-          this.wrappedPost = this.wrappedPostObj();
-        }
+        // this.postObj = this.newsService.items.find((el) => {
+        //   return el.id == desireId;
+        // });
+        // this.postObj = this.newsService.fetchPost(desireId);
+
+        // if (android) {
+        //   console.log('Android device uses default WebView');
+        //   this.wrappedPost = this.wrappedPostObj();
+        // }
+
+        this.newsService.fetchPost(desireId).subscribe((res: any) => {
+          this.postObj = res;
+
+          if (android) {
+            console.log('Android device uses default WebView');
+            this.wrappedPost = this.wrappedPostObj();
+          }
+        });
       });
   }
 
@@ -86,6 +97,14 @@ font-weight: normal;
 font-style: normal;
 }
 @font-face {
+font-family: "Noto Sans JP Regular";
+src: local("NotoSansJP-Regular"),
+url("x-local://fonts/NotoSansJP-Regular.otf") format("opentype"),
+url("${this.fontsPath}/NotoSansJP-Regular.otf") format("opentype");
+font-weight: normal;
+font-style: normal;
+}
+@font-face {
 font-family: "NotoSansJP-Regular";
 src: local("NotoSansJP-Regular"),
 url("x-local://fonts/NotoSansJP-Regular.otf") format("opentype"),
@@ -95,14 +114,11 @@ font-style: normal;
 }
 * { font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular; }
 html { background-color: #f6f6f6; width: 100vw; margin: 0; padding: 0; }
-body { background-color: #f6f6f6; width: 100%; margin: 0; padding: 0; }
+body { background-color: #f6f6f6; width: 100%; margin: 0; padding: 0; overflow-wrap: break-word; }
 img { max-width: 100%; height: auto; }
 header, main { padding: .5rem 1.5rem; background-color:#fff; }
 header {
 margin: 0 2rem;
-background-color: #a0a0a0;
-background-image: url("x-local://assets/logo.png"), url("${this.assetsPath}/logo.png");
-background-repeat: no-repeat; background-size: contain; background-position: 50%;
 }
 main { margin: 0 2rem 2rem 2rem; }
 </style>

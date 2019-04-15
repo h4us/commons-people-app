@@ -20,7 +20,7 @@ export class SystemTrayService {
   private trayPositionSource = new Subject<any>();
   private userpageLockSource = new Subject<boolean>();
   private navShowHideSource = new Subject<boolean>();
-  private unreadMessagesSource = new Subject<any>();
+  private notifyUpdatesSource = new Subject<any>();
 
   //
   errorReport$ = this.errorReportSource.asObservable();
@@ -34,7 +34,7 @@ export class SystemTrayService {
   navShowHide$ = this.navShowHideSource.asObservable();
 
   //
-  unreadMessages$ = this.unreadMessagesSource.asObservable();
+  notifyUpdates$ = this.notifyUpdatesSource.asObservable();
 
   //
   trayPosition$ = this.trayPositionSource.asObservable();
@@ -122,8 +122,8 @@ export class SystemTrayService {
     this.navShowHideSource.next(false);
   }
 
-  unreadCount(data: any) {
-    this.unreadMessagesSource.next(data);
+  notifyUpdates(data: any) {
+    this.notifyUpdatesSource.next(data);
   }
 
   //

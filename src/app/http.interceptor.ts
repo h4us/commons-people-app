@@ -33,19 +33,8 @@ export class AppHttpInterceptor implements HttpInterceptor {
       tap(evt => {
         if (evt instanceof HttpResponse) {
           // console.log('[success] process in interceptor', evt.url, evt.body);
-
-          if (evt.body && evt.body.pagenation) {
-
-          }
-
-          if (evt.body && evt.body.pagination) {
-
-          }
-          // if(evt.body) {
-          //   console.log(
-          //     '[success] process in interceptor', evt,
-          //     // this.userService.getCurrentUser()
-          //   );
+          // if (evt.body && evt.body.pagination) {
+          //   console.log('[success] process in interceptor', evt.url, evt.body);
           // }
         }
       }),

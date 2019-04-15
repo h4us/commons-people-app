@@ -4,8 +4,9 @@
 
 export const environment = {
   production: false,
-  apiBaseURL: 'https://app.test.commonspeople.love/api/'
-  // apiBaseURL: 'https://app.test.commons.love/api/'
+  apiBaseURL: 'https://app.test.commonspeople.love/api/',
+  // apiBaseURL: 'https://app.test.commons.love/api/',
+  newsFeedURL: 'https://news.test.commonspeople.love/wp-json/wp/v2/'
 };
 
 /*

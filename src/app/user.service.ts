@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 
-import { Observable, Subject, forkJoin, from, of, zip } from 'rxjs';
+import { Observable, Subject, forkJoin, from, of, zip, OperatorFunction } from 'rxjs';
 import { distinct, concatMap, toArray, map, mergeAll, concatAll, tap } from 'rxjs/operators';
 
 import { ImageAsset } from 'tns-core-modules/image-asset';
@@ -30,7 +30,6 @@ export interface User {
   status: string;
 };
 
-// TODO:
 export interface Topic {
   id: number;
   communityId: number;
@@ -53,7 +52,7 @@ export interface Topic {
   // }
 )
 export class UserService {
-  // --
+
   private apiUrl: string = environment.apiBaseURL;
   private loginData = {
     username: null,
@@ -71,7 +70,26 @@ export class UserService {
 
   draftCommunityIds: number[] = [];
   draftCommunities: any[] = [];
-  // --
+
+  defaultPaging: any = {
+    topics: {
+      page: 0,
+      size: 10,
+      sort: 'DESC'
+    },
+
+    news: {
+      page: 0,
+      size: 10,
+      sort: 'DESC'
+    },
+
+    messages: {
+      page: 0,
+      size: 5,
+      sort: 'DESC'
+    }
+  }
 
   constructor(private http: HttpClient) {
     const u = this._sStorage.getSync({ key: 'username' });
@@ -385,10 +403,16 @@ export class UserService {
   /*
    * topics
    */
-  // TODO:
-  getTopics(targetCommunity?: number, query?: string): Observable<any> {
+  getTopics(targetCommunity?: number, query?: string, paging?: any): Observable<any> {
     let params = [];
     let ret: Observable<any> = of([]);
+    // let _paging: any = {
+    //   page: 0,
+    //   size: 5,
+    //   sort: 'DESC'
+    // };
+
+    let _paging: any = Object.assign({} , this.defaultPaging.topics);
 
     if (targetCommunity) {
       params.push(`communityId=${targetCommunity}`)
@@ -396,20 +420,46 @@ export class UserService {
       params.push(`communityId=${this._currentCommunityId}`)
     }
 
-    if (query && params.length > 0) {
+    if (query && query.length > 0 && params.length > 0) {
       params.push(`filter=${query}`)
     }
 
-    // TODO:
-    params.push(`pagination[page]=0&pagination[size]=10&pagination[sort]=ASC`)
-
-    if (params.length > 0) {
-      ret = this.http.get(`${this.apiUrl}ads?${params.join('&')}`).pipe(
-        map((res: any) => res.adList ? res.adList : res),
-        // TODO:
-        map((res: any) => res.sort((a, b) => (new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime()) ? -1 : 1))
-      );
+    if (paging) {
+      _paging.page = paging.page || _paging.page;
+      _paging.size = paging.size || _paging.size;
+      _paging.sort = paging.sort || _paging.sort;
     }
+
+    params.push(`pagination[page]=${_paging.page}&pagination[size]=${_paging.size}&pagination[sort]=${_paging.sort}`);
+
+    // if (params.length > 0) {
+    //   // TODO: rxjs issue
+    //   // SEE: https://github.com/ReactiveX/rxjs/issues/3989
+
+    //   // let observableFuncParams = [
+    //   //   map((res: any) => res.adList ? res.adList : res),
+    //   //   map((res: any) => res.sort((a, b) => (new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime()) ? -1 : 1)),
+    //   //   map((res: any) => res.filter((el, i) => i < 1)),
+    //   // ];
+
+    //   if (paging && paging.size) {
+    //     ret = this.http.get(`${this.apiUrl}ads?${params.join('&')}`).pipe(
+    //       map((res: any) => res.adList ? res.adList : res),
+    //       map((res: any) => res.sort((a, b) => (new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime()) ? -1 : 1)),
+    //       map((res: any) => res.filter((el, i) => i < paging.size))
+    //     );
+
+    //   } else {
+    //     ret = this.http.get(`${this.apiUrl}ads?${params.join('&')}`).pipe(
+    //       map((res: any) => res.adList ? res.adList : res),
+    //       map((res: any) => res.sort((a, b) => (new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime()) ? -1 : 1))
+    //     );
+    //   }
+    // }
+
+    ret = this.http.get(`${this.apiUrl}ads?${params.join('&')}`).pipe(
+      map((res: any) => res.adList ? res.adList : res)
+    );
 
     return ret;
   }
@@ -425,6 +475,38 @@ export class UserService {
   updateTopic(id:number, data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}ads/${id}`, data);
   }
+
+  updateTopicsLastViewTime(communityId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}users/${this.user.id}/ad/lastViewTime`, { communityId });
+  }
+
+  /*
+   * for news feed
+   */
+  updateNewsLastViewTime(communityId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}users/${this.user.id}/notification/lastViewTime`, { communityId });
+  }
+
+  getNewsUpdates(communityId: number, paging?: any): Observable<any> {
+    let params = [];
+    let _paging: any = {
+      page: 0,
+      size: 10,
+      sort: 'DESC'
+    };
+
+    if (paging) {
+      _paging.page = paging.page || _paging.page;
+      _paging.size = paging.size || _paging.size;
+      _paging.sort = paging.sort || _paging.sort;
+    }
+    params.push(`pagination[page]=${_paging.page}&pagination[size]=${_paging.size}&pagination[sort]=${_paging.sort}`);
+
+    return this.http.get(`${this.apiUrl}communities/${communityId}/notification?${params.join('&')}`).pipe(
+      map((res: any) => res.notificationList ? res.notificationList : res)
+    );
+  }
+
 
   /*
    * messageing
@@ -475,8 +557,25 @@ export class UserService {
     return ret;
   }
 
-  getMessages(id: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}message-threads/${id}/messages`).pipe(
+  getMessages(id: number, paging?: any): Observable<any> {
+    let params = [];
+    let _paging: any = {
+      page: 0,
+      size: 10,
+      sort: 'DESC'
+    };
+
+    if (paging) {
+      _paging.page = paging.page || _paging.page;
+      _paging.size = paging.size || _paging.size;
+      _paging.sort = paging.sort || _paging.sort;
+    }
+
+    // params.push(`pagination[page]=${_paging.page}&pagination[size]=${_paging.size}&pagination[sort]=${_paging.sort}`);
+
+    params.push(`pagination[sort]=DESC`);
+
+    return this.http.get(`${this.apiUrl}message-threads/${id}/messages?${params.join('&')}`).pipe(
       map((res: any) => res.messageList ? res.messageList : res)
     );
   }
@@ -502,8 +601,7 @@ export class UserService {
     if (updateNow) {
       ret = this.http.get(`${this.apiUrl}balance?communityId=${t}`);
     } else {
-      let c = this.user.balanceList.filter((el) => el.communityId == t);
-      c = (c && c.length > 0) ? c[0] : null;
+      let c = this.user.balanceList.find((el) => el.communityId == t);
       ret = new Observable(s => {
         s.next(c);
         s.complete();
@@ -513,37 +611,57 @@ export class UserService {
     return ret;
   }
 
-  getTransactions(targetCommunity?: number): Observable<any> {
+  getTransactions(targetCommunity?: number, paging?: any): Observable<any> {
+    const params = [];
     const t: number = targetCommunity || this._currentCommunityId;
-    return this.http.get(`${this.apiUrl}transactions?communityId=${t}`).pipe(
-      map((res: any) => res.transactionList)
+    let _paging: any = {
+      page: 0,
+      size: 10,
+      sort: 'DESC'
+    };
+    let ret: Observable<any>;
+
+    params.push(`communityId=${t}`);
+
+    ret = this.http.get(`${this.apiUrl}transactions?${params.join('&')}`).pipe(
+      map((res: any) => res.transactionList ? res.transactionList : res),
+      // TODO | TEST: missing...?
+      map((res: any) => res.map((el) => { el['communityId'] = t; return el; }))
+      // --
     );
+
+    // TODO: pagination by serve
+    if (paging) {
+      _paging.page = paging.page || _paging.page;
+      _paging.size = paging.size || _paging.size;
+      _paging.sort = paging.sort || _paging.sort;
+
+      params.push(`pagination[page]=${_paging.page}&pagination[size]=${_paging.size}&pagination[sort]=${_paging.sort}`);
+
+      if (paging.size) {
+        ret = this.http.get(`${this.apiUrl}transactions?${params.join('&')}`).pipe(
+          map((res: any) => res.transactionList ? res.transactionList : res),
+          // TODO | TEST: missing...?
+          map((res: any) => res.map((el) => { el['communityId'] = t; return el; })),
+          // --
+          map((res: any) => res.filter((el, i) => i < paging.size))
+        );
+      } else {
+        ret = this.http.get(`${this.apiUrl}transactions?${params.join('&')}`).pipe(
+          map((res: any) => res.transactionList ? res.transactionList : res),
+          map((res: any) => res.map((el) => { el['communityId'] = t; return el; }))
+        );
+      }
+    }
+
+    return ret;
   }
 
   createTransactions(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}transactions`, data);
   }
 
-  /*
-   * profiles
-   */
-  // updateProfile(key:any, data:any): Observable<any> {
-  //   let ret: Observable<any> = this.http.post(`${this.apiUrl}users/${this.user.id}`, data);
-  //   if (key === 'status') {
-  //     ret = this.http.post(`${this.apiUrl}users/${this.user.id}/status`, data);
-  //   } else if (key === 'avatarUrl') {
-  //     // TODO:
-  //     ret = this.http.post(`${this.apiUrl}users/${this.user.id}/avatar`, data, {
-  //       headers: new HttpHeaders({ 'Content-Type': 'multipart/form-data' })
-  //     });
-  //   } else if (key === 'emailAddress') {
-  //     // TODO:
-  //     ret = this.http.post(`${this.apiUrl}users/${this.user.id}/emailaddress`, data);
-  //   } else if (key === 'password') {
-  //     // TODO:
-  //     ret = this.http.post(`${this.apiUrl}users/${this.user.id}/password`, data);
-  //   }
-  //   return ret;
-  // }
-
+  updateTransactionsLastViewTime(communityId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}users/${this.user.id}/wallet/lastViewTime`, { communityId });
+  }
 };

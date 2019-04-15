@@ -139,12 +139,31 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     });
   }
 
-  styled(text: string) {
-    // TODO:
-    const msg = (text + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
-    return `<div style="font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular; margin:0; line-height:1.2; font-size:14;">
-${msg}
-</div>`;
+  //   styled(text: string) {
+  //     const msg = (text + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
+  //     return `<div style="font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular; margin:0; line-height:1.2; font-size:14;">
+  // ${msg}
+  // </div>`;
+  //   }
+
+  getAvatar(id: number): string {
+    let avatar: string = '~/assets/placeholder__user.png';
+
+    // console.log(
+    //   'counterParty?', this.threadObj.counterParty,
+    // )
+
+    if(this.threadObj && this.threadObj.parties) {
+      let u: any = this.threadObj.parties.find((el) => el.id == id);
+      if (!u) {
+        u = this.threadObj.creator.id == id ? this.threadObj.creator : false;
+      }
+      if (u && u.avatarUrl) {
+        avatar = u.avatarUrl;
+      }
+    }
+
+    return avatar;
   }
 
   onActiveContentArea() {

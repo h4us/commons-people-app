@@ -115,7 +115,9 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
 
   searchAction() {
     this.routerExt.navigate(['../message/search'], {
-      relativeTo: this.aRoute
+      relativeTo: this.aRoute,
+      // TODO: isIOS switch?
+      transition: { name: 'fade', duration: 150 },
     });
   }
 }

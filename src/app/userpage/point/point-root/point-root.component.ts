@@ -36,10 +36,16 @@ export class PointRootComponent implements OnInit {
   ngOnInit() {
     this.currentList = this.userService.getCommunities();
     this.user = this.userService.getCurrentUser();
-    this.balanceList = this.user.balanceList;
+    this.balanceList = this.user.balanceList.filter((el) => el.balance > 0); // <-- for demo use
 
     if (this.user.balanceList && this.user.balanceList.length > 0) {
       this.allZero = this.user.balanceList.every((el) => el.balance == 0);
+      if (!this.allZero) {
+        this.currentList = this.userService.getCommunities().filter((el) => {
+          const c: any = this.user.balanceList.find((iel) => iel.communityId == el.id);
+          return c && c.balance > 0;
+        });
+      }
     }
   }
 

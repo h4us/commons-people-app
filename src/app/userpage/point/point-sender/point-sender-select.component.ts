@@ -83,6 +83,8 @@ export class PointSenderSelectComponent implements OnInit {
         outlets: outletParam,
       }], {
         relativeTo: this.aRoute.parent,
+        // TODO: isIOS switch?
+        transition: { name: 'fade', duration: 150 },
       });
     } else {
       if (e && e.search) {

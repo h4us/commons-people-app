@@ -25,7 +25,7 @@ import { UserService, User } from '../../../user.service';
 import { SystemTrayService } from '../../../system-tray.service';
 import { ModalProxyService } from '../../modal-proxy.service';
 import { ProfileValidatorService } from '../../profile-validator.service';
-
+import { PeriodicTasksService } from '../../periodic-tasks.service';
 
 @Component({
   selector: 'app-profile-root',
@@ -53,6 +53,7 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private trayService: SystemTrayService,
     private pvService: ProfileValidatorService,
+    private pTasksService: PeriodicTasksService,
   ) {
     page.actionBarHidden = true;
   }
@@ -75,17 +76,17 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
           this.trayService.lockUserpageArea();
 
           this.userService.logout().subscribe(
-            () => {},
+            () => {
+              this.pTasksService.stop();
+              setTimeout(() => {
+                this.trayService.request('snackbar/', 'close', { waitFor: 'logout' });
+              }, 1500);
+            },
             (err) => {
               console.error(err, '..force logout');
               this.routerExt.navigate([''], {
                 clearHistory: true
               });
-            },
-            () => {
-              setTimeout(() => {
-                this.trayService.request('snackbar/', 'close', { waitFor: 'logout' });
-              }, 1500);
             }
           );
         }
@@ -124,6 +125,12 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
     const c: any = this.pForm.get(key);
     let ret = c ? c.value : '';
     return (key === 'password') ? ret.replace(/./g, '·') : ret;
+  }
+
+  getBalanceBy(communityId: number): number {
+    let b;
+    this.userService.getBalance(communityId).subscribe((res: any) => b = res);
+    return b ? b.balance : 0;
   }
 
   getAvatar() {

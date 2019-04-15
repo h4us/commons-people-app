@@ -79,9 +79,14 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
       this.navMode = flag ? 'default' : 'dm';
     });
 
-    this.tUnreadSubscription = this.trayService.unreadMessages$.subscribe((res :any) => {
+    this.tUnreadSubscription = this.trayService.notifyUpdates$.subscribe((res :any) => {
       // TODO:
-      this.whichIndicate.point = res.count > 0;
+      this.whichIndicate.message = res.message.count > 0;
+
+      this.whichIndicate.community = res.topic.find((el: any) => el.hasUnread);
+
+      this.whichIndicate.point = res.point.find((el: any) => el.hasUnread);
+      // --
     });
   }
 

@@ -26,6 +26,8 @@ import { UserService, Topic } from '../../../user.service';
 
 import { SystemTrayService } from '../../../system-tray.service'
 
+import { environment } from '~/environments/environment';
+
 @Component({
   selector: 'app-topic-detail',
   templateUrl: './topic-detail.component.html',
@@ -40,6 +42,8 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
 
   isPreview: boolean = false;
   isCreated: boolean = false;
+
+  isProd: boolean = environment.production;
 
   @ViewChild('topicDetail') rootLayoutRef: ElementRef;
   @ViewChild('overlayButtonContainer') ovBcRef: ElementRef;
