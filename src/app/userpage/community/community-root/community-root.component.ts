@@ -77,11 +77,11 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   //
   ngOnInit() {
     // test
-    this.userService.defaultPaging.topics = {
-      page: 0,
-      size: 3,
-      sort: 'DESC'
-    }
+    // this.userService.defaultPaging.topics = {
+    //   page: 0,
+    //   size: 3,
+    //   sort: 'DESC'
+    // }
     // --
 
     this.pagingConfig = Object.assign({}, this.userService.defaultPaging);
