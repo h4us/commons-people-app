@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild } fr
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 
-import { Observable, Subscription, interval, timer } from 'rxjs';
-import { distinct, bufferToggle, buffer, skipWhile, switchMap, debounceTime, filter, tap, delay, concatAll, toArray } from 'rxjs/operators';
+import { Observable, Subscription, timer, fromEvent } from 'rxjs';
+import { switchMap, takeUntil } from 'rxjs/operators';
 
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
@@ -43,6 +43,8 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   isEmpty: boolean = true;
   sendText = new FormControl('');
 
+  loadingRetired: boolean = false;
+
   mSubscription: Subscription;
   fSubscription: Subscription;
   tCSubs: Subscription;
@@ -66,6 +68,7 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
 
   ngOnInit() {
     this.user = this.userService.getCurrentUser();
+
     this.mSubscription = this.messageService.incommingMessage$.subscribe(
       (data) => {
         // TODO:
@@ -100,23 +103,39 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     this.pageRoute.activatedRoute
       .pipe(switchMap((aRoute) => aRoute.params))
       .forEach((params) => {
+        // 1. default
         const desireId: number = <number>params.id;
         this.title = `ダイレクトメッセージ: ${desireId}`;
 
-        // TODO:
-        if (this.messageService.activeThreads) {
-          const _thread = this.messageService.activeThreads.filter((el) => el.id == desireId);
-          if (_thread.length > 0) {
-            this.threadObj = _thread[0];
-            this.title = this.threadObj.title;
-          }
+        // 2. case: created & posted already
+        const _thread = this.messageService.activeThreads.find((el) => el.id == desireId);
+        if (_thread) {
+          this.threadObj = _thread;
+          this.title = this.threadObj.title;
         }
 
-        this.messageService.fetchMessages(desireId);
+        // 3. case: completely new (empty message)
+        this.pageRoute.activatedRoute
+          .pipe(switchMap((aRoute) => aRoute.queryParams))
+          .forEach((qparams) => {
+            if (!this.threadObj && qparams && qparams.title) {
+              this.title = qparams.title;
+            }
+
+            if (qparams && qparams.focusAtInit) {
+              timer(isIOS ? 200 : 100, 100).pipe(
+                takeUntil(fromEvent(this.sInputRef.nativeElement, 'focus'))
+              ).subscribe(_ => this.sInputRef.nativeElement.focus())
+            }
+          })
 
         this.fSubscription = timer(3000, 2000).subscribe((data: any) => {
           this.messageService.fetchMessages(desireId);
         });
+
+        this.messageService.fetchMessages(desireId);
+
+        timer(3000).subscribe(_ => { this.loadingRetired = true; });
       });
   }
 
@@ -148,10 +167,6 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
 
   getAvatar(id: number): string {
     let avatar: string = '~/assets/placeholder__user.png';
-
-    // console.log(
-    //   'counterParty?', this.threadObj.counterParty,
-    // )
 
     if(this.threadObj && this.threadObj.parties) {
       let u: any = this.threadObj.parties.find((el) => el.id == id);

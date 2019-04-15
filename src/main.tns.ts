@@ -51,13 +51,6 @@ applicationOn(lowMemoryEvent, (args: ApplicationEventData) => {
   }
 });
 
-// applicationOn(uncaughtErrorEvent, (args: ApplicationEventData) => {
-//   if (args.android) {
-//     console.log("NativeScriptError: " + args.android);
-//   } else if (args.ios) {
-//     console.log("NativeScriptError: " + args.ios);
-//   }
-// });
 
 // A traditional NativeScript application starts by initializing global objects, setting up global CSS rules, creating, and navigating to the main page.
 // Angular applications need to take care of their own initialization: modules, components, directives, routes, DI providers.

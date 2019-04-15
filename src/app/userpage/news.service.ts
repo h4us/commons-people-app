@@ -59,8 +59,11 @@ export class NewsService {
 
   fetch(query: string = '', subscribeAuto: boolean = true): Observable<any> {
     const ret = this.http.get(`${this.blogUrl}info${query}`).pipe(
+      map((res: any) => res),
       tap((res: any) => {
-        this._items = this._items.concat(res);
+        // TODO: improvement
+        const strict: any = res.filter((el: any) => this._items.length == 0 || this._items.find((iel: any) => iel.ID != el.ID));
+        this._items = this._items.concat(strict);
       }),
     )
 

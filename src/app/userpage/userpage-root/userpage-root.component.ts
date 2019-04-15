@@ -38,9 +38,8 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
 
   mSubscription: Subscription;
   lSubscription: Subscription;
+  sSubscription: Subscription;
 
-  //
-  canAction: boolean = true;
   locked: boolean = false;
 
   constructor(
@@ -57,27 +56,28 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
     page.actionBarHidden = true;
 
     this.mSubscription = mProxy.requestModal$.subscribe((data: any) => {
-      // TODO:
       const options: ModalDialogOptions = {
         fullscreen: true,
         viewContainerRef: this.vcRef
       };
 
-      if (data === 'topic' || (data instanceof Array && data.length > 0 && data[0] === 'topic' )) {
-        // TODO:
-        if (data instanceof Array && data.length > 1) {
+      let target: string;
+      if (data instanceof Array && data.length > 0) {
+        target = data[0];
+        if (data.length > 1) {
           options.context = data[1];
         }
-        this.modalService.showModal(TopicEditorComponent, options).then(() => {
+      } else {
+        target = data;
+      }
+
+      if (target == 'topic') {
+        this.modalService.showModal(TopicEditorComponent, options).then((data: any) => {
           setTimeout(() => {
-            mProxy.switchBack('topic');
+            mProxy.switchBack('topic', data);
           }, 200);
         });
-      } else if (data === 'topic-owner' || (data instanceof Array && data.length > 0 && data[0] === 'topic-owner' )) {
-        // TODO:
-        if (data instanceof Array && data.length > 1) {
-          options.context = data[1];
-        }
+      } else if (target == 'topic-owner') {
         this.modalService.showModal(TopicOwnerComponent, options).then((data: any) => {
           if (data && data.snackbarRedirect) {
             this.trayService.request('snackbar/', 'open', {
@@ -86,9 +86,9 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
             });
           }
         });
-      } else if (data === 'thread-edit'){
+      } else if (target == 'thread-edit') {
         this.modalService.showModal(ThreadEditorComponent, options);
-      }  else if (data === 'thread-new'){
+      }  else if (target  == 'thread-new') {
         this.modalService.showModal(MessageEditorComponent, options).then((data: any) => {
           // TODO:
           if (data && data.willCreate) {
@@ -98,10 +98,7 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
           }
           // --
         });
-      } else if (data === 'thread-add-member' || (data instanceof Array && data.length > 0 && data[0] === 'thread-add-member' )) {
-        if (data instanceof Array && data.length > 1) {
-          options.context = data[1];
-        }
+      } else if (target == 'thread-add-member') {
         this.modalService.showModal(MessageEditorComponent, options).then((data: any) => {
           // TODO:
           if (data && data.willAdd) {
@@ -111,15 +108,11 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
           }
           // --
         });
-      } else if (data === 'switch-community') {
+      } else if (target == 'switch-community') {
         this.modalService.showModal(CommunityListComponent, options).then(() => {
           mProxy.switchBack('switch-community');
         });
-      } else if (data === 'send-point' || (data instanceof Array && data.length > 0 && data[0] === 'send-point' )) {
-        // TODO:
-        if (data instanceof Array && data.length > 1) {
-          options.context = data[1];
-        }
+      } else if (target == 'send-point') {
         this.modalService.showModal(PointSenderComponent, options).then((data: any) => {
           if (data && data.snackbarRedirect) {
             this.trayService.request('snackbar/', 'open', {
@@ -128,22 +121,30 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
             });
           }
         });
-      } else if (data === 'search' || (data instanceof Array && data.length > 0 && data[0] === 'search' )) {
-        if (data instanceof Array && data.length > 1) {
-          options.context = data[1];
-        }
+      } else if (target == 'search') {
         this.modalService.showModal(PointSenderComponent, options);
       }
-
     });
 
     //
     this.lSubscription = trayService.userpageLock$.subscribe((state: boolean) => {
       this.locked = state;
     });
+
+    //
+    this.sSubscription = trayService.appState$.subscribe((state: any) => {
+      if (state.eventName && state.eventName == 'resume') {
+        this.pTasksService.start();
+      }
+      if (state.eventName && state.eventName == 'suspend') {
+        this.pTasksService.stop();
+      }
+    });
   }
 
   ngOnInit() {
+    this.pTasksService.start();
+
     this.routerExt.navigate([{
       outlets: {
         userpage: ['community']
@@ -171,6 +172,8 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     this.mSubscription.unsubscribe();
     this.lSubscription.unsubscribe();
+    this.sSubscription.unsubscribe();
+
     this.pTasksService.stop();
   }
 

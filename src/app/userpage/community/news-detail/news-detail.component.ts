@@ -47,23 +47,15 @@ export class NewsDetailComponent implements OnInit, OnDestroy {
         //
         const desireId: number = <number>params.id;
 
-        // this.postObj = this.newsService.items.find((el) => {
-        //   return el.id == desireId;
-        // });
-        // this.postObj = this.newsService.fetchPost(desireId);
-
-        // if (android) {
-        //   console.log('Android device uses default WebView');
-        //   this.wrappedPost = this.wrappedPostObj();
-        // }
-
         this.newsService.fetchPost(desireId).subscribe((res: any) => {
           this.postObj = res;
 
-          if (android) {
-            console.log('Android device uses default WebView');
-            this.wrappedPost = this.wrappedPostObj();
-          }
+          // if (android) {
+          //   console.log('Android device uses default WebView');
+          //   this.wrappedPost = this.wrappedPostObj();
+          // }
+
+          this.wrappedPost = this.wrappedPostObj();
         });
       });
   }
@@ -75,8 +67,6 @@ export class NewsDetailComponent implements OnInit, OnDestroy {
   onLoaded(args: any) {
     this.wv = args.object;
     this.wv.registerLocalResource('fonts/NotoSansJP-Regular.otf', `${this.fontsPath}/NotoSansJP-Regular.otf`);
-    this.wv.registerLocalResource('assets/logo.png', `${this.assetsPath}/logo.png`);
-    this.wrappedPost = this.wrappedPostObj();
   }
 
   wrappedPostObj(): string {
@@ -114,13 +104,13 @@ font-style: normal;
 }
 * { font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular; }
 html { background-color: #f6f6f6; width: 100vw; margin: 0; padding: 0; }
-body { background-color: #f6f6f6; width: 100%; margin: 0; padding: 0; overflow-wrap: break-word; }
+body { background-color: #f6f6f6; width: 100%; margin: 0; padding: 0; overflow-wrap: break-word; font-size: 80%; }
 img { max-width: 100%; height: auto; }
 header, main { padding: .5rem 1.5rem; background-color:#fff; }
 header {
-margin: 0 2rem;
+margin: 0 1rem;
 }
-main { margin: 0 2rem 2rem 2rem; }
+main { margin: 0 1rem 1rem 1rem; }
 </style>
 </head>
 <body>

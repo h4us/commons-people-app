@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, forkJoin } from 'rxjs';
-import { distinct, map, mergeAll, filter } from 'rxjs/operators';
+
+import { Observable, Subject } from 'rxjs';
+import { tap, map } from 'rxjs/operators';
 
 import { UserpageModule } from './userpage.module';
 
@@ -13,7 +14,7 @@ export class MessageProxyService {
 
   private messagesSource = new Subject<any>();
   private threadsSource = new Subject<any>();
-  private _activeThreads: any;
+  private _activeThreads: any[] = [];
   private _currentThreadId: number = -1;
   private _incommingMessage: any;
 
@@ -37,8 +38,7 @@ export class MessageProxyService {
       source = this.userService.getMessageThreads().pipe(
         map((el: any) => {
           return el.filter((iel) => iel.communityId == targetCommunity)
-          // return el.filter((iel) => (iel.communityId == targetCommunity) || (typeof iel.ad == 'undefined' && !iel.group))
-        })
+        }),
       );
     } else {
       source = this.userService.getMessageThreads();
@@ -61,8 +61,7 @@ export class MessageProxyService {
       source = this.userService.getMessageThreads(input).pipe(
         map((el: any) => {
           return el.filter((iel) => iel.communityId == targetCommunity)
-          // return el.filter((iel) => (iel.communityId == targetCommunity) || (typeof iel.ad == 'undefined' && !iel.group))
-        })
+        }),
       );
     } else {
       source = this.userService.getMessageThreads(input);

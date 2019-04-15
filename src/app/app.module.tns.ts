@@ -13,7 +13,6 @@ import { CardView } from 'nativescript-cardview';
 registerElement('CardView', () => CardView);
 import { LottieView } from 'nativescript-lottie';
 registerElement('LottieView', () => LottieView);
-// registerElement('WebImage', () => require('nativescript-web-image-cache').WebImage);
 
 //
 import { AppRoutingModule } from './app-routing.module';

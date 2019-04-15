@@ -30,7 +30,6 @@ export class RegisterRootComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('hello');
     // .. in constructor?
     if (!this.lSubscription) {
       this.lSubscription = this.trayService.userpageLock$.subscribe((state: boolean) => {

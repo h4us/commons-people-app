@@ -49,7 +49,7 @@
 
       <!-- // -->
 
-      <StackLayout visibility="{{ currentTab == 'topics' ? 'visible' : 'collapsed' }}">
+      <StackLayout #topicsContainer visibility="{{ currentTab == 'topics' ? 'visible' : 'collapsed' }}">
         <ng-template ngFor let-item [ngForOf]="topics" let-i="index">
 
           <StackLayout class="bg-theme-secondary">
@@ -136,7 +136,7 @@ The order of route configuration matters. The router accepts the first route tha
       </StackLayout>
 
       <StackLayout class="p-10 bg-theme-secondary" style="{{ isPreview ? 'margin-bottom:90;' : '' }}">
-        <Button *ngIf="(currentTab == 'topics' && topics?.length % 10 == 0 && topics?.length > 0) || (currentTab == 'news' && news?.length % 10 == 0 && news?.length > 0)"
+        <Button *ngIf="(currentTab == 'topics' && topics?.length && topics?.length > 0 && currentTotalTopics > topics?.length) || (currentTab == 'news' && news?.length % pagingConfig.news.size == 0 && news?.length > 0)"
           class="btn btn-rounded-lg btn-primary btn-black" width="40%" text="さらに読む"
           (tap)="onMoreReadTap()"></Button>
       </StackLayout>

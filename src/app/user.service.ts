@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 
 import { Observable, Subject, forkJoin, from, of, zip, OperatorFunction } from 'rxjs';
-import { distinct, concatMap, toArray, map, mergeAll, concatAll, tap } from 'rxjs/operators';
+import { distinct, concatMap, toArray, map, mergeAll, mergeMap, switchMap, concatAll, tap } from 'rxjs/operators';
 
 import { ImageAsset } from 'tns-core-modules/image-asset';
 import { ImageSource } from 'tns-core-modules/image-source';
@@ -406,12 +406,6 @@ export class UserService {
   getTopics(targetCommunity?: number, query?: string, paging?: any): Observable<any> {
     let params = [];
     let ret: Observable<any> = of([]);
-    // let _paging: any = {
-    //   page: 0,
-    //   size: 5,
-    //   sort: 'DESC'
-    // };
-
     let _paging: any = Object.assign({} , this.defaultPaging.topics);
 
     if (targetCommunity) {
@@ -424,13 +418,15 @@ export class UserService {
       params.push(`filter=${query}`)
     }
 
-    if (paging) {
-      _paging.page = paging.page || _paging.page;
-      _paging.size = paging.size || _paging.size;
-      _paging.sort = paging.sort || _paging.sort;
-    }
+    if (paging != 'FETCH_ALL') {
+      if (paging) {
+        _paging.page = paging.page || _paging.page;
+        _paging.size = paging.size || _paging.size;
+        _paging.sort = paging.sort || _paging.sort;
+      }
 
-    params.push(`pagination[page]=${_paging.page}&pagination[size]=${_paging.size}&pagination[sort]=${_paging.sort}`);
+      params.push(`pagination[page]=${_paging.page}&pagination[size]=${_paging.size}&pagination[sort]=${_paging.sort}`);
+    }
 
     // if (params.length > 0) {
     //   // TODO: rxjs issue
@@ -489,18 +485,17 @@ export class UserService {
 
   getNewsUpdates(communityId: number, paging?: any): Observable<any> {
     let params = [];
-    let _paging: any = {
-      page: 0,
-      size: 10,
-      sort: 'DESC'
-    };
+    let _paging: any = Object.assign({}, this.defaultPaging.news);
 
-    if (paging) {
-      _paging.page = paging.page || _paging.page;
-      _paging.size = paging.size || _paging.size;
-      _paging.sort = paging.sort || _paging.sort;
+    if (paging != 'FETCH_ALL') {
+      if (paging) {
+        _paging.page = paging.page || _paging.page;
+        _paging.size = paging.size || _paging.size;
+        _paging.sort = paging.sort || _paging.sort;
+      }
+
+      params.push(`pagination[page]=${_paging.page}&pagination[size]=${_paging.size}&pagination[sort]=${_paging.sort}`);
     }
-    params.push(`pagination[page]=${_paging.page}&pagination[size]=${_paging.size}&pagination[sort]=${_paging.sort}`);
 
     return this.http.get(`${this.apiUrl}communities/${communityId}/notification?${params.join('&')}`).pipe(
       map((res: any) => res.notificationList ? res.notificationList : res)
@@ -546,11 +541,11 @@ export class UserService {
 
     if (params.length > 0) {
       ret = this.http.get(`${this.apiUrl}message-threads?${params.join('&')}`).pipe(
-        map((res: any) => res.messageThreadList ? res.messageThreadList : res)
+        map((res: any) => res.messageThreadList ? res.messageThreadList : res),
       );
     } else {
       ret = this.http.get(`${this.apiUrl}message-threads`).pipe(
-        map((res: any) => res.messageThreadList ? res.messageThreadList : res)
+        map((res: any) => res.messageThreadList ? res.messageThreadList : res),
       );
     }
 
@@ -565,15 +560,16 @@ export class UserService {
       sort: 'DESC'
     };
 
-    if (paging) {
-      _paging.page = paging.page || _paging.page;
-      _paging.size = paging.size || _paging.size;
-      _paging.sort = paging.sort || _paging.sort;
+    if (paging != 'FETCH_ALL') {
+      if (paging) {
+        _paging.page = paging.page || _paging.page;
+        _paging.size = paging.size || _paging.size;
+        _paging.sort = paging.sort || _paging.sort;
+      }
+
+      // params.push(`pagination[page]=${_paging.page}&pagination[size]=${_paging.size}&pagination[sort]=${_paging.sort}`);
+      params.push(`pagination[sort]=DESC`);
     }
-
-    // params.push(`pagination[page]=${_paging.page}&pagination[size]=${_paging.size}&pagination[sort]=${_paging.sort}`);
-
-    params.push(`pagination[sort]=DESC`);
 
     return this.http.get(`${this.apiUrl}message-threads/${id}/messages?${params.join('&')}`).pipe(
       map((res: any) => res.messageList ? res.messageList : res)
@@ -596,12 +592,12 @@ export class UserService {
    */
   getBalance(targetCommunity?: number, updateNow:boolean = false): Observable<any> {
     const t: number = targetCommunity || this._currentCommunityId;
-    let ret: Observable<any>;
+    let ret: Observable<any> = of(null);
 
     if (updateNow) {
       ret = this.http.get(`${this.apiUrl}balance?communityId=${t}`);
     } else {
-      let c = this.user.balanceList.find((el) => el.communityId == t);
+      let c = this.user ? this.user.balanceList.find((el) => el.communityId == t) : null;
       ret = new Observable(s => {
         s.next(c);
         s.complete();

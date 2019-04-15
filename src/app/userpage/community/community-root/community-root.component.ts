@@ -28,7 +28,6 @@ import { environment } from '~/environments/environment';
   selector: 'app-community-root',
   templateUrl: './community-root.component.html',
   styleUrls: ['./community-root.component.scss'],
-  // providers: [NewsService],
 })
 export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit {
   //
@@ -38,9 +37,12 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   currentTab: string = 'topics';
   isPreview: boolean = false;
   currentPaging: any = {
-    topics: 0,
+    topics: 1,
     news: 10
   }
+  pagingConfig: any;
+  currentTotalTopics: number = -1;
+  toScrollBack: number = -1;
 
   private _news: News[];
 
@@ -52,6 +54,10 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   @ViewChild('floatingToggle') ftglRef: ElementRef;
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
   @ViewChild('scrollView') scRef: ElementRef;
+
+  @ViewChild('topicsContainer') tContainerRef: ElementRef;
+  tcTopEdge: number = 0;
+
   anchor: StackLayout;
 
   isProd: boolean = environment.production;
@@ -70,37 +76,82 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
 
   //
   ngOnInit() {
+    // test
+    this.userService.defaultPaging.topics = {
+      page: 0,
+      size: 3,
+      sort: 'DESC'
+    }
+    // --
+
+    this.pagingConfig = Object.assign({}, this.userService.defaultPaging);
+
     //
     from(this._sub).pipe(
-      switchMap(_ => { return this.userService.getTopics() })
+      switchMap((data: any) => {
+        let ret = this.userService.getTopics();
+
+        // TODO: more better way..
+        if (data == 'new topic') {
+          // ret = this.userService.getTopics(this.currentCommunity.id, '', { size: this.topics.length + 1 });
+          this.toScrollBack = this.tcTopEdge;
+        } else {
+          this.toScrollBack = -1;
+        }
+
+        return ret;
+      })
     ).subscribe((data: any) => {
       const _data: any = data.map((el) => { return el; })
       this.topics = _data;
       this.profile = {
         description: this.currentCommunity.description || ''
       }
+
+      //
       this.currentPaging = {
-        topics: 0,
+        topics: 1,
         news: 10
+      }
+
+      // if (this.topics.length > this.pagingConfig.topics.size) {
+      // }
+
+      // TODO:
+      this.userService.getTopics(this.currentCommunity.id, '', 'FETCH_ALL').subscribe((res: any) => {
+        this.currentTotalTopics = res.length;
+      });
+
+      if (this.toScrollBack > -1) {
+        setTimeout(() => {
+          this.scRef.nativeElement.scrollToVerticalOffset(this.toScrollBack, true);
+        }, 300);
       }
     });
 
     this.uSubscription = this.userService.updateRequest$.subscribe(_ => {
-      // --
       this.currentCommunity = this.userService.getCommunity();
-      // this.newsService.clear();
-      // this.newsService.fetch(`?community_id=${this.userService.currentCommunityId}&per_page=10`);
       this._sub.next(true);
-      // --
     });
 
     this.mSubscription = this.mProxy.switchBack$.subscribe((data: any) => {
-      if (data == 'topic') {
-        this.currentCommunity = this.userService.getCommunity();
-        this._sub.next(true);
+      let target: string;
+      let options: any;
+      if (data instanceof Array && data.length > 0) {
+        target = data[0];
+        if (data.length > 1) {
+          options = data[1];
+        }
+      } else {
+        target = data;
       }
 
-      if (data == 'switch-community') {
+      if (target == 'topic' && options && options.needRefresh) {
+        this.currentCommunity = this.userService.getCommunity();
+        this._sub.next('new topic');
+      }
+
+      if (target == 'switch-community') {
         this.newsService.clear();
         this.newsService.fetch(`?community_id=${this.currentCommunity.id}&per_page=10`);
       }
@@ -118,7 +169,7 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
         this.currentTab = 'profile';
         this.newsService.clear();
         this.currentPaging = {
-          topics: 0,
+          topics: 1,
           news: 10
         }
         this.newsService.fetch(`?community_id=${this.currentCommunity.id}&per_page=10`);
@@ -149,7 +200,7 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
       const aW = this.anchor.getMeasuredWidth() / screen.mainScreen.scale;
       const eW = this.fbtnRef.nativeElement.getMeasuredWidth() / screen.mainScreen.scale;
       const eH = this.fbtnRef.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
-
+      ;
       AbsoluteLayout.setLeft(this.fbtnRef.nativeElement, aW - eW - (eW * 0.33));
       AbsoluteLayout.setTop(this.fbtnRef.nativeElement, aH - eH - (eH * 0.33));
       this.fbtnRef.nativeElement.opacity = 1;
@@ -163,6 +214,13 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
 
       AbsoluteLayout.setTop(this.ftglRef.nativeElement, aH - tH);
       this.ftglRef.nativeElement.opacity = 1;
+    });
+
+    fromEvent(this.tContainerRef.nativeElement, 'loaded').pipe(
+      take(1), delay(1)
+    ).subscribe(_ => {
+      this.tcTopEdge = this.tContainerRef.nativeElement.getLocationInWindow().y - 30;
+      console.log('top edge?', this.tcTopEdge);
     });
   }
 
@@ -220,23 +278,22 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   onMoreReadTap() {
+    // TODO: button behavior
     if (this.currentTab === 'topics') {
-      this.currentPaging.topics += 1;
+      this.userService.getTopics(this.currentCommunity.id, '', { page: this.currentPaging.topics }).subscribe((data: any) => {
+        const _data: any = data.filter((el: any) => this.topics.find((iel: any) => iel.id != el.id));
+        this.topics = this.topics.concat(_data);
+        this.currentPaging.topics += 1;
+      });
     } else if (this.currentTab === 'news') {
       this.newsService.fetch(`?community_id=${this.userService.currentCommunityId}&per_page=10&offset=${this.currentPaging.news}`, false).subscribe(_ => {
         this.currentPaging.news += 10;
-        setTimeout(() => {
-          const sc: number = this.scRef.nativeElement.scrollableHeight;
-          this.scRef.nativeElement.scrollToVerticalOffset(sc, true);
-        }, 200);
       });
     }
   }
 
-  // templateSelector(item: any, index: number, items: any) {
-  //   return item.tpl;
-  // }
-
+  // --
+  // preview mode only
   // --
   toDraft() {
     const inDraft: number = this.userService.draftCommunityIds.indexOf(this.currentCommunity.id);

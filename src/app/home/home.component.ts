@@ -71,6 +71,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           clearHistory: true,
           transition: { name: 'fade', duration: 300 }
         })
+      }, (err: any) => {
+        console.error(err);
+        this.userService.logout(false).subscribe(_ => this.routerExt.navigate(['signin']));
       });
     }
 

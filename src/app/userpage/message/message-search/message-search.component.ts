@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
-import { RouterExtensions } from 'nativescript-angular/router';
+import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 
 import { Page } from 'tns-core-modules/ui/page';
 import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
@@ -29,11 +30,11 @@ export class MessageSearchComponent implements OnInit, OnDestroy, AfterViewInit 
   msgSubscription: Subscription;
 
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
-  anchor: StackLayout;
 
   constructor(
     private routerExt: RouterExtensions,
     private aRoute: ActivatedRoute,
+    private pageRoute: PageRoute,
     private userService: UserService,
     private messageService: MessageProxyService,
     private page: Page,
@@ -43,26 +44,23 @@ export class MessageSearchComponent implements OnInit, OnDestroy, AfterViewInit 
 
   ngOnInit() {
     this.user = this.userService.getCurrentUser();
-    this.currentCommunityId = this.userService.currentCommunityId;
 
-    //
+    this.pageRoute.activatedRoute
+      .pipe(switchMap((aRoute) => aRoute.queryParams))
+      .forEach((qparams: any) => {
+        if (qparams && qparams.communityId) {
+          this.currentCommunityId = qparams.communityId;
+        } else {
+          this.currentCommunityId = this.userService.currentCommunityId;
+        }
+      });
+
     this.msgSubscription = this.messageService.activeThreads$.subscribe(
       (data) => { this.currentList = data; }
     );
-    // this.messageService.fetchThreads(this.currentCommunityId);
-
-    this.anchor = <StackLayout>this.anchorRef.nativeElement;
   }
 
   ngAfterViewInit() {
-    // setTimeout(() => {
-    //   const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
-    //   const aW = this.anchor.getMeasuredWidth() / screen.mainScreen.scale;
-    //   const eW = this.fbtnEl.getMeasuredWidth() / screen.mainScreen.scale;
-    //   const eH = this.fbtnEl.getMeasuredHeight() / screen.mainScreen.scale;
-    //   AbsoluteLayout.setLeft(this.fbtnEl, aW - eW - (eW * 0.33));
-    //   AbsoluteLayout.setTop(this.fbtnEl, aH - eH - (eH * 0.33));
-    // }, 100);
   }
 
   ngOnDestroy() {
@@ -83,7 +81,6 @@ export class MessageSearchComponent implements OnInit, OnDestroy, AfterViewInit 
 
   onNavItemTap(args: any) {
     this.filterBy = <string>args;
-
   }
 
   cancelAction() {
@@ -91,11 +88,10 @@ export class MessageSearchComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   searchAction(e: any) {
-    // this.messageService.fetchThreads(this.currentCommunityId);
     if (e.search) {
       const t = `${this.filterBy}Filter`;
       this.messageService.searchThreads(
-        { [t]: encodeURI(e.search) }
+        { [t]: encodeURI(e.search) }, this.currentCommunityId
       );
     }
   }

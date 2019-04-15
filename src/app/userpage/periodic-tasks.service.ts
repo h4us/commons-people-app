@@ -67,15 +67,15 @@ export class PeriodicTasksService {
       checkWalletTask,
       // checkNewsTask,
     );
-
-    this.start();
   }
 
   start() {
     if (!this.tickerSubs || this.tickerSubs.closed) {
+      console.log('start ticker');
+
       this.tickerSubs = this.ticker.subscribe((res: any) => {
         // --
-        // console.log(res);
+        // console.log('ticker', res);
 
         const uc = this.userService.getCommunities();
 
@@ -106,7 +106,8 @@ export class PeriodicTasksService {
   }
 
   stop() {
-    if (this.tickerSubs) {
+    if (this.tickerSubs && !this.tickerSubs.closed) {
+      console.log('stop ticker');
       this.tickerSubs.unsubscribe();
     }
   }

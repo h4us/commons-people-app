@@ -5,6 +5,7 @@ import { UserService } from './user.service';
 import { RouterExtensions } from 'nativescript-angular/router';
 import { handleOpenURL, AppURL } from 'nativescript-urlhandler';
 
+
 @core.Component({
   selector: 'app-root',
   templateUrl: './app.component.html',

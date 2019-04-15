@@ -137,12 +137,6 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.positionRef = data;
       }
 
-      // else {
-      //   const p = data.position || this.basePosition;
-      //   const s = data.safeArea || 0;
-      //   this.positionRef = p - s;
-      // }
-
       this.resetPosition();
     });
 
@@ -171,14 +165,18 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
         //
         this.barColor = 'warning';
 
-        if (data.error && data.error.key == 'error.notEnoughFunds') {
-          this.doneMessage = '残高不足です';
-        } else if (data.error && data.error.key == 'emailAddressTaken') {
-          this.doneMessage = 'すでに使用されているメールアドレスです';
-        } else if (data.error && data.error.key == 'usernameTaken') {
-          this.doneMessage = 'すでに使用されているユーザー名です';
-        } else {
-          this.doneMessage = 'アプリケーションエラー';
+        if (data.error) {
+          if (data.error.key == 'error.notEnoughFunds') {
+            this.doneMessage = '残高不足です';
+          } else if (data.error.key == 'error.outOfEther') {
+            this.doneMessage = 'ガスが不足しています';
+          } else if (data.error.key == 'emailAddressTaken' || data.error.key == 'error.emailAddressTaken') {
+            this.doneMessage = 'すでに使用されているメールアドレスです';
+          } else if (data.error.key == 'usernameTaken' || data.error.key == 'error.usernameTaken') {
+            this.doneMessage = 'すでに使用されているユーザー名です';
+          } else {
+            this.doneMessage = 'アプリケーションエラー';
+          }
         }
         //
       } else {

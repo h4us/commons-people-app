@@ -110,12 +110,15 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   modalAction(name?: string) {
-    this.mProxy.request(name ? name : 'thread-edit');
+    this.mProxy.request(name ? name : 'thread-edit', { inCommunity: this.currentCommunityId });
   }
 
   searchAction() {
     this.routerExt.navigate(['../message/search'], {
       relativeTo: this.aRoute,
+      queryParams: {
+        communityId: this.currentCommunityId
+      },
       // TODO: isIOS switch?
       transition: { name: 'fade', duration: 150 },
     });

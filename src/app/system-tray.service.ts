@@ -2,11 +2,17 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Observable, Subject, of, from, timer } from 'rxjs';
-import { tap } from "rxjs/operators";
+import { tap, share } from "rxjs/operators";
 
 import { RouterExtensions } from 'nativescript-angular/router';
 
 import { UserService } from './user.service';
+
+import {
+  on as applicationOn,
+  launchEvent, suspendEvent, resumeEvent,
+  ApplicationEventData
+} from "tns-core-modules/application";
 
 @Injectable(
   // {
@@ -15,26 +21,29 @@ import { UserService } from './user.service';
 )
 export class SystemTrayService {
   private errorReportSource = new Subject<any>();
+  private appStateSource = new Subject<any>();
   private requestFromUserSource = new Subject<any>();
   private notifyToUserSource = new Subject<any>();
-  private trayPositionSource = new Subject<any>();
   private userpageLockSource = new Subject<boolean>();
   private navShowHideSource = new Subject<boolean>();
   private notifyUpdatesSource = new Subject<any>();
 
-  //
-  errorReport$ = this.errorReportSource.asObservable();
+  private trayPositionSource = new Subject<any>();
 
   //
-  requestFromUser$ = this.requestFromUserSource.asObservable();
-  notifyToUser$ = this.notifyToUserSource.asObservable();
+  errorReport$ = this.errorReportSource.asObservable().pipe(share());
+  appState$ = this.appStateSource.asObservable().pipe(share());
 
   //
-  userpageLock$ = this.userpageLockSource.asObservable();
-  navShowHide$ = this.navShowHideSource.asObservable();
+  requestFromUser$ = this.requestFromUserSource.asObservable().pipe(share());
+  notifyToUser$ = this.notifyToUserSource.asObservable().pipe(share());
 
   //
-  notifyUpdates$ = this.notifyUpdatesSource.asObservable();
+  userpageLock$ = this.userpageLockSource.asObservable().pipe(share());
+  navShowHide$ = this.navShowHideSource.asObservable().pipe(share());
+
+  //
+  notifyUpdates$ = this.notifyUpdatesSource.asObservable().pipe(share());
 
   //
   trayPosition$ = this.trayPositionSource.asObservable();
@@ -47,7 +56,15 @@ export class SystemTrayService {
     private userService: UserService,
     private router: Router,
     private routerExt: RouterExtensions,
-  ) {}
+  ) {
+    applicationOn(suspendEvent, (args: ApplicationEventData) => {
+      this.appStateSource.next(args);
+    });
+
+    applicationOn(resumeEvent, (args: ApplicationEventData) => {
+      this.appStateSource.next(args);
+    });
+  }
 
   //
   request(id:string, command: any, option?: any) {
@@ -76,19 +93,17 @@ export class SystemTrayService {
     // TODO: modify / transform
     let errMessage = errType;
 
-    // TODO: critcal error handling, variations
+    // TODO: critcal error handling, variations, lock state
     if ((errMessage && errMessage.status) && (
-      errMessage.status == 503 ||
-        errMessage.status == 504
+      errMessage.status == 503 || errMessage.status == 504 || errMessage.status == -1 || errMessage.status == 401
     )) {
-      timer(5000).subscribe(_ => {
-        this.userService.logout(false).subscribe(_ => {
-          if (this.router.url == '/') this.routerExt.navigate(['signin'])
+      if (this.router.url == '/' && this.userService.restoreble) {
+        timer(5000).subscribe(_ => {
+          this.userService.logout(false).subscribe(_ =>  this.routerExt.navigate(['signin']));
         });
-      });
+      }
     }
 
-    //
     if (this._isLocked) {
       timer(1000).pipe(
         tap(_ => this.unLockUserpageArea()),
@@ -98,6 +113,7 @@ export class SystemTrayService {
     } else {
       this.errorReportSource.next(errMessage);
     }
+    // --
   }
 
   //
@@ -122,6 +138,7 @@ export class SystemTrayService {
     this.navShowHideSource.next(false);
   }
 
+  //
   notifyUpdates(data: any) {
     this.notifyUpdatesSource.next(data);
   }

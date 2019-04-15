@@ -168,9 +168,15 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
 
   openMessageDialog(topic?: any) {
     this.userService.tapTopicMessageThread(topic.id).subscribe(
-      (data) => {
+      (data: any) => {
         this.routerExt.navigate(['../../../message/log', data.id], {
-          relativeTo: this.aRoute
+          relativeTo: this.aRoute,
+          // TODO: isIOS switch?
+          transition: { name: 'fade', duration: 150 },
+          queryParams: {
+            title: topic.title,
+            focusAtInit: true
+          }
         });
       },
       (err) => console.error(err)
@@ -212,10 +218,8 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
       req.subscribe((ret) => {
-        console.log('created new topic', ret);
-
         if (this.tvService.sendToAsset && this.topic.photoUrl) {
-          console.log('... and upload image', ret);
+          console.log('Created new topic, ... and upload image', ret);
 
           const request = {
             url: `${this.userService.endpoint}/ads/${ret.id}/photo`,
@@ -247,11 +251,12 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
           doneMessage: 'トピックを作成しました'
         });
 
-        this.forceClose();
+        // this.forceClose();
+        this.rootLayout.closeModal({ needRefresh: true });
       });
     } else {
       //
-
+      // ... ?
     }
   }
 
@@ -259,10 +264,10 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     this.routerExt.backToPreviousPage();
   }
 
-  forceClose() {
-    //
-    this.rootLayout.closeModal();
-  }
+  // forceClose() {
+  //   //
+  //   this.rootLayout.closeModal();
+  // }
   /*
    * --
    */
