@@ -53,7 +53,6 @@ export class MessageDetailSettingsFieldComponent implements OnInit, OnDestroy, A
     private messageService: MessageProxyService,
     private mvService: MessageThreadValidatorService,
     private mProxy: ModalProxyService,
-    private formBuilder: FormBuilder,
   ){
     page.actionBarHidden = true;
 
@@ -89,21 +88,32 @@ export class MessageDetailSettingsFieldComponent implements OnInit, OnDestroy, A
     });
 
     this.mSub = this.mProxy.switchBack$.subscribe((data: any) => {
-
-
-      (this.gForm.get('memberIds')).setValue(
-        this.threadObj.parties.map((el: any) => el.id).concat(data[1])
-      );
-
-      this.userService.updateGroupMessageThread(
-        this.threadObj.id, {
-          title: this.gForm.get('title').value,
-          memberIds: this.threadObj.parties.map((el: any) => el.id).concat(data[1])
+      let target: string;
+      let options: any;
+      if (data instanceof Array && data.length > 0) {
+        target = data[0];
+        if (data.length > 1) {
+          options = data[1];
         }
-      ).subscribe(_ => {
-        this.edited = true;
-        this.routerExt.backToPreviousPage();
-      });
+      } else {
+        target = data;
+      }
+
+      if (target == 'thread-add-member') {
+        (this.gForm.get('memberIds')).setValue(
+          this.threadObj.parties.map((el: any) => el.id).concat(options)
+        );
+
+        this.userService.updateGroupMessageThread(
+          this.threadObj.id, {
+            title: this.gForm.get('title').value,
+            memberIds: this.threadObj.parties.map((el: any) => el.id).concat(options)
+          }
+        ).subscribe(_ => {
+          this.edited = true;
+          this.routerExt.backToPreviousPage();
+        });
+      }
     });
 
     this.lastCommit = this.gForm.value;
@@ -114,13 +124,15 @@ export class MessageDetailSettingsFieldComponent implements OnInit, OnDestroy, A
 
   ngOnDestroy() {
     this.gfSub.unsubscribe();
+    this.mSub.unsubscribe();
 
     if (!this.edited) {
       this.gForm.patchValue(this.lastCommit);
     } else {
       this.messageService.fetchThreads(this.threadObj.communityId);
       this.trayService.request('snackbar/', 'open', {
-        step: 1, isApproved: true,
+        step: 1,
+        isApproved: true,
         doneMessage: `${this.title}を編集しました.`
       });
     }

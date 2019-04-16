@@ -1,7 +1,47 @@
 <AbsoluteLayout>
   <StackLayout #sizeAnchor class="util-anchor-full"></StackLayout>
 
-  <StackLayout orientation="horizontal" width="100%" height="58"  class="bg-white">
+  <ScrollView class="bg-theme-secondary" width="100%" height="100%">
+    <StackLayout margin="60 0 0">
+      <StackLayout padding="15 20">
+        <SearchboxLike
+          placeholder="検索"
+          followContent="&#xe997;"
+          followIsIcon="true"
+          (onSearch)="searchAction()"
+          (onTapFollowContent)="modalAction()"></SearchboxLike>
+      </StackLayout>
+
+      <ActivityIndicator *ngIf="currentList?.length == 0 && !loadingRetired" busy="true" width="20"></ActivityIndicator>
+
+      <ng-template ngFor let-item [ngForOf]="currentList" let-i="index">
+
+        <StackLayout class="bg-theme-secondary">
+          <CardView margin="1 20" elevation="5" class="bg-white"
+            (tap)="onItemTap(item)">
+            <StackLayout height="90">
+              <GridLayout columns="80,*,60" rows="*" class="p-15">
+                <Image col="0" class="m-r-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
+                  src="{{ item?.photoUrl || '~/assets/placeholder__group.png' }}"></Image>
+                <StackLayout col="1" verticalAlignment="center">
+                  <Label class="typo-list-heading" text="{{ item?.title }}"></Label>
+                  <Label class="typo-list-preview" text="{{ item?.lastMessage?.text }}" android:style="margin-top:-10;"></Label>
+                </StackLayout>
+                <Label col="2" class="typo-list-date" style="vertical-align:top; text-align:right;"
+                  text="{{ item?.lastMessage?.createdAt | amLocal | amDateFormat: 'HH:mm' }}"></Label>
+              </GridLayout>
+            </StackLayout>
+          </CardView>
+        </StackLayout>
+
+      </ng-template>
+
+      <StackLayout height="30"></StackLayout>
+
+    </StackLayout>
+  </ScrollView>
+
+  <StackLayout orientation="horizontal" width="100%" height="58" class="bg-white">
     <ScrollView orientation="horizontal">
       <StackLayout orientation="horizontal">
         <ng-template ngFor let-item [ngForOf]="navList" let-i="index">
@@ -12,47 +52,6 @@
       </StackLayout>
     </ScrollView>
   </StackLayout>
-
-  <ScrollView class="bg-theme-secondary" width="100%" height="100%" top="58">
-    <StackLayout>
-      <StackLayout padding="15 20">
-        <SearchboxLike
-          placeholder="検索"
-          followContent="&#xe997;"
-          followIsIcon="true"
-          (onSearch)="searchAction()"
-          (onTapFollowContent)="modalAction()"></SearchboxLike>
-      </StackLayout>
-
-      <ActivityIndicator *ngIf="currentList?.length == 0" busy="true" width="20"></ActivityIndicator>
-
-      <GridLayout *ngIf="currentList" rows="*" width="100%" height="100%" class="bg-theme-secondary">
-
-        <ng-template ngFor let-item [ngForOf]="currentList" let-i="index">
-
-          <StackLayout class="bg-theme-secondary">
-            <CardView margin="1 20" elevation="5" class="bg-white"
-              (tap)="onItemTap(item)">
-              <StackLayout height="90">
-                <GridLayout columns="80,*,60" rows="*" class="p-15">
-                  <Image col="0" class="m-r-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
-                    src="{{ item?.photoUrl || '~/assets/placeholder__group.png' }}"></Image>
-                  <StackLayout col="1" verticalAlignment="center">
-                    <Label class="typo-list-heading" text="{{ item?.title }}"></Label>
-                    <Label class="typo-list-preview" text="{{ item?.lastMessage?.text }}" android:style="margin-top:-10;"></Label>
-                  </StackLayout>
-                  <Label col="2" class="typo-list-date" style="vertical-align:top; text-align:right;"
-                    text="{{ item?.lastMessage?.createdAt | amLocal | amDateFormat: 'HH:mm' }}"></Label>
-                </GridLayout>
-              </StackLayout>
-            </CardView>
-          </StackLayout>
-        </ng-template>
-
-      </GridLayout>
-
-    </StackLayout>
-  </ScrollView>
 
   <FAB #floatingButton
     left="-200"

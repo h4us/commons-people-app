@@ -89,9 +89,7 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
   }
 
   ngAfterViewInit() {
-    const currentOutlet = this.aRoute.outlet != 'userpage' ?  this.aRoute.outlet : '';
-
-    console.log(currentOutlet);
+    const currentOutlet = this.aRoute.outlet != 'userpage' ?  this.aRoute.outlet : 'pointsenderAtUserpage';
 
     this.registerSnackbarActions();
     this.trayService.request(`snackbar/${currentOutlet}`, 'open', {
@@ -111,14 +109,14 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
         //   doneMessage: 'ポイントを送信しました'
         // });
       } else {
-        const currentOutlet = this.aRoute.outlet != 'userpage' ?  this.aRoute.outlet : '';
+        const currentOutlet = this.aRoute.outlet != 'userpage' ?  this.aRoute.outlet : 'pointsenderAtUserpage';
         this.trayService.request(`snackbar/${currentOutlet}`, 'close' );
       }
     }
   }
 
   registerSnackbarActions() {
-    const currentOutlet = this.aRoute.outlet != 'userpage' ?  this.aRoute.outlet : '';
+    const currentOutlet = this.aRoute.outlet != 'userpage' ?  this.aRoute.outlet : 'pointsenderAtUserpage';
     this.tNotifySubscription = this.trayService.notifyToUser$
       .subscribe((data: any) => {
         if (data[0] == `snackbar/${currentOutlet}`) {

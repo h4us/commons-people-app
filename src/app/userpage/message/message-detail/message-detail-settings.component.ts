@@ -374,7 +374,6 @@ export class MessageDetailSettingsComponent implements OnInit, OnDestroy {
     this.trayService.request('snackbar/', 'open', {
       approveMessage: 'グループから退会しますか？',
       doneMessage: '退会しました',
-      // canUserDisposable: false
     });
   }
 

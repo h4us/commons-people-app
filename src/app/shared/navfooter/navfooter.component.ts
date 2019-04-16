@@ -81,7 +81,7 @@ export class NavfooterComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.tUnreadSubscription = this.trayService.notifyUpdates$.subscribe((res :any) => {
       // TODO:
-      this.whichIndicate.message = res.message.count > 0;
+      this.whichIndicate.message = res.message.find((el: any) => el.count > 0);
 
       this.whichIndicate.community = res.topic.find((el: any) => el.hasUnread);
 

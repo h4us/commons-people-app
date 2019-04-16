@@ -24,7 +24,10 @@ export class PeriodicTasksService {
     private trayService: SystemTrayService,
   ) {
     const unreadTask = timer(this.intervalSec * 1000, this.intervalSec * 1000).pipe(
-      switchMap(_ => this.userService.getUnreadMessages()),
+      switchMap(_ => of(...this.userService.getCommunities()).pipe(
+        concatMap((el) => this.userService.getUnreadMessages(el.id)),
+        toArray()
+      )),
     );
 
     const checkTopicsTask = timer(this.intervalSec * 1000, this.intervalSec * 1000).pipe(
@@ -74,10 +77,11 @@ export class PeriodicTasksService {
       console.log('start ticker');
 
       this.tickerSubs = this.ticker.subscribe((res: any) => {
-        // --
-        // console.log('ticker', res);
-
         const uc = this.userService.getCommunities();
+
+        const unreadMessage = res[0].map((el: any, i: number) => {
+          return Object.assign({ communityId: uc[i].id } , el);
+        });
 
         const newTopic = res[1].map((el: any) => {
           const mc = uc.find((iel: any) => el.communityId == iel.id);
@@ -96,7 +100,7 @@ export class PeriodicTasksService {
         });
 
         this.trayService.notifyUpdates({
-          message: res[0],
+          message: unreadMessage,
           topic: newTopic,
           point: newTransactions
         });

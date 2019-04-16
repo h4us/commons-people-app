@@ -136,15 +136,6 @@ export class UserService {
   }
 
   logout(completely: boolean = true): Observable<any> {
-    // TODO:
-    this._isLoggedIn = false;
-    this._restoreble = false;
-    this.user = null;
-    this.loginData = {
-      username: null,
-      password: null
-    };
-
     let ret: Observable<any> = of(null);
 
     if (completely) {
@@ -152,6 +143,18 @@ export class UserService {
       ret = zip(
         from(this._sStorage.removeAll()),
         this.http.post(`${this.apiUrl}logout`, null)
+      ).pipe(
+        tap(_ => {
+          this._isLoggedIn = false;
+          this._restoreble = false;
+          this.user = null;
+          this.loginData = {
+            username: null,
+            password: null
+          };
+
+          console.log('cleanup userservice');
+        })
       );
     } else {
       // console.log('soft logout');
@@ -518,8 +521,9 @@ export class UserService {
     return this.http.post(`${this.apiUrl}message-threads/${id}/unsubscribe`, null);
   }
 
-  tapDirectMessageThread(id: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}message-threads/user/${id}`, { userId: id });
+  tapDirectMessageThread(id: number, communityId?: number): Observable<any> {
+    // return this.http.post(`${this.apiUrl}message-threads/user/${id}`, { userId: id });
+    return this.http.post(`${this.apiUrl}message-threads/user/${id}`, { communityId: communityId });
   }
 
   tapTopicMessageThread(id: number): Observable<any> {
@@ -536,6 +540,10 @@ export class UserService {
       }
       if (filters.messageFilter) {
         params.push(`messageFilter=${filters.messageFilter}`)
+      }
+
+      if (filters.communityId) {
+        params.push(`communityId=${filters.communityId}`)
       }
     }
 
@@ -583,8 +591,9 @@ export class UserService {
     });
   }
 
-  getUnreadMessages(): Observable<any> {
-    return this.http.get(`${this.apiUrl}message-threads/unread-count`);
+  getUnreadMessages(id?: number): Observable<any> {
+    const params = id ? `?communityId=${id}` : '';
+    return this.http.get(`${this.apiUrl}message-threads/unread-count${params}`);
   }
 
   /*

@@ -62,6 +62,7 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
       };
 
       let target: string;
+
       if (data instanceof Array && data.length > 0) {
         target = data[0];
         if (data.length > 1) {
@@ -88,7 +89,7 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
         });
       } else if (target == 'thread-edit') {
         this.modalService.showModal(ThreadEditorComponent, options);
-      }  else if (target  == 'thread-new') {
+      } else if (target  == 'thread-new') {
         this.modalService.showModal(MessageEditorComponent, options).then((data: any) => {
           // TODO:
           if (data && data.willCreate) {
@@ -133,10 +134,10 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
 
     //
     this.sSubscription = trayService.appState$.subscribe((state: any) => {
-      if (state.eventName && state.eventName == 'resume') {
+      if (state.eventName && (state.eventName == 'resume' || state.eventName == 'online')) {
         this.pTasksService.start();
       }
-      if (state.eventName && state.eventName == 'suspend') {
+      if (state.eventName && (state.eventName == 'suspend' || state.eventName == 'offline')) {
         this.pTasksService.stop();
       }
     });

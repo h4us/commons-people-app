@@ -32,6 +32,7 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() isShown: boolean = false;
   @Input() containerId: string = '';
   @Input() isApproved: boolean = false;
+  @Input() avoidErrorMessage: boolean = false;
 
   private _step: number = 0;
 
@@ -60,14 +61,17 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    // TODO:
     this.cRootRef.nativeElement.opacity = 0;
 
     if (!this.tRequestSubscription
-        && !this.tErrorSubscription
         && !this.tPositionSubscription
         && !this.sReportSubscription) {
       this.registerSubscriptions();
+    }
+
+    if (!this.tErrorSubscription
+        && !this.avoidErrorMessage) {
+      this.registerErrorSubscription();
     }
   }
 
@@ -80,22 +84,17 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       this.resetPosition();
     });
-
-    // const sb = interval(30).pipe(skipWhile(() => {
-    //   return !this.trayService.lastMeasuredPosition;
-    // })).subscribe(() => {
-    //   this.positionRef = this.trayService.lastMeasuredPosition;
-    //   AbsoluteLayout.setTop(this.cRootRef.nativeElement, this.positionRef - this.baseOffset);
-    //   sb.unsubscribe();
-    // });
   }
 
   ngOnDestroy() {
     console.log(`destroied snackbar container @${this.containerId}`);
     this.tRequestSubscription.unsubscribe();
     this.tPositionSubscription.unsubscribe();
-    this.tErrorSubscription.unsubscribe();
     this.sReportSubscription.unsubscribe();
+
+    if (this.tErrorSubscription && !this.tErrorSubscription.closed) {
+      this.tErrorSubscription.unsubscribe();
+    }
 
     if (this.aCloseSubscription && !this.aCloseSubscription.closed) {
       this.aCloseSubscription.unsubscribe();
@@ -118,6 +117,14 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
     // - error variations
     // - cleanup
     // --
+    this.tPositionSubscription = this.trayService.trayPosition$.subscribe((data: any) => {
+      if (typeof data == 'number') {
+        this.positionRef = data;
+      }
+
+      this.resetPosition();
+    });
+
     this.sReportSubscription = this.stepReport.asObservable().subscribe((n: number) => {
       if (n == 1 && this.autoCloseOnApproved && this.isShown) {
         this.aCloseSubscription = of(null).pipe(
@@ -132,14 +139,60 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    this.tPositionSubscription = this.trayService.trayPosition$.subscribe((data: any) => {
-      if (typeof data == 'number') {
-        this.positionRef = data;
+    this.tRequestSubscription = this.trayService.requestFromUser$.pipe(debounceTime(150)).subscribe((data: any) => {
+      if (data[0] == `snackbar/${this.containerId}`) {
+
+        const cmdOption: any = data.length > 2 ? data[2] : {};
+
+        console.log(`id@${this.containerId}`, data, cmdOption);
+
+        if (data[1] == 'close') {
+          console.log(`close external! @${this.containerId}`);
+          this.disposeBar(cmdOption);
+        }
+
+        if (data[1] == 'open') {
+          console.log(`open external! @${this.containerId}`, this.positionRef);
+          this.cRootRef.nativeElement.translateY = 200;
+          this.cRootRef.nativeElement.opacity = 0;
+          this.isShown = true;
+          // TODO: cleanup
+          this.autoDisposeDelay = typeof cmdOption.autoDisposeDelay != 'undefined' ? cmdOption.autoDisposeDelay : 5000;
+          this.isApproved = typeof cmdOption.isApproved != 'undefined' ? cmdOption.isApproved : false;
+          this.step = cmdOption.step ? cmdOption.step : 0;
+          this.cancelAsClose = typeof cmdOption.cancelAsClose != 'undefined' ? cmdOption.cancelAsClose : true;
+          this.autoNextStep = typeof cmdOption.autoNextStep != 'undefined' ? cmdOption.autoNextStep : true;
+          this.approveMessage = cmdOption.approveMessage || this.approveMessage;
+          this.doneMessage = cmdOption.doneMessage || this.doneMessage;
+          this.canUserDisposable = typeof cmdOption.canUserDisposable != 'undefined' ? cmdOption.canUserDisposable : true;
+          this.barColor = cmdOption.barColor ? cmdOption.barColor : 'theme';
+          //
+
+          this.trayService.notify(`snackbar/${this.containerId}`, 'willRise');
+
+          setTimeout(() => {
+            AbsoluteLayout.setTop(this.cRootRef.nativeElement, this.positionRef - this.baseOffset);
+            this.cRootRef.nativeElement.animate({
+              translate: { x:0, y:0 },
+              opacity: 1,
+              duration: 300,
+              curve: AnimationCurve.easeOut
+            }).then(() => {
+              this.cRootRef.nativeElement.translateY = 0;
+              this.trayService.notify(`snackbar/${this.containerId}`, 'riseAnimationDone');
+            }, () => {});
+          }, 100);
+        }
+
+        if (data[1] == 'next') {
+          this.isApproved = !this.isApproved;
+          this.step = (this.step + 1) % 2;
+        }
       }
-
-      this.resetPosition();
     });
+  }
 
+  registerErrorSubscription() {
     this.tErrorSubscription = this.trayService.errorReport$.pipe(debounceTime(150)).subscribe((data: any) => {
       console.log(`open by internal error reporter @${this.containerId}, status: ${data.status} / ${data.statusText} `, this.positionRef);
 
@@ -200,63 +253,6 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
         }, () => {});
       }, 100);
     });
-
-    this.tRequestSubscription = this.trayService.requestFromUser$.pipe(debounceTime(150)).subscribe((data: any) => {
-      if (data[0] == `snackbar/${this.containerId}`) {
-        console.log(data);
-
-        const cmdOption: any = data.length > 2 ? data[2] : {};
-        console.log(cmdOption);
-
-        if (data[1] == 'close') {
-          console.log(`close external! @${this.containerId}`);
-          this.disposeBar(cmdOption);
-        }
-
-        if (data[1] == 'open') {
-          console.log(`open external! @${this.containerId}`, this.positionRef);
-          this.cRootRef.nativeElement.translateY = 200;
-          this.cRootRef.nativeElement.opacity = 0;
-          this.isShown = true;
-          // TODO: cleanup
-          this.autoDisposeDelay = typeof cmdOption.autoDisposeDelay != 'undefined' ? cmdOption.autoDisposeDelay : 5000;
-          this.isApproved = typeof cmdOption.isApproved != 'undefined' ? cmdOption.isApproved : false;
-          this.step = cmdOption.step ? cmdOption.step : 0;
-          this.cancelAsClose = typeof cmdOption.cancelAsClose != 'undefined' ? cmdOption.cancelAsClose : true;
-          this.autoNextStep = typeof cmdOption.autoNextStep != 'undefined' ? cmdOption.autoNextStep : true;
-          this.approveMessage = cmdOption.approveMessage || this.approveMessage;
-          this.doneMessage = cmdOption.doneMessage || this.doneMessage;
-          this.canUserDisposable = typeof cmdOption.canUserDisposable != 'undefined' ? cmdOption.canUserDisposable : true;
-          this.barColor = cmdOption.barColor ? cmdOption.barColor : 'theme';
-          //
-
-          this.trayService.notify(`snackbar/${this.containerId}`, 'willRise');
-
-          setTimeout(() => {
-            AbsoluteLayout.setTop(this.cRootRef.nativeElement, this.positionRef - this.baseOffset);
-            this.cRootRef.nativeElement.animate({
-              translate: { x:0, y:0 },
-              opacity: 1,
-              duration: 300,
-              curve: AnimationCurve.easeOut
-            }).then(() => {
-              this.cRootRef.nativeElement.translateY = 0;
-              this.trayService.notify(`snackbar/${this.containerId}`, 'riseAnimationDone');
-            }, () => {});
-          }, 100);
-        }
-
-        if (data[1] == 'next') {
-          this.isApproved = !this.isApproved;
-          this.step = (this.step + 1) % 2;
-        }
-
-        if (data[1] == 'prev') {
-          //
-        }
-
-      }
-    });
   }
 
   resetPosition(pos?: number) {
@@ -297,10 +293,6 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   disposeBar(stateWith?: any) {
-    // if (this.onClose.observers.length > 0) {
-    //   this.onClose.emit(`tap afterClose`);
-    // }
-
     if (this.isShown) {
       this.cRootRef.nativeElement.animate({
         translate: { x:0, y:200 },
@@ -316,7 +308,7 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.trayService.notify(`snackbar/${this.containerId}`, 'disposeAnimationDone', stateWith);
       }, () => {});
-      console.log(`snackbar action, afterClose @${this.containerId} ( ${stateWith} )`);
+      console.log(`snackbar action, afterClose @${this.containerId} ( ${JSON.stringify(stateWith)} )`);
     }
 
     this.trayService.notify(`snackbar/${this.containerId}`, 'disposeBar', stateWith);

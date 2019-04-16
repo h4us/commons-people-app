@@ -96,8 +96,6 @@ export class PointSenderCommitComponent implements OnInit, OnDestroy, AfterViewI
     if (isIOS && this.nkbd) {
       this.nkbd.nativeElement.keyboardType = 11;
     }
-
-    this.tService.request('snackbar', 'open');
   }
 
   ngOnDestroy() {

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { Subscription, fromEvent } from 'rxjs';
+import { Subscription, fromEvent, timer } from 'rxjs';
 import { take, switchMap, delay } from 'rxjs/operators'
 
 import { RouterExtensions } from 'nativescript-angular/router';
@@ -29,6 +29,8 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
   navList: any[];
   user: User;
   currentCommunityId: number;
+  loadingRetired: boolean = false;
+
   msgSubscription: Subscription;
   mdlSubscription: Subscription
 
@@ -56,19 +58,22 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
     this.navList = this.userService.getCommunities();
 
     //
-    this.msgSubscription = this.messageService.activeThreads$.subscribe(
-      (data) => { this.currentList = data; }
-    );
-    this.messageService.fetchThreads(this.currentCommunityId);
+    if (!this.msgSubscription) {
+      this.msgSubscription = this.messageService.activeThreads$.subscribe((data:any) => {
+        this.currentList = data;
+      });
+    }
 
     //
-    this.mdlSubscription = this.mProxy.switchBack$.subscribe((data) => {
-      if (data instanceof Array && data.length > 1 && data[0] === 'thread-new') {
-        this.routerExt.navigate(['../message/log', data[1]], {
-          relativeTo: this.aRoute
-        });
-      }
-    });
+    if (!this.mdlSubscription) {
+      this.mdlSubscription = this.mProxy.switchBack$.subscribe((data) => {
+        if (data instanceof Array && data.length > 1 && data[0] === 'thread-new') {
+          this.routerExt.navigate(['../message/log', data[1]], {
+            relativeTo: this.aRoute
+          });
+        }
+      });
+    }
 
     this.fbtnRef.nativeElement.opactiy = 0;
 
@@ -89,6 +94,10 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
       AbsoluteLayout.setTop(this.fbtnRef.nativeElement, aH - eH - (eH * 0.33));
       this.fbtnRef.nativeElement.opacity = 1;
     });
+
+    timer(3000).subscribe(_ => { this.loadingRetired = true; });
+
+    this.messageService.fetchThreads(this.currentCommunityId);
   }
 
   ngOnDestroy() {
@@ -104,6 +113,9 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onNavItemTap(args: any) {
     const tItem = args;
+
+    this.loadingRetired = false;
+    timer(3000).subscribe(_ => { this.loadingRetired = true; });
 
     this.currentCommunityId = tItem.id;
     this.messageService.fetchThreads(this.currentCommunityId);
@@ -122,5 +134,9 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
       // TODO: isIOS switch?
       transition: { name: 'fade', duration: 150 },
     });
+  }
+
+  get dstr() {
+    return this.messageService.debugStr;
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { Observable, Subject } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
+import { tap, map, share } from 'rxjs/operators';
 
 import { UserpageModule } from './userpage.module';
 
@@ -21,6 +21,8 @@ export class MessageProxyService {
   incommingMessage$ = this.messagesSource.asObservable();
   activeThreads$ = this.threadsSource.asObservable();
 
+  private _debugStr: string = '';
+
   constructor(private userService: UserService) {}
 
   get activeThreads() {
@@ -31,17 +33,22 @@ export class MessageProxyService {
     return this._incommingMessage;
   }
 
+  get debugStr() {
+    return this._debugStr;
+  }
+
   fetchThreads(targetCommunity?: number) {
     let source: Observable<any>;
     if (targetCommunity) {
-      // TODO:
-      source = this.userService.getMessageThreads().pipe(
-        map((el: any) => {
-          return el.filter((iel) => iel.communityId == targetCommunity)
-        }),
-      );
+      // source = this.userService.getMessageThreads({ communityId: targetCommunity }).pipe(
+      //   // tap((res) => this._debugStr = JSON.stringify(res)),
+      //   map((el: any) => {
+      //     return el.filter((iel) => iel.communityId && iel.communityId == targetCommunity)
+      //   }),
+      // );
+      source = this.userService.getMessageThreads({ communityId: targetCommunity });
     } else {
-      source = this.userService.getMessageThreads();
+      source = this.userService.getMessageThreads({ communityId: this.userService.getCommunity().id });
     }
 
     source.subscribe(
@@ -57,14 +64,16 @@ export class MessageProxyService {
     let source: Observable<any>;
 
     if (targetCommunity) {
-      // TODO:
-      source = this.userService.getMessageThreads(input).pipe(
-        map((el: any) => {
-          return el.filter((iel) => iel.communityId == targetCommunity)
-        }),
-      );
+      const _input = Object.assign({ communityId: targetCommunity } , input);
+      source = this.userService.getMessageThreads(_input);
+      // source = this.userService.getMessageThreads(input).pipe(
+      //   map((el: any) => {
+      //     return el.filter((iel) => iel.communityId && iel.communityId == targetCommunity)
+      //   }),
+      // );
     } else {
-      source = this.userService.getMessageThreads(input);
+      const _input = Object.assign({ communityId: this.userService.getCommunity().id } , input);
+      source = this.userService.getMessageThreads(_input);
     }
 
     source.subscribe(
@@ -74,6 +83,11 @@ export class MessageProxyService {
       },
       (err) => console.error(err),
     );
+  }
+
+  clear() {
+    this._activeThreads = [];
+    this.threadsSource.next([]);
   }
 
   fetchMessages(id?: number) {

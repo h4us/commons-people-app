@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Observable, Subject, of, from, timer } from 'rxjs';
-import { tap, share } from "rxjs/operators";
+import { tap, share, map, takeWhile, finalize } from "rxjs/operators";
 
 import { RouterExtensions } from 'nativescript-angular/router';
+import { getConnectionType, connectionType } from 'tns-core-modules/connectivity'
 
 import { UserService } from './user.service';
 
@@ -30,27 +31,20 @@ export class SystemTrayService {
 
   private trayPositionSource = new Subject<any>();
 
-  //
-  errorReport$ = this.errorReportSource.asObservable().pipe(share());
-  appState$ = this.appStateSource.asObservable().pipe(share());
+  private _isLocked:boolean = false;
+  // private _isShown:boolean = false;
 
-  //
-  requestFromUser$ = this.requestFromUserSource.asObservable().pipe(share());
-  notifyToUser$ = this.notifyToUserSource.asObservable().pipe(share());
-
-  //
-  userpageLock$ = this.userpageLockSource.asObservable().pipe(share());
-  navShowHide$ = this.navShowHideSource.asObservable().pipe(share());
-
-  //
-  notifyUpdates$ = this.notifyUpdatesSource.asObservable().pipe(share());
-
-  //
-  trayPosition$ = this.trayPositionSource.asObservable();
   lastMeasuredPosition: any;
 
-  private _isLocked:boolean = false;
-  private _isShown:boolean = false;
+  // errorReport$ = this.errorReportSource.asObservable().pipe(share());
+  // appState$ = this.appStateSource.asObservable().pipe(share());
+  // requestFromUser$ = this.requestFromUserSource.asObservable().pipe(share());
+  // notifyToUser$ = this.notifyToUserSource.asObservable().pipe(share());
+  // userpageLock$ = this.userpageLockSource.asObservable().pipe(share());
+  // navShowHide$ = this.navShowHideSource.asObservable().pipe(share());
+  // notifyUpdates$ = this.notifyUpdatesSource.asObservable().pipe(share());
+
+  // trayPosition$ = this.trayPositionSource.asObservable();
 
   constructor(
     private userService: UserService,
@@ -65,6 +59,16 @@ export class SystemTrayService {
       this.appStateSource.next(args);
     });
   }
+
+  get errorReport$() { return this.errorReportSource; }
+  get appState$() { return this.appStateSource; }
+  get requestFromUser$() { return this.requestFromUserSource; }
+  get notifyToUser$() { return this.notifyToUserSource; }
+  get userpageLock$() { return this.userpageLockSource; }
+  get navShowHide$() {return  this.navShowHideSource; }
+  get notifyUpdates$() { return this.notifyUpdatesSource; }
+
+  get trayPosition$() { return this.trayPositionSource; }
 
   //
   request(id:string, command: any, option?: any) {
@@ -102,6 +106,15 @@ export class SystemTrayService {
           this.userService.logout(false).subscribe(_ =>  this.routerExt.navigate(['signin']));
         });
       }
+
+      if (errMessage.status == -1) {
+        this.appStateSource.next({ eventName: 'offline' });
+        timer(2000, 2000).pipe(
+          map(_ => getConnectionType()),
+          takeWhile((s) => s == connectionType.none),
+          finalize(() => this.appStateSource.next({ eventName: 'online' }))
+        ).subscribe();
+      }
     }
 
     if (this._isLocked) {
@@ -116,7 +129,6 @@ export class SystemTrayService {
     // --
   }
 
-  //
   lockUserpageArea() {
     this._isLocked = true;
     this.userpageLockSource.next(true);
@@ -127,20 +139,22 @@ export class SystemTrayService {
     this.userpageLockSource.next(false);
   }
 
-  //
   showNavigation() {
-    this._isShown = true;
+    // this._isShown = true;
     this.navShowHideSource.next(true);
   }
 
   hideNavigation() {
-    this._isShown = false;
+    // this._isShown = false;
     this.navShowHideSource.next(false);
   }
 
-  //
   notifyUpdates(data: any) {
     this.notifyUpdatesSource.next(data);
+  }
+
+  appStateChange(data: any) {
+    this.appStateSource.next(data);
   }
 
   //

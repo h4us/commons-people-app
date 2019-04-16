@@ -26,6 +26,7 @@ export class MessageEditorComponent implements OnInit {
   currentList: any[] = [];
   ignore: number[] = [];
   inCommunity: number = -1;
+  currentCommunity: number = -1; //! alias
 
   isSearchMode: boolean = false;
   editorContext: string = 'new';
@@ -45,6 +46,7 @@ export class MessageEditorComponent implements OnInit {
     }
     if (dParams.context && dParams.context.inCommunity) {
       this.inCommunity = dParams.context.inCommunity;
+      this.currentCommunity = dParams.context.inCommunity;
     }
     if (dParams.context && dParams.context.editorContext) {
       this.editorContext = dParams.context.editorContext;
@@ -74,7 +76,7 @@ export class MessageEditorComponent implements OnInit {
   ok(layout: AbsoluteLayout | DockLayout) {
     if (this.editorContext == 'new') {
       if (this.selected.length === 1) {
-        this.userService.tapDirectMessageThread(this.selected[0]).subscribe((data: any) => {
+        this.userService.tapDirectMessageThread(this.selected[0], this.inCommunity).subscribe((data: any) => {
           layout.closeModal({
             willCreate: data.id
           });

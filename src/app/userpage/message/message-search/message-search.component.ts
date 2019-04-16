@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { Subscription } from 'rxjs';
+import { Subscription, timer } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
@@ -56,7 +56,9 @@ export class MessageSearchComponent implements OnInit, OnDestroy, AfterViewInit 
       });
 
     this.msgSubscription = this.messageService.activeThreads$.subscribe(
-      (data) => { this.currentList = data; }
+      (data) => {
+        this.currentList = data;
+      }
     );
   }
 
@@ -64,7 +66,9 @@ export class MessageSearchComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   ngOnDestroy() {
+    // this.messageService.clear();
     this.msgSubscription.unsubscribe();
+    this.messageService.fetchThreads(this.currentCommunityId);
   }
 
   onItemTap(args: ListViewEventData) {

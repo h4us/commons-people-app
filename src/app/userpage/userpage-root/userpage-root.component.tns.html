@@ -1,5 +1,5 @@
 <AbsoluteLayout #userpageMain width="100%" height="100%">
-  <!-- // -->
+
   <GridLayout #userpageRoot rows="*,auto" width="100%" height="100%">
     <StackLayout #userpageMain row="0" width="100%" height="100%">
       <page-router-outlet name="userpage"></page-router-outlet>
@@ -8,12 +8,18 @@
       <app-navfooter></app-navfooter>
     </StackLayout>
   </GridLayout>
-  <!-- // -->
+
   <StackLayout width="100%" height="100%" backgroundColor="rgba(0,0,0,.33)"
     visibility="{{ locked ? 'visible' : 'collapse' }}"
     (touch)="onOuterTouch()"
     (tap)="onOuterTouch()"></StackLayout>
-  <!-- // -->
+
+  <CustomSnackbarLike #snackBar
+    containerId="pointsenderAtUserpage"
+    avoidErrorMessage="true"
+    approveMessage="この内容でよろしいですか？"
+    doneMessage="送信が完了しました。"></CustomSnackbarLike>
+
   <CustomSnackbarLike #snackBar
     approveMessage="この内容でよろしいですか？"
     doneMessage="送信が完了しました。"></CustomSnackbarLike>

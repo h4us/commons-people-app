@@ -76,14 +76,6 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
 
   //
   ngOnInit() {
-    // test
-    // this.userService.defaultPaging.topics = {
-    //   page: 0,
-    //   size: 3,
-    //   sort: 'DESC'
-    // }
-    // --
-
     this.pagingConfig = Object.assign({}, this.userService.defaultPaging);
 
     //
@@ -220,7 +212,6 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
       take(1), delay(1)
     ).subscribe(_ => {
       this.tcTopEdge = this.tContainerRef.nativeElement.getLocationInWindow().y - 30;
-      console.log('top edge?', this.tcTopEdge);
     });
   }
 
