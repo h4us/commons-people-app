@@ -5,11 +5,17 @@
 //	compile 'com.android.support:recyclerview-v7:+'
 //}
 
+project.ext {
+    googlePlayServicesVersion = "+"
+}
+
 android {
   defaultConfig {
     generatedDensities = []
     // applicationId = "net.inafact.People"
     applicationId = "love.commonspeople.app"
+
+    multiDexEnabled true
 
     //override supported platforms
     // ndk {

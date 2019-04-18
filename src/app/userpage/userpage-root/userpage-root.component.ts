@@ -25,7 +25,10 @@ import { ModalProxyService } from '../modal-proxy.service';
 import { MessageProxyService } from '../message-proxy.service';
 import { PeriodicTasksService } from '../periodic-tasks.service';
 
+import { UserService } from '../../user.service';
 import { SystemTrayService } from '../../system-tray.service';
+
+const firebase = require('nativescript-plugin-firebase');
 
 @Component({
   selector: 'app-userpage-root',
@@ -51,6 +54,7 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
     private vcRef: ViewContainerRef,
     private aRoute: ActivatedRoute,
     private mProxy: ModalProxyService,
+    private userService: UserService,
     private trayService: SystemTrayService,
   ) {
     page.actionBarHidden = true;
@@ -145,6 +149,12 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit() {
     this.pTasksService.start();
+
+    firebase.getCurrentPushToken().then((token: string) => {
+      console.log(`Current push token: ${token}`);
+      this.userService.setNotificationToken(token);
+      this.userService.sendNotifictationToken().subscribe();
+    });
 
     this.routerExt.navigate([{
       outlets: {

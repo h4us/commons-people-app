@@ -64,6 +64,9 @@ export class UserService {
 
   private _sStorage: SecureStorage = new SecureStorage();
   private _restoreble: boolean = false;
+
+  private _pushNotificationToken: string = '';
+
   //
   private updateRequestSource = new Subject<string>();
   updateRequest$ = this.updateRequestSource.asObservable();
@@ -108,6 +111,24 @@ export class UserService {
     this.updateRequestSource.next(target);
   }
 
+  setNotificationToken(token: string) {
+    this._pushNotificationToken = token;
+  }
+
+  sendNotifictationToken(): Observable<any> {
+    let ret: Observable<any> = of(null);
+
+    if (this._pushNotificationToken != '') {
+      ret = this.http.post(`${this.apiUrl}users/${this.user.id}/mobile-device`, {
+        pushNotificationToken: this._pushNotificationToken
+      }).pipe(
+        tap(_ => console.log('token is set -> ', this._pushNotificationToken))
+      );
+    }
+
+    return ret
+  }
+
   login(username:string = '', password:string = ''): Observable<any> {
     this.loginData.username = username;
     this.loginData.password = password;
@@ -116,6 +137,12 @@ export class UserService {
       tap((data: unknown) => {
         console.log('standard logged in', data);
         this.parseUser(<User>data, true);
+
+        // if (this._pushNotificationToken.length > 0) {
+        //   this.http.post(`${this.apiUrl}users/${this.user.id}/mobile-device`, {
+        //     pushNotificationToken: this._pushNotificationToken
+        //   }).subscribe(_ => console.log('token is set -> ', this._pushNotificationToken));
+        // }
       })
     );
   }
@@ -130,7 +157,13 @@ export class UserService {
     return this.http.post(`${this.apiUrl}login`, this.loginData).pipe(
       tap((data: unknown) => {
         console.log('restore logged in', data);
-        this.parseUser(<User>data, true)
+        this.parseUser(<User>data, true);
+
+        // if (this._pushNotificationToken.length > 0) {
+        //   this.http.post(`${this.apiUrl}users/${this.user.id}/mobile-device`, {
+        //     pushNotificationToken: this._pushNotificationToken
+        //   }).subscribe(_ => console.log('token is set -> ', this._pushNotificationToken));
+        // }
       })
     );
   }
@@ -152,6 +185,7 @@ export class UserService {
             username: null,
             password: null
           };
+          this._pushNotificationToken = '';
 
           console.log('cleanup userservice');
         })

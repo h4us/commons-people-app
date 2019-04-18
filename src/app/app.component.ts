@@ -5,6 +5,9 @@ import { UserService } from './user.service';
 import { RouterExtensions } from 'nativescript-angular/router';
 import { handleOpenURL, AppURL } from 'nativescript-urlhandler';
 
+//
+import { LocalNotifications } from 'nativescript-local-notifications';
+const firebase = require('nativescript-plugin-firebase');
 
 @core.Component({
   selector: 'app-root',
@@ -26,6 +29,36 @@ export class AppComponent {
       this.routerExt.navigate(['signin']);
       // --
     });
+
+    firebase.init({
+      showNotificationsWhenInForeground: true,
+      onMessageReceivedCallback(message) {
+        LocalNotifications.schedule(
+          [{
+            // id: 1,
+            thumbnail: true,
+            title: message.title,
+            body: message.body,
+            forceShowWhenInForeground: true,
+            at: new Date(new Date().getTime() + 3 * 1000),
+          }])
+          .catch(err => console.error(err));
+      }
+    }).then(
+      (args) => {
+        console.log(`firebase init done ${args}`);
+
+      },
+      error => {
+        console.log(`firebase.init error: ${error}`);
+      }
+    );
+
+    // firebase.getCurrentPushToken().then((token: string) => {
+    //   console.log(`Current push token: ${token}`);
+    //   this.userService.setNotificationToken(token);
+    // });
+
   }
 
   get isLoggedIn(): boolean {
