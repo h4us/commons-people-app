@@ -14,7 +14,7 @@
             flexDirectoin="column"
             alignItems="center"
             justifyContent="space-between">
-            <Image src="{{ sendTouser?.avatarUrl || '~/assets/placeholder__user.png' }}"
+            <Image src="{{ sendToUser?.avatarUrl || '~/assets/placeholder__user.png' }}"
               stretch="aspectFill" height="60" width="60" style="border-radius:80;"></Image>
             <Label flexGrow="240" class="m-l-15 typo-list-heading" text="{{ sendToUser?.username || '-' }}"></Label>
             <Label class="typo-label">

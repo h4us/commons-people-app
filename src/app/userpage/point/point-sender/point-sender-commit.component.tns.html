@@ -1,7 +1,8 @@
 <DockLayout #pointSender width="100%" height="100%">
   <StackLayout dock="top" class="bg-theme-secondary" height="60">
-    <CustomActionBar [title]="title" leftIcon="&#xe92f;" rightIcon="&#xe92b;"
-      (onAprove)="onConfirm()"></CustomActionBar>
+    <CustomActionBar [title]="title" leftIcon="{{ isModal ? '&#xea02;' : '&#xe92f;' }}" rightIcon="&#xe92b;"
+      (onAprove)="confirmAction()"
+      (onCancel)="cancelAction(pointSender)"></CustomActionBar>
   </StackLayout>
 
   <GridLayout columns="*,125" rows="*" class="p-x-15 bg-theme-secondary">

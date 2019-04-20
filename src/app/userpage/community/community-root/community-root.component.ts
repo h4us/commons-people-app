@@ -3,7 +3,7 @@ import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 
 import { Subscription, Subject, of, from, fromEvent } from 'rxjs';
-import { take, switchMap, delay, map } from 'rxjs/operators';
+import { take, switchMap, delay, map, tap } from 'rxjs/operators';
 
 import { Page } from 'tns-core-modules/ui/page';
 import { Button } from 'tns-core-modules/ui/button';
@@ -106,9 +106,6 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
         news: 10
       }
 
-      // if (this.topics.length > this.pagingConfig.topics.size) {
-      // }
-
       // TODO:
       this.userService.getTopics(this.currentCommunity.id, '', 'FETCH_ALL').subscribe((res: any) => {
         this.currentTotalTopics = res.length;
@@ -136,6 +133,19 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
         }
       } else {
         target = data;
+      }
+
+      if (this.userService.getCommunities().length == 0) {
+        // TODO: need test
+        setTimeout(() => {
+          this.uSubscription.unsubscribe();
+          this.mSubscription.unsubscribe();
+
+          this.routerExt.navigate(['newuser'], {
+            clearHistory: true
+          });
+        }, 500);
+        return;
       }
 
       if (target == 'topic' && options && options.needRefresh) {
@@ -220,6 +230,10 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     return this._news;
   }
 
+  get communities() {
+    return this.userService.getCommunities();
+  }
+
   onItemTap(tItem: any) {
     if (this.currentTab === 'topics') {
       this.routerExt.navigate(['../community/topic', tItem.id], {
@@ -232,7 +246,7 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     }
   }
 
-  onSwitchTab(args: string) {
+  onTabTap(args: string) {
     this.currentTab = args;
 
     if (args === 'topics') {
@@ -265,7 +279,11 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   onSwitchTap() {
-    this.mProxy.request('switch-community');
+    if (this.userService.getCommunities().length > 1) {
+      this.mProxy.request('switch-community');
+    } else {
+      this.mProxy.request('switch-community', { addOnly: true });
+    }
   }
 
   onMoreReadTap() {
@@ -295,8 +313,6 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
       this.userService.draftCommunityIds.splice(inDraft, 1);
       this.userService.draftCommunities.splice(inDraft, 1);
     }
-
-    console.log(this.userService.draftCommunityIds, this.userService.draftCommunities);
   }
 
   get inDraft(): boolean {

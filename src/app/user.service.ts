@@ -71,6 +71,7 @@ export class UserService {
   private updateRequestSource = new Subject<string>();
   updateRequest$ = this.updateRequestSource.asObservable();
 
+  // TODO: move int userpage/community-validator.servie
   draftCommunityIds: number[] = [];
   draftCommunities: any[] = [];
 
@@ -137,12 +138,6 @@ export class UserService {
       tap((data: unknown) => {
         console.log('standard logged in', data);
         this.parseUser(<User>data, true);
-
-        // if (this._pushNotificationToken.length > 0) {
-        //   this.http.post(`${this.apiUrl}users/${this.user.id}/mobile-device`, {
-        //     pushNotificationToken: this._pushNotificationToken
-        //   }).subscribe(_ => console.log('token is set -> ', this._pushNotificationToken));
-        // }
       })
     );
   }
@@ -154,16 +149,11 @@ export class UserService {
   restore(): Observable<any> {
     this.loginData.username = this._sStorage.getSync({ key: 'username' });
     this.loginData.password = this._sStorage.getSync({ key: 'password' });
+
     return this.http.post(`${this.apiUrl}login`, this.loginData).pipe(
       tap((data: unknown) => {
         console.log('restore logged in', data);
         this.parseUser(<User>data, true);
-
-        // if (this._pushNotificationToken.length > 0) {
-        //   this.http.post(`${this.apiUrl}users/${this.user.id}/mobile-device`, {
-        //     pushNotificationToken: this._pushNotificationToken
-        //   }).subscribe(_ => console.log('token is set -> ', this._pushNotificationToken));
-        // }
       })
     );
   }
@@ -198,10 +188,6 @@ export class UserService {
   }
 
   createAccount(data): Observable<any> {
-    // return zip(
-    //   from(this._sStorage.removeAll()),
-    //   this.http.post(`${this.apiUrl}create-account`, data)
-    // );
     return this.http.post(`${this.apiUrl}create-account`, data)
   }
 
@@ -285,31 +271,35 @@ export class UserService {
   }
 
   searchUsers(targetCommunity?:number, query?:string): any {
-    // TODO: performance, error handling, etc
-    // const t: number = targetCommunity || this._currentCommunityId;
-    // const allowChar: string = 'abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ0123456789_';
-    // let q: string = query ? `&q=${query}` : '';
-    // if (q == '') {
-    //   const ob: Observable<any>[] = [];
-    //   for (let i = 0; i < allowChar.length; i++) {
-    //     ob.push(this.http.get(`${this.apiUrl}users?communityId=${t}&q=${allowChar[i]}`));
-    //   }
-    //   return forkJoin(...ob).pipe(mergeAll());
-    // } else {
-    //   return this.http.get(`${this.apiUrl}users?communityId=${t}${q}`);
-    // }
-
     const t: number = targetCommunity || this._currentCommunityId;
-    const allowChar: string = '0123456789aAbBcCdDeEfFgGhHiIjJkKlLnNmMoOpPqQrRsStTuUvVwWxXyYzZ_';
-
     let q: string = query || '';
+
     if (q == '') {
+      const hParam: string = [
+        `communityId=${t}`,
+        `q=`,
+        // `pagination[page]=0&pagenation[size]=10&pagenation[sort]=ASC`
+      ].join('&');
+
+      return this.http.get(`${this.apiUrl}users?${hParam}`).pipe(
+        map((res: any) => res.userList ? res.userList : res)
+      );
+    } else {
       const hParams: string[] = [];
-      for (const c of allowChar) {
+      let sQuery: string[];
+
+      if(q.split(',').length > 1) {
+        sQuery = q.split(',').map((c) => `q=${c}`);
+      } else {
+        sQuery = [`q=${q}`];
+      }
+
+      for (const ql of sQuery) {
         hParams.push(
           [
             `communityId=${t}`,
-            `q=${c}`,
+            ql,
+            // TODO: paging??
             // `pagination[page]=0&pagenation[size]=10&pagenation[sort]=ASC`
           ].join('&')
         );
@@ -321,16 +311,6 @@ export class UserService {
         concatAll(),
         distinct((el: any) => el.id),
         toArray()
-      );
-    } else {
-      const hParam: string = [
-        `communityId=${t}`,
-        `q=${q}`,
-        // `pagination[page]=0&pagenation[size]=10&pagenation[sort]=ASC`
-      ].join('&');
-
-      return this.http.get(`${this.apiUrl}users?${hParam}`).pipe(
-        map((res: any) => res.userList ? res.userList : res)
       );
     }
   }
@@ -551,6 +531,10 @@ export class UserService {
     return this.http.post(`${this.apiUrl}message-threads/${id}/group`, data);
   }
 
+  updateGroupMessageThreadPersonalTitle(id: number, data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}message-threads/${id}/title`, data);
+  }
+
   unsubscribeGroupMessageThread(id: number): Observable<any> {
     return this.http.post(`${this.apiUrl}message-threads/${id}/unsubscribe`, null);
   }
@@ -592,6 +576,10 @@ export class UserService {
     }
 
     return ret;
+  }
+
+  getCurrentMessageThread(id: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}message-threads/${id}`);
   }
 
   getMessages(id: number, paging?: any): Observable<any> {

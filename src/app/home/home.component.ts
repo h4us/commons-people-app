@@ -4,8 +4,8 @@ import {
 } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 
-import { interval, Subscription } from 'rxjs';
-import { skipWhile, delay } from 'rxjs/operators';
+import { interval, Subscription, fromEvent } from 'rxjs';
+import { skipWhile, delay, take } from 'rxjs/operators';
 
 import { RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
@@ -34,7 +34,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   safeAreaSpan: number = 12;
   @ViewChild('homepageRoot') hRoot: ElementRef;
   @ViewChild('lottieViewAnchor') ltAnchor: ElementRef;
-  @ViewChild('lottieView') lt: ElementRef;
 
   isProd: boolean = environment.production;
   useApiBase: string = environment.apiBaseURL;
@@ -59,46 +58,40 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       }
     });
+
+    this.autologin = this.userService.restoreble;
   }
 
   ngOnInit() {
     this.autologin = this.userService.restoreble;
 
     if (this.userService.restoreble) {
-      this.userService.restore().pipe(delay(600)).subscribe(_ => {
+      this.userService.restore().subscribe(_ => {
         const cl = this.userService.getCommunities();
         this.routerExt.navigate([(cl && cl.length > 0) ? 'user' : 'newuser'], {
           clearHistory: true,
-          transition: { name: 'fade', duration: 300 }
+          animated: false,
+          // transition: { name: 'fade', duration: 150 }
         })
       }, (err: any) => {
-        console.error(err);
         this.userService.logout(false).subscribe(_ => this.routerExt.navigate(['signin']));
       });
     }
+  }
 
-    // TODO:
-    const sb = interval(30).pipe(skipWhile(() => {
-      return this.ltAnchor.nativeElement.getMeasuredWidth() < 1;
-    })).subscribe(() => {
-      const lCW = this.ltAnchor.nativeElement.getMeasuredWidth() / screen.mainScreen.scale;
+  ngAfterViewInit() {
+    fromEvent(this.hRoot.nativeElement, 'loaded').pipe(
+      take(1), delay(1)
+    ).subscribe(_ => {
+      // if (isIOS) {
+      //   if (application.ios.window.safeAreaInsets) {
+      //     this.safeAreaSpan = (<number>application.ios.window.safeAreaInsets.top) * -1;
+      //   }
+      // }
 
-      if (isIOS) {
-        if (application.ios.window.safeAreaInsets) {
-          this.safeAreaSpan = (<number>application.ios.window.safeAreaInsets.top) * -1;
-          console.log('--> ios safeAreaSpan?', this.safeAreaSpan);
-        }
-      }
-
-      if (lCW < 321) {
-        this.ltCalcWidth = 64.853 * (320 / lCW);
-      } else {
-        this.ltCalcWidth = 76 * (375 / lCW);
-      }
-
-      //
       const aH = this.hRoot.nativeElement.getMeasuredHeight() / screen.mainScreen.scale;
       const sc: number = 1 / screen.mainScreen.scale;
+
       if (isIOS) {
         let safeAreaSpan: number = 0;
         if (application.ios.window.safeAreaInsets) {
@@ -108,14 +101,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       } else {
         this.trayService.trayPosition = aH;
       }
-      //
-
-      sb.unsubscribe();
     });
-    // --
-  }
-
-  ngAfterViewInit() {
   }
 
   ngOnDestroy() {
@@ -132,7 +118,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // --
   gotoDemo () {
-    this.routerExt.navigate(['demo'])
+    // this.routerExt.navigate(['demo'])
   }
   // ~~
 }

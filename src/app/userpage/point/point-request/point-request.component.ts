@@ -44,8 +44,8 @@ export class PointRequestComponent implements OnInit {
     });
   }
 
-  onTap(id: number) {
-    this.userService.tapDirectMessageThread(id).subscribe((data: any) => {
+  onTap(id: number, communityId?: number) {
+    this.userService.tapDirectMessageThread(id, communityId).subscribe((data: any) => {
       this.routerExt.navigate([{
         outlets: { userpage: ['message', 'log', data.id] }
       }], {

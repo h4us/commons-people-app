@@ -13,7 +13,7 @@
         style="background:linear-gradient(#1f977c 0%, #1f977c 30%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 100%)"
         [items]="currentList">
         <ng-template tkListItemTemplate let-item="item" let-i="index">
-          <!-- // item -->
+
           <StackLayout class="p-x-15 bg-white" height="90">
 
             <GridLayout *ngIf="item?.remitter?.id == user.id"
@@ -49,13 +49,13 @@
               columns="75,*"
               class="p-0" width="100%">
               <Image col="0" class="m-r-15 m-y-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
-                src="{{ item.remitter?.avatarUrl || '~/assets/placeholder__user.png' }}"></Image>
+                src="{{ item?.remitter?.avatarUrl || '~/assets/placeholder__user.png' }}"></Image>
 
               <FlexboxLayout col="1"
                 flexDirection="column"
                 justifyContent="center"
                 alignContent="center">
-                <Label *ngIf="item.remitter?.username" text="{{ padName(item.remitter?.username) }}" class="typo-list-heading"></Label>
+                <Label *ngIf="item?.remitter?.username" text="{{ padName(item?.remitter?.username) }}" class="typo-list-heading"></Label>
 
                 <GridLayout columns="*,auto", rows="auto" android:style="margin-top:-14;">
                   <Label col="0" text="{{ item.description }}" class="typo-list-preview" verticalAlignment="center"></Label>
@@ -74,7 +74,7 @@
 
           </StackLayout>
         </ng-template>
-        <!-- // header -->
+
         <ng-template tkListViewHeader>
           <GridLayout rows="180">
             <AbsoluteLayout row="0" class="bg-theme">
@@ -91,6 +91,14 @@
           </GridLayout>
         </ng-template>
 
+        <ng-template tkListViewFooter>
+          <StackLayout class="p-x-15 bg-white" height="90">
+            <GridLayout rows="90">
+              <Button class="btn btn-rounded-lg btn-primary btn-black" width="40%" text="さらに読む"
+                visibility="collapsed"></Button>
+            </GridLayout>
+          </StackLayout>
+        </ng-template>
       </RadListView>
 
     </StackLayout>

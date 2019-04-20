@@ -98,7 +98,7 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
           // TODO:
           if (data && data.willCreate) {
             setTimeout(() => {
-              mProxy.switchBack('thread-new', data.willCreate);
+              mProxy.switchBack('thread-new', data);
             }, 200);
           }
           // --
@@ -156,11 +156,14 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
       this.userService.sendNotifictationToken().subscribe();
     });
 
-    this.routerExt.navigate([{
-      outlets: {
-        userpage: ['community']
-      }
-    }], { relativeTo: this.aRoute });
+
+    if (this.userService.getCommunities().length > 0) {
+      this.routerExt.navigate([{
+        outlets: {
+          userpage: ['community']
+        }
+      }], { relativeTo: this.aRoute });
+    }
   }
 
   ngAfterViewInit() {

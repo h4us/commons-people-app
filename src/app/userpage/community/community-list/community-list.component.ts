@@ -7,6 +7,7 @@ import { ModalDialogParams, ModalDialogOptions } from 'nativescript-angular/moda
 import { Page } from 'tns-core-modules/ui/page';
 
 import { UserService, User } from '../../../user.service';
+import { CommunityValidatorService } from '../../community-validator.service';
 
 @Component({
   selector: 'app-community-list',
@@ -23,23 +24,31 @@ export class CommunityListComponent implements OnInit, OnDestroy {
     private routerExt: RouterExtensions,
     private dParams: ModalDialogParams,
     private userService: UserService,
+    private cvService: CommunityValidatorService,
   ) {
     page.actionBarHidden = true;
 
     // w/ modal action
-    if (dParams.context && dParams.context.forNewbie) {
-      this.addOnly = dParams.context.forNewbie;
+    if ((dParams.context && dParams.context.forNewbie) ||
+        (dParams.context && dParams.context.addOnly)) {
+      this.addOnly = true;
     }
   }
 
   ngOnInit() {
+    this.cvService.addOnlyMode = this.addOnly;
+
     this.routerExt.navigate([{
       outlets: {
         communityeditor: ['community', (this.addOnly ? 'edit' : 'switch')]
       }
-    }], { relativeTo: this.aRoute });
+    }], {
+      relativeTo: this.aRoute,
+      queryParams: { addOnly: this.addOnly }
+    });
   }
 
   ngOnDestroy() {
+
   }
 }

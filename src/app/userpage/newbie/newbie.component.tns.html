@@ -1,4 +1,4 @@
-<GridLayout rows="auto,*,auto" class="bg-theme-secondary">
+<GridLayout #newbieRoot rows="auto,*,auto" class="bg-theme-secondary">
   <StackLayout row="0" class="m-x-20 m-t-20">
     <Label class="typo-header" text="コミュニティに入ろう"></Label>
     <Label textWrap="true" class="typo-message" text="最初に参加するコミュニティを選んでください"></Label>
@@ -10,6 +10,7 @@
     <Button text="次へ" class="btn btn-primary btn-rounded-lg" style="width:50%; padding-left:15; padding-right:15;"
       (tap)="goNext()"></Button>
     <!-- // for test // -->
-    <Label class="text-center" text="ログアウト" (tap)="logout()"></Label>
+    <Label *ngIf="!isProd"
+      class="text-center" text="ログアウト" (tap)="logout()"></Label>
   </StackLayout>
 </GridLayout>

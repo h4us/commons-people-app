@@ -13,7 +13,7 @@
             <StackLayout row="0" width="100%" height="60" class="bg-clear">
               <CustomActionBar colorScheme="white"
                 leftIcon="{{ isPreview ? '&#xe92f;' : '' }}"
-                rightIcon="{{ isPreview ? '' : '&#xe9cb;' }}"
+                rightIcon="{{ isPreview ? '' : (communities.length > 1 ? '&#xe9cb;' : '&#xe9b1;') }}"
                 (onAprove)="onSwitchTap()"></CustomActionBar>
             </StackLayout>
             <Image col="0" row="1"
@@ -26,11 +26,11 @@
               justifyContent="center"
               style="padding:0; margin:0 0 5;">
               <Label *ngIf="!isPreview"
-                (tap)="onSwitchTab('topics')" class="h3 m-x-10 p-5 text-center text-white" text="トピック"
+                (tap)="onTabTap('topics')" class="h3 m-x-10 p-5 text-center text-white" text="トピック"
                 [class.bottom-border-white]="currentTab == 'topics'"></Label>
-              <Label (tap)="onSwitchTab('news')" class="h3 m-x-10 p-5 text-center text-white" text="お知らせ"
+              <Label (tap)="onTabTap('news')" class="h3 m-x-10 p-5 text-center text-white" text="お知らせ"
                 [class.bottom-border-white]="currentTab == 'news'"></Label>
-              <Label (tap)="onSwitchTab('profile')" class="h3 m-x-10 p-5 text-center text-white" text="プロフィール"
+              <Label (tap)="onTabTap('profile')" class="h3 m-x-10 p-5 text-center text-white" text="プロフィール"
                 [class.bottom-border-white]="currentTab == 'profile'"></Label>
             </FlexboxLayout>
           </GridLayout>

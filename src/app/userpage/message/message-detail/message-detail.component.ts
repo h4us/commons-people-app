@@ -35,6 +35,7 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   user: User;
   messageLog: any[] = [];
   threadObj: any;
+  currentCommunityId: number;
 
   limH: number = 70;
   limHforDevice: number = 200;
@@ -110,24 +111,37 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
         // 2. case: created & posted already
         const _thread = this.messageService.activeThreads.find((el) => el.id == desireId);
         if (_thread) {
+          // 2-a: posted already
           this.threadObj = _thread;
-          this.title = this.threadObj.title;
+          this.currentCommunityId = this.threadObj.communityId;
+          if (!this.threadObj.group && (typeof this.threadObj.ad == 'undefined')) {
+            this.title = this.threadObj.counterParty.username;
+          } else {
+            this.title = this.threadObj.title;
+          }
+        } else {
+          // 2-b: completely new (empty message)
+          this.userService.getCurrentMessageThread(desireId).subscribe((res: any) => {
+            this.threadObj = res;
+            this.currentCommunityId = this.threadObj.communityId;
+            if (!this.threadObj.group && (typeof this.threadObj.ad == 'undefined')) {
+              this.title = this.threadObj.counterParty.username;
+            } else {
+              this.title = this.threadObj.title;
+            }
+          });
         }
 
-        // 3. case: completely new (empty message)
+        // 2-b+. case: completely new (empty message), additional behavior
         this.pageRoute.activatedRoute
           .pipe(switchMap((aRoute) => aRoute.queryParams))
           .forEach((qparams) => {
-            if (!this.threadObj && qparams && qparams.title) {
-              this.title = qparams.title;
-            }
-
             if (qparams && qparams.focusAtInit) {
               timer(isIOS ? 200 : 100, 100).pipe(
                 takeUntil(fromEvent(this.sInputRef.nativeElement, 'focus'))
               ).subscribe(_ => this.sInputRef.nativeElement.focus())
             }
-          })
+          });
 
         this.fSubscription = timer(3000, 2000).subscribe((data: any) => {
           this.messageService.fetchMessages(desireId);
@@ -157,13 +171,6 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
       this.isEmpty = val == '';
     });
   }
-
-  //   styled(text: string) {
-  //     const msg = (text + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
-  //     return `<div style="font-family:NotoSansJP Regular, NotoSansJP-Regular, Noto Sans JP Regular; margin:0; line-height:1.2; font-size:14;">
-  // ${msg}
-  // </div>`;
-  //   }
 
   getAvatar(id: number): string {
     let avatar: string = '~/assets/placeholder__user.png';
@@ -199,7 +206,17 @@ export class MessageDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   sendPoint() {
-    this.mProxy.request('send-point');
+    let u: any[] = [];
+
+    if (this.threadObj) {
+      u = this.threadObj.parties.filter((el) => el.id != this.user.id);
+      if (this.threadObj.creator.id != this.user.id) {
+        u.push(this.threadObj.creator);
+      }
+    }
+
+    // TODO: ad refs?
+    this.mProxy.request('send-point', { constrainUsers: u, communityId: this.currentCommunityId });
   }
 
   goToSettings() {

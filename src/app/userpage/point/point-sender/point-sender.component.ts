@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
+import { switchMap } from 'rxjs/operators';
+
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 import { ModalDialogParams, ModalDialogOptions } from 'nativescript-angular/modal-dialog';
 
@@ -15,6 +17,7 @@ export class PointSenderComponent implements OnInit {
   title: string = "ポイントを送る";
   srcCommunityId: number;
   destUserId: number;
+  constrainUsers: any[] = [];
 
   constructor(
     private page: Page,
@@ -32,19 +35,37 @@ export class PointSenderComponent implements OnInit {
     if (dParams.context && dParams.context.userId) {
       this.destUserId = dParams.context.userId;
     }
+    if (dParams.context && dParams.context.constrainUsers) {
+      this.constrainUsers = dParams.context.constrainUsers;
+    }
   }
 
   ngOnInit() {
-    console.log(`TODO: selecting destination by ${this.srcCommunityId} / ${this.destUserId}` );
-    //
-    const _dest = ['point', 'select', this.srcCommunityId ];
+    // 1. default
+    let dest = ['point', 'select', this.srcCommunityId ];
+    let routerOptions: any = {
+      relativeTo: this.aRoute,
+    }
 
-    //
+    if (this.constrainUsers && this.constrainUsers.length == 1) {
+      // 2. skip selection
+      dest = ['point', 'send', this.constrainUsers[0].id];
+      routerOptions.queryParams = {
+        isModal: true
+      }
+    } else if (this.constrainUsers && this.constrainUsers.length > 1) {
+      // 3. filterd specific users
+      routerOptions.queryParams = {
+        userNameFilter: this.constrainUsers.map((el:any) => el.username).join(',')
+      }
+    }
+
     this.routerExt.navigate([{
       outlets: {
-        pointsender: _dest
+        pointsender: dest
       }
-    }], { relativeTo: this.aRoute });
+    }], routerOptions);
+
   }
 
   ngOnDestroy() {

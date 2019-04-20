@@ -11,7 +11,7 @@
         <Label class="typo-label-bold" ios:style="margin-bottom:10;"
           text="{{ currentCommunities[i].name }}"></Label>
         <CardView margin="1 0 10" elevation="5" class="bg-white"
-          (tap)="onTap(item.id)">
+          (tap)="onTap(item.id, currentCommunities[i].id)">
           <StackLayout height="90">
             <GridLayout columns="80,*,60" rows="*" class="p-15">
               <Image col="0" class="m-r-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"

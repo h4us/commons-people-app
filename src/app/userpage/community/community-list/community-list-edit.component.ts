@@ -2,9 +2,9 @@ import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } fr
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Subscription } from 'rxjs';
-// import { switchMap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 
-import { RouterExtensions } from 'nativescript-angular/router';
+import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 
 import { Page } from 'tns-core-modules/ui/page';
 import { DockLayout } from 'tns-core-modules/ui/layouts/dock-layout';
@@ -15,8 +15,9 @@ import { screen } from 'tns-core-modules/platform';
 import { layout } from 'tns-core-modules/utils/utils';
 
 import { UserService, User } from '../../../user.service';
-
 import { SystemTrayService } from '../../../system-tray.service';
+
+import { CommunityValidatorService } from '../../community-validator.service';
 
 @Component({
   selector: 'app-community-list-edit',
@@ -30,7 +31,8 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
   draft: number;
   selectedList: number[];
   user: User;
-  mode: string = 'switch';
+  editorContext: string = 'switch';
+  isAddOnlyMode: boolean = false;
   isSearchMode: boolean = false;
 
   @ViewChild('communityList') rootLayoutRef: ElementRef;
@@ -41,9 +43,11 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
     private routerExt: RouterExtensions,
     private router: Router,
     private aRoute: ActivatedRoute,
+    private pageRoute: PageRoute,
     private userService: UserService,
     private page: Page,
-    private trayService: SystemTrayService
+    private trayService: SystemTrayService,
+    private cvService: CommunityValidatorService,
   ) {
     page.actionBarHidden = true;
   }
@@ -52,7 +56,7 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
     this.user = this.userService.getCurrentUser();
 
     if (this.router.url.indexOf('communityeditor:community/edit') > -1) {
-      this.mode = 'edit';
+      this.editorContext = 'edit';
       this.title = 'コミュニティを選ぶ';
       this.userService.searchCommunities().subscribe((data) => {
         //
@@ -66,7 +70,7 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
         this.userService.draftCommunities = this.userService.getCommunities();
       }
     } else if (this.router.url.indexOf('communityeditor:community/submit') > -1) {
-      this.mode = 'submit';
+      this.editorContext = 'submit';
       this.title = 'コミュニティを選ぶ';
       this.currentList = this.userService.draftCommunities;
       this.selectedList = this.userService.draftCommunityIds;
@@ -79,10 +83,16 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
       this.selected = this.userService.currentCommunityId;
       this.draft = this.userService.currentCommunityId;
     }
+
+    this.pageRoute.activatedRoute
+      .pipe(switchMap((aRoute) => aRoute.queryParams))
+      .forEach((params) => {
+        this.isAddOnlyMode = <boolean>params.addOnly;
+      });
   }
 
   ngAfterViewInit() {
-    if (this.mode == 'submit') {
+    if (this.editorContext == 'submit') {
       this.trayService.request('snackbar/communityeditor', 'open', {
         doneMessage: '送信しています..',
         cancelAsClose: false
@@ -128,13 +138,15 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
   }
 
   cancelAction(tLayout?: DockLayout | AbsoluteLayout) {
-    if (this.mode == 'submit') {
+    console.log(this.router.url);
+
+    if (this.editorContext == 'submit') {
       this.trayService.request('snackbar/communityeditor', 'close');
     }
 
-    // if ((this.mode == 'switch' || this.router.url.indexOf('/newuser') == 0)
-    if ((this.mode == 'switch')
-        && tLayout) {
+    if ((this.editorContext == 'switch' && tLayout) ||
+        (this.editorContext == 'edit' && this.router.url.indexOf('newuser') > -1 && tLayout) ||
+        (this.editorContext == 'edit' && this.cvService.addOnlyMode && tLayout)) {
       tLayout.closeModal();
     } else {
       this.routerExt.backToPreviousPage();
@@ -142,9 +154,9 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
   }
 
   onItemTap(tItem: any) {
-    if (this.mode == 'switch') {
+    if (this.editorContext == 'switch') {
       this.draft = tItem.id;
-    } else if (this.mode == 'edit') {
+    } else if (this.editorContext == 'edit') {
       const idx = this.selectedList.indexOf(tItem.id);
       if (idx > -1) {
         // -- community is removbale ?
@@ -189,7 +201,6 @@ export class CommunityListEditComponent implements OnInit, OnDestroy, AfterViewI
   }
 
   searchAction(e: any) {
-    console.log(e);
     this.userService.searchCommunities(e.search).subscribe((data: any) => {
       this.currentList = data;
     });

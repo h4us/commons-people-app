@@ -25,6 +25,7 @@ export class PointSenderSelectComponent implements OnInit {
   currentList: any[] = [];
   isModal: boolean = false;
   selectionState: string = 'default';
+  constraintUserNames: string = '';
 
   constructor(
     private page: Page,
@@ -37,21 +38,35 @@ export class PointSenderSelectComponent implements OnInit {
   }
 
   ngOnInit() {
-    // TODO:
-    if (this.aRoute.snapshot.url.filter((el) => el.path == 'search').length > 0) {
-      this.selectionState = 'search';
-    } else {
-      this.userService.searchUsers(this.userService.currentCommunityId)
-        .subscribe((data: any) => {
-          this.currentList = data;
-        });
-    }
-
     this.pageRoute.activatedRoute
       .pipe(switchMap((aRoute) => aRoute.params))
       .forEach((params) => {
         this.selected = <number>params.id;
       });
+
+    this.pageRoute.activatedRoute
+      .pipe(switchMap((aRoute) => aRoute.queryParams))
+      .forEach((params) => {
+        this.constraintUserNames = <string>params.userNameFilter;
+        this.selected = <number>params.communityFilter || this.selected;
+      });
+
+    if (this.aRoute.snapshot.url.filter((el) => el.path == 'search').length > 0) {
+      this.selectionState = 'search';
+    } else {
+      //
+      if (this.constraintUserNames && this.constraintUserNames != '') {
+        this.userService.searchUsers(this.selected || this.userService.currentCommunityId, this.constraintUserNames)
+          .subscribe((data: any) => {
+            this.currentList = data.filter((el:any) => this.constraintUserNames.split(',').find((iel:string) => iel == el.username));
+          });
+      } else {
+        this.userService.searchUsers(this.selected || this.userService.currentCommunityId)
+          .subscribe((data: any) => {
+            this.currentList = data;
+          });
+      }
+    }
 
     this.isModal = (this.aRoute.outlet != 'userpage');
   }
@@ -78,38 +93,40 @@ export class PointSenderSelectComponent implements OnInit {
           'point', 'search'
         ];
       }
-
       this.routerExt.navigate([{
         outlets: outletParam,
       }], {
         relativeTo: this.aRoute.parent,
-        // TODO: isIOS switch?
         transition: { name: 'fade', duration: 150 },
+        queryParams: { userNameFilter: this.constraintUserNames, communityFilter: this.selected }
       });
     } else {
       if (e && e.search) {
-        this.userService.searchUsers(this.userService.currentCommunityId, encodeURI(e.search))
+        this.userService.searchUsers(this.selected || this.userService.currentCommunityId, encodeURI(e.search))
           .subscribe((data: any) => {
-            this.currentList = data;
+            if (this.constraintUserNames && this.constraintUserNames != '') {
+              this.currentList = data.filter((el:any) => this.constraintUserNames.split(',').find((iel:string) => iel == el.username));
+            } else {
+              this.currentList = data;
+            }
           });
       }
     }
   }
 
-  // onItemTap(args: ListViewEventData) {
   onItemTap(tItem: any) {
-    // const tItem = args.view.bindingContext;
-
     const currentOutlet = this.aRoute.outlet;
     const outletParam = {};
 
-    if (currentOutlet == 'pointsender') {
-      outletParam[currentOutlet] = ['point', 'send', tItem.id];
-    } else {
-      outletParam[currentOutlet] = [
-        'point', 'send', tItem.id
-      ];
-    }
+    // if (currentOutlet == 'pointsender') {
+    //   outletParam[currentOutlet] = ['point', 'send', tItem.id];
+    // } else {
+    //   outletParam[currentOutlet] = [
+    //     'point', 'send', tItem.id
+    //   ];
+    // }
+
+    outletParam[currentOutlet] = ['point', 'send', tItem.id];
 
     this.routerExt.navigate([{
       outlets: outletParam,

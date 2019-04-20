@@ -47,21 +47,10 @@ export class AppComponent {
     }).then(
       (args) => {
         console.log(`firebase init done ${args}`);
-
       },
       error => {
         console.log(`firebase.init error: ${error}`);
       }
     );
-
-    // firebase.getCurrentPushToken().then((token: string) => {
-    //   console.log(`Current push token: ${token}`);
-    //   this.userService.setNotificationToken(token);
-    // });
-
-  }
-
-  get isLoggedIn(): boolean {
-    return this.userService.isLoggedIn;
   }
 }

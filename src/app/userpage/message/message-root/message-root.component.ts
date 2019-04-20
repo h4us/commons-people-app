@@ -38,6 +38,7 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
   fbtnEl: Button;
   anchor: StackLayout;
+  anchorRefH: number = 0;
 
   constructor(
     private routerExt: RouterExtensions,
@@ -67,8 +68,8 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
     //
     if (!this.mdlSubscription) {
       this.mdlSubscription = this.mProxy.switchBack$.subscribe((data) => {
-        if (data instanceof Array && data.length > 1 && data[0] === 'thread-new') {
-          this.routerExt.navigate(['../message/log', data[1]], {
+        if (data instanceof Array && data.length > 1 && data[0] === 'thread-new' && data[1].willCreate) {
+          this.routerExt.navigate(['../message/log', data[1].willCreate], {
             relativeTo: this.aRoute
           });
         }
@@ -86,6 +87,7 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
       take(1), delay(1)
     ).subscribe(_ => {
       const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
+      this.anchorRefH = aH - 140;
       const aW = this.anchor.getMeasuredWidth() / screen.mainScreen.scale;
       const eW = this.fbtnEl.getMeasuredWidth() / screen.mainScreen.scale;
       const eH = this.fbtnEl.getMeasuredHeight() / screen.mainScreen.scale;
@@ -134,6 +136,25 @@ export class MessageRootComponent implements OnInit, OnDestroy, AfterViewInit {
       // TODO: isIOS switch?
       transition: { name: 'fade', duration: 150 },
     });
+  }
+
+  parseTitle(item: any):string {
+    let ret: string = item ? item.title : '';
+
+    if (item && (!item.group && (typeof item.ad == 'undefined'))) {
+      ret = item.counterParty.username;
+    }
+
+    return ret;
+  }
+
+  checkDuration(item: any): number {
+    return 0;
+  }
+
+  parseDate(item: any):string {
+    let ret: string = (item && item.lastMessage) ?  item.lastMessage.createdAt : (item.createdAt ? item.createdAt : new Date()) ;
+    return ret;
   }
 
   get dstr() {

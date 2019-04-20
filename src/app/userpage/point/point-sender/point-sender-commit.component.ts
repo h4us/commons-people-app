@@ -12,6 +12,7 @@ import { isIOS } from 'tns-core-modules/platform';
 
 import { Page } from 'tns-core-modules/ui/page';
 import { ListViewEventData } from 'nativescript-ui-listview';
+import { DockLayout } from 'tns-core-modules/ui/layouts/dock-layout';
 
 import { UserService, User } from '../../../user.service';
 import { PointValidatorService } from '../../point-validator.service';
@@ -31,6 +32,7 @@ export class PointSenderCommitComponent implements OnInit, OnDestroy, AfterViewI
   sendData: any;
   selectedToken: string;
   pForm: FormGroup;
+  isModal: boolean = false;
 
   @ViewChild('forceNumKey') nkbd: ElementRef;
 
@@ -89,6 +91,10 @@ export class PointSenderCommitComponent implements OnInit, OnDestroy, AfterViewI
             adId: <number>params.adId
           });
         }
+
+        if (params.isModal) {
+          this.isModal = params.isModal;
+        }
       });
   }
 
@@ -109,11 +115,17 @@ export class PointSenderCommitComponent implements OnInit, OnDestroy, AfterViewI
     this.pForm.patchValue({ communityId: cm.id });
   }
 
-  onConfirm() {
+  cancelAction(layout?: DockLayout) {
+    if (this.isModal && layout) {
+      layout.closeModal();
+    } else {
+      this.routerExt.backToPreviousPage();
+    }
+  }
+
+  confirmAction() {
     const currentOutlet = this.aRoute.outlet;
     const outletParam = {};
-
-    console.log(this.pForm.value, this.pForm.valid);
 
     if (currentOutlet == 'pointsender') {
       outletParam[currentOutlet] = ['point', 'confirm', this.sendToUser.id];

@@ -171,10 +171,10 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       (data: any) => {
         this.routerExt.navigate(['../../../message/log', data.id], {
           relativeTo: this.aRoute,
-          // TODO: isIOS switch?
           transition: { name: 'fade', duration: 150 },
           queryParams: {
-            title: topic.title,
+            // title: topic.title,
+            // communityId: this.community.id,
             focusAtInit: true
           }
         });
@@ -251,7 +251,6 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
           doneMessage: 'トピックを作成しました'
         });
 
-        // this.forceClose();
         this.rootLayout.closeModal({ needRefresh: true });
       });
     } else {
@@ -264,10 +263,6 @@ export class TopicDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     this.routerExt.backToPreviousPage();
   }
 
-  // forceClose() {
-  //   //
-  //   this.rootLayout.closeModal();
-  // }
   /*
    * --
    */

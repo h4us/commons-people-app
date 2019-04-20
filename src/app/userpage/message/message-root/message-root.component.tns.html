@@ -14,6 +14,14 @@
 
       <ActivityIndicator *ngIf="currentList?.length == 0 && !loadingRetired" busy="true" width="20"></ActivityIndicator>
 
+      <FlexboxLayout *ngIf="currentList?.length == 0 && loadingRetired"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        [height]="anchorRefH">
+        <Label class="typo-message-light text-darkgrey" text="メッセージはありません"></Label>
+      </FlexboxLayout>
+
       <ng-template ngFor let-item [ngForOf]="currentList" let-i="index">
 
         <StackLayout class="bg-theme-secondary">
@@ -24,11 +32,11 @@
                 <Image col="0" class="m-r-15" style="border-radius:80;" stretch="aspectFill" width="60" height="60" loadMode="async"
                   src="{{ item?.photoUrl || '~/assets/placeholder__group.png' }}"></Image>
                 <StackLayout col="1" verticalAlignment="center">
-                  <Label class="typo-list-heading" text="{{ item?.title }}"></Label>
+                  <Label class="typo-list-heading" [text]="parseTitle(item)"></Label>
                   <Label class="typo-list-preview" text="{{ item?.lastMessage?.text }}" android:style="margin-top:-10;"></Label>
                 </StackLayout>
                 <Label col="2" class="typo-list-date" style="vertical-align:top; text-align:right;"
-                  text="{{ item?.lastMessage?.createdAt | amLocal | amDateFormat: 'HH:mm' }}"></Label>
+                  text="{{ parseDate(item) | amLocal | amDateFormat: 'HH:mm' }}"></Label>
               </GridLayout>
             </StackLayout>
           </CardView>
@@ -36,7 +44,8 @@
 
       </ng-template>
 
-      <StackLayout height="30"></StackLayout>
+      <StackLayout *ngIf="currentList?.length > 0"
+        height="30"></StackLayout>
 
     </StackLayout>
   </ScrollView>

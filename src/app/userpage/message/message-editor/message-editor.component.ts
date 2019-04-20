@@ -76,18 +76,31 @@ export class MessageEditorComponent implements OnInit {
   ok(layout: AbsoluteLayout | DockLayout) {
     if (this.editorContext == 'new') {
       if (this.selected.length === 1) {
+        const u: any = this.currentList.find((el: any) => el.id == this.selected[0]);
+
+        // TODO: which one is better?
         this.userService.tapDirectMessageThread(this.selected[0], this.inCommunity).subscribe((data: any) => {
           layout.closeModal({
-            willCreate: data.id
+            willCreate: data.id,
+            defaultTitle: u.username
           });
         });
+        //
+        // this.userService.createGroupMessageThread({
+        //   title: u.username,
+        //   communityId: (this.inCommunity > -1 ?  this.inCommunity : this.userService.currentCommunityId),
+        //   memberIds: this.selected
+        // }).subscribe((data: any) => {
+        //   layout.closeModal({
+        //     willCreate: data.id
+        //   });
+        // });
       } else if (this.selected.length > 1) {
         //
         let names: any[] = this.selected.map((id: number) => this.currentList.find((el: any) => el.id == id));
         names.push(this.userService.getCurrentUser());
         names = names.map((el: any) => el.username);
 
-        //
         this.userService.createGroupMessageThread({
           title: names.join(),
           communityId: (this.inCommunity > -1 ?  this.inCommunity : this.userService.currentCommunityId),

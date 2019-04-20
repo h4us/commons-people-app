@@ -77,7 +77,9 @@ export class MessageDetailSettingsComponent implements OnInit, OnDestroy {
 
         //! group message | TODO:
         if (this.messageService.activeThreads) {
+
           const _thread = this.messageService.activeThreads.filter((el) => el.id == desireId);
+
           if (_thread.length > 0) {
             this.threadObj = _thread[0];
             this.title = this.threadObj.title;
@@ -85,6 +87,11 @@ export class MessageDetailSettingsComponent implements OnInit, OnDestroy {
             this.gForm.patchValue({
               title: this.threadObj.title,
               memberIds: this.threadObj.parties.map((el: any) => el.id)
+            });
+          } else {
+            this.userService.getCurrentMessageThread(desireId).subscribe((res: any) => {
+              this.threadObj = res;
+              this.title = this.threadObj.title;
             });
           }
 

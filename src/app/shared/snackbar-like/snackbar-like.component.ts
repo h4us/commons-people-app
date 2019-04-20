@@ -227,6 +227,8 @@ export class SnackbarLikeComponent implements OnInit, OnDestroy, AfterViewInit {
             this.doneMessage = 'すでに使用されているメールアドレスです';
           } else if (data.error.key == 'usernameTaken' || data.error.key == 'error.usernameTaken') {
             this.doneMessage = 'すでに使用されているユーザー名です';
+          } else if (data.error.key == 'error.beneficiaryIsNotCommunityMember') {
+            this.doneMessage = '送信先がコミュニティに所属していません';
           } else {
             this.doneMessage = 'アプリケーションエラー';
           }

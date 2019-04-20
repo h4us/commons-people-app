@@ -72,6 +72,8 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
         const uid = <number>params.id;
         this.userService.getUserDetail(uid).subscribe((data: any) => {
           this.sendToUser = data;
+
+          console.log('user detail?', this.sendToUser);
         });
       });
 
@@ -84,6 +86,8 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
       });
     // --
 
+    this.registerSnackbarActions();
+
     this.anchor = <StackLayout>this.anchorRef.nativeElement;
     this.rootLayout = <AbsoluteLayout>this.rootLayoutRef.nativeElement;
   }
@@ -91,7 +95,6 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
   ngAfterViewInit() {
     const currentOutlet = this.aRoute.outlet != 'userpage' ?  this.aRoute.outlet : 'pointsenderAtUserpage';
 
-    this.registerSnackbarActions();
     this.trayService.request(`snackbar/${currentOutlet}`, 'open', {
       doneMessage: '送信しています..',
       cancelAsClose: false
@@ -101,37 +104,34 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
   ngOnDestroy() {
     if(this.tNotifySubscription) {
       this.tNotifySubscription.unsubscribe();
+    }
 
-      if (this.transactionDone) {
-        // this.trayService.request('snackbar/', 'open', {
-        //   isApproved: true,
-        //   step: 1,
-        //   doneMessage: 'ポイントを送信しました'
-        // });
-      } else {
-        const currentOutlet = this.aRoute.outlet != 'userpage' ?  this.aRoute.outlet : 'pointsenderAtUserpage';
-        this.trayService.request(`snackbar/${currentOutlet}`, 'close' );
-      }
+    if (!this.transactionDone) {
+      const currentOutlet = this.aRoute.outlet != 'userpage' ?  this.aRoute.outlet : 'pointsenderAtUserpage';
+      this.trayService.request(`snackbar/${currentOutlet}`, 'close' );
     }
   }
 
   registerSnackbarActions() {
     const currentOutlet = this.aRoute.outlet != 'userpage' ?  this.aRoute.outlet : 'pointsenderAtUserpage';
-    this.tNotifySubscription = this.trayService.notifyToUser$
-      .subscribe((data: any) => {
-        if (data[0] == `snackbar/${currentOutlet}`) {
-          switch (data[1]) {
-            case 'approveOrNext':
-              this.onConfirm();
-              break;
-            case 'cancelOrBack':
-              this.cancelAction();
-              break;
-            default:
-              break;
+
+    if (!this.tNotifySubscription || (this.tNotifySubscription && this.tNotifySubscription.closed)) {
+      this.tNotifySubscription = this.trayService.notifyToUser$
+        .subscribe((data: any) => {
+          if (data[0] == `snackbar/${currentOutlet}`) {
+            switch (data[1]) {
+              case 'approveOrNext':
+                this.onConfirm();
+                break;
+              case 'cancelOrBack':
+                this.cancelAction();
+                break;
+              default:
+                break;
+            }
           }
-        }
-      });
+        });
+    }
   }
 
   cancelAction() {
@@ -169,10 +169,11 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
 
     this.userService.createTransactions(pt).subscribe(_ => {
         this.transactionDone = true;
-        this.trayService.request(`snackbar/${(currentOutlet == 'userpage') ? '' : currentOutlet}`, 'close')
+        this.trayService.request(`snackbar/${(currentOutlet == 'userpage') ? 'pointsenderAtUserpage' : currentOutlet}`, 'close')
 
         setTimeout(() => {
           if (currentOutlet == 'userpage') {
+            this.tNotifySubscription.unsubscribe();
             this.routerExt.navigate([{
               outlets: { userpage: ['point'] },
             }], {
@@ -181,15 +182,18 @@ export class PointSenderConfirmComponent implements OnInit, OnDestroy, AfterView
           } else {
             this.rootLayout.closeModal();
           }
+
+          this.trayService.request(`snackbar/pointsenderAtUserpage`, 'open', {
+            doneMessage: 'ポイントを送信しました',
+            step: 1,
+            isApproved: true
+          });
         }, 600);
     }, (err) => this.trayService.showError(err));
   }
 
   cancelConfirm() {
     this.routerExt.backToPreviousPage();
-  }
-
-  forceClose() {
   }
   // --
 }

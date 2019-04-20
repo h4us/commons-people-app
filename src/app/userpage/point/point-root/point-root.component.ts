@@ -40,6 +40,7 @@ export class PointRootComponent implements OnInit {
 
     if (this.user.balanceList && this.user.balanceList.length > 0) {
       this.allZero = this.user.balanceList.every((el) => el.balance == 0);
+
       if (!this.allZero) {
         this.currentList = this.userService.getCommunities().filter((el) => {
           const c: any = this.user.balanceList.find((iel) => iel.communityId == el.id);
