@@ -32,7 +32,11 @@ export class PeriodicTasksService {
 
     const checkTopicsTask = timer(this.intervalSec * 1000, this.intervalSec * 1000).pipe(
       switchMap(_ => of(...this.userService.getCommunities()).pipe(
-        concatMap((el) => this.userService.getTopics(el.id, '', { page:0, size:1, sort:'DESC' })),
+        concatMap((el) => {
+          return this.userService.getTopics({ communityId: el.id, pagination: { page:0, size:1, sort:'DESC' }}).pipe(
+            map((res: any) => res.adList ? res.adList : res)
+          )
+        }),
         concatAll(),
         toArray()
       )),
@@ -43,7 +47,11 @@ export class PeriodicTasksService {
 
     const checkWalletTask = timer(this.intervalSec * 1000, this.intervalSec * 1000).pipe(
       switchMap(_ => of(...this.userService.getCommunities()).pipe(
-        concatMap((el) => this.userService.getTransactions(el.id, { page:0, size:1, sort:'DESC' })),
+        concatMap((el) => {
+          return this.userService.getTransactions({ communityId: el.id, pagination: { page:0, size:1, sort:'DESC' }}).pipe(
+            map((res: any) => res.transactionList ? res.transactionList : res)
+          )
+        }),
         concatAll(),
         toArray()
       )),

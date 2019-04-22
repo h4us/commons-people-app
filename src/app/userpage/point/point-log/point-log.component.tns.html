@@ -92,11 +92,16 @@
         </ng-template>
 
         <ng-template tkListViewFooter>
-          <StackLayout class="p-x-15 bg-white" height="90">
-            <GridLayout rows="90">
-              <Button class="btn btn-rounded-lg btn-primary btn-black" width="40%" text="さらに読む"
-                visibility="collapsed"></Button>
-            </GridLayout>
+          <StackLayout class="p-x-15 bg-white">
+            <FlexboxLayout
+              flexDirection="column"
+              justifyContent="space-around"
+              alignItems="center"
+              height="90">
+              <Button visibility="{{ (currentList.length > 0 && currentQueryParams?.pagination?.lastPage > currentQueryParams?.pagination?.page)  ? 'visible' : 'collapsed' }}"
+                class="btn btn-rounded-lg btn-primary btn-black btn-m-y-0" width="40%" text="さらに読む"
+                (tap)="moreLog()"></Button>
+            </FlexboxLayout>
           </StackLayout>
         </ng-template>
       </RadListView>

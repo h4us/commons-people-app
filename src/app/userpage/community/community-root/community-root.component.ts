@@ -32,13 +32,17 @@ import { environment } from '~/environments/environment';
 export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit {
   //
   currentCommunity: any;
-  topics: any[];
+  topics: any[] = [];
   profile: any;
   currentTab: string = 'topics';
   isPreview: boolean = false;
   currentPaging: any = {
-    topics: 1,
+    topics: 0,
     news: 10
+  };
+  currentPageSize: any = {
+    topics: -1,
+    news: -1
   }
   pagingConfig: any;
   currentTotalTopics: number = -1;
@@ -48,7 +52,7 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
 
   private uSubscription: Subscription;
   private mSubscription: Subscription;
-  private _sub = new Subject<any>();
+  private topicSubject = new Subject<any>();
 
   @ViewChild('floatingButton') fbtnRef: ElementRef;
   @ViewChild('floatingToggle') ftglRef: ElementRef;
@@ -79,14 +83,18 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
     this.pagingConfig = Object.assign({}, this.userService.defaultPaging);
 
     //
-    from(this._sub).pipe(
+    from(this.topicSubject).pipe(
       switchMap((data: any) => {
-        let ret = this.userService.getTopics();
+        let ret = (data && typeof data != 'string') ? this.userService.getTopics(data) : this.userService.getTopics({
+          communityId: this.currentCommunity.id, pagination: { page: 0, size: 10, sort: 'DESC' }
+        });
 
-        // TODO: more better way..
         if (data == 'new topic') {
-          // ret = this.userService.getTopics(this.currentCommunity.id, '', { size: this.topics.length + 1 });
+          this.topics = [];
           this.toScrollBack = this.tcTopEdge;
+        } else if (data == 'switched community') {
+          this.topics = [];
+          this.toScrollBack = -1;
         } else {
           this.toScrollBack = -1;
         }
@@ -94,22 +102,19 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
         return ret;
       })
     ).subscribe((data: any) => {
-      const _data: any = data.map((el) => { return el; })
-      this.topics = _data;
+      if (this.topics.length == 0) {
+        this.topics = data.adList;
+      } else {
+        const _data: any = data.adList.filter((el: any) => this.topics.find((iel: any) => iel.id != el.id));
+        this.topics = this.topics.concat(_data);
+      }
+
       this.profile = {
         description: this.currentCommunity.description || ''
       }
 
-      //
-      this.currentPaging = {
-        topics: 1,
-        news: 10
-      }
-
-      // TODO:
-      this.userService.getTopics(this.currentCommunity.id, '', 'FETCH_ALL').subscribe((res: any) => {
-        this.currentTotalTopics = res.length;
-      });
+      this.currentPaging.topics = (data.pagination.page || data.pagination.page === 0) ? data.pagination.page + 1 : 0;
+      this.currentPageSize.topics = data.pagination.lastPage;
 
       if (this.toScrollBack > -1) {
         setTimeout(() => {
@@ -120,7 +125,7 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
 
     this.uSubscription = this.userService.updateRequest$.subscribe(_ => {
       this.currentCommunity = this.userService.getCommunity();
-      this._sub.next(true);
+      this.topicSubject.next(false);
     });
 
     this.mSubscription = this.mProxy.switchBack$.subscribe((data: any) => {
@@ -136,6 +141,7 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
       }
 
       if (this.userService.getCommunities().length == 0) {
+        // redirect to /newuser
         // TODO: need test
         setTimeout(() => {
           this.uSubscription.unsubscribe();
@@ -150,12 +156,13 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
 
       if (target == 'topic' && options && options.needRefresh) {
         this.currentCommunity = this.userService.getCommunity();
-        this._sub.next('new topic');
+        this.topicSubject.next('new topic');
       }
 
       if (target == 'switch-community') {
         this.newsService.clear();
         this.newsService.fetch(`?community_id=${this.currentCommunity.id}&per_page=10`);
+        this.topicSubject.next('switched community');
       }
     });
 
@@ -175,13 +182,12 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
           news: 10
         }
         this.newsService.fetch(`?community_id=${this.currentCommunity.id}&per_page=10`);
-        // --
       });
     } else {
       this.currentCommunity = this.userService.getCommunity();
+      this.topicSubject.next({ communityId: this.currentCommunity.id, pagination: { page: 0, size: 10, sort: 'DESC' } });
       this.newsService.clear();
       this.newsService.fetch(`?community_id=${this.userService.currentCommunityId}&per_page=10`);
-      this._sub.next(true);
     }
 
     this.fbtnRef.nativeElement.opacity = 0;
@@ -287,13 +293,11 @@ export class CommunityRootComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   onMoreReadTap() {
-    // TODO: button behavior
     if (this.currentTab === 'topics') {
-      this.userService.getTopics(this.currentCommunity.id, '', { page: this.currentPaging.topics }).subscribe((data: any) => {
-        const _data: any = data.filter((el: any) => this.topics.find((iel: any) => iel.id != el.id));
-        this.topics = this.topics.concat(_data);
-        this.currentPaging.topics += 1;
-      });
+      this.topicSubject.next({
+        communityId: this.currentCommunity.id,
+        pagination: { page: this.currentPaging.topics, size: 10, sort: 'DESC' }
+      })
     } else if (this.currentTab === 'news') {
       this.newsService.fetch(`?community_id=${this.userService.currentCommunityId}&per_page=10&offset=${this.currentPaging.news}`, false).subscribe(_ => {
         this.currentPaging.news += 10;

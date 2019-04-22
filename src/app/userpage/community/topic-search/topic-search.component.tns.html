@@ -53,11 +53,29 @@
       </StackLayout>
     </ng-template>
 
-    <!-- <ng-template tkListViewFooter>
-         <StackLayout class="p-10 bg-theme-secondary">
-         <Button *ngIf="currentTab != 'profile'"
-         class="btn btn-rounded-lg btn-primary btn-black" width="40%" text="さらに読む"></Button>
-         </StackLayout>
-         </ng-template> -->
+    <ng-template tkListViewFooter>
+      <StackLayout class="p-x-10 bg-theme-secondary" style="margin-bottom:90;">
+        <FlexboxLayout
+          flexDirection="column"
+          justifyContent="space-around"
+          alignItems="center"
+          height="90">
+          <Button *ngIf="currentList.length > 0 && currentQueryParams?.pagination?.lastPage > currentQueryParams?.pagination?.page"
+            class="btn btn-rounded-lg btn-primary btn-black" width="40%" text="さらに読む"
+            (tap)="moreSearchResult()"></Button>
+        </FlexboxLayout>
+      </StackLayout>
+    </ng-template>
+
   </RadListView>
+
+
+  <!-- TODO:  -->
+  <FlexboxLayout *ngIf="!loadingRetired && currentList.length == 0"
+    justifyContent="space-around"
+    top="100"
+    width="100%">
+    <ActivityIndicator busy="true" width="20"></ActivityIndicator>
+  </FlexboxLayout>
+
 </AbsoluteLayout>

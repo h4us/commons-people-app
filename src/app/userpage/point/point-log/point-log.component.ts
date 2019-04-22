@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { PageRoute, RouterExtensions } from 'nativescript-angular/router';
 import { Page } from 'tns-core-modules/ui/page';
 
-import { fromEvent } from 'rxjs';
+import { Subject, fromEvent, from } from 'rxjs';
 import { take, switchMap, delay } from 'rxjs/operators'
 
 import { Button } from 'tns-core-modules/ui/button';
@@ -24,7 +24,10 @@ export class PointLogComponent implements OnInit, AfterViewInit {
   currentCommunity: any;
   currentBalanceInfo: any;
   currentList: any[] = [];
+  currentQueryParams: any;
   user: User;
+
+  private transactionSubject = new Subject<any>();
 
   @ViewChild('floatingButton') fbtnRef: ElementRef;
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
@@ -42,6 +45,27 @@ export class PointLogComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    //
+    from(this.transactionSubject).pipe(
+      switchMap((data: any) => {
+        this.currentQueryParams = Object.assign(this.currentQueryParams, data);
+        return this.userService.getTransactions(data);
+      })
+    ).subscribe((data: any) => {
+      if (this.currentList.length == 0) {
+        this.currentList = data.transactionList;
+      } else {
+        // TODO: how to check
+        // const _data: any = data.transactionList.filter((el: any) => this.currentList.find((iel: any) => iel.id != el.id));
+        const _data: any = data.transactionList.map((el: any) => el);
+        this.currentList = this.currentList.concat(_data);
+      }
+
+      if (data && data.pagination) {
+        this.currentQueryParams = Object.assign(this.currentQueryParams, { pagination: data.pagination });
+      }
+    });
+
     this.pageRoute.activatedRoute
       .pipe(switchMap((aRoute) => aRoute.params))
       .forEach((params) => {
@@ -55,28 +79,39 @@ export class PointLogComponent implements OnInit, AfterViewInit {
           this.currentBalanceInfo = bl;
         });
 
-        this.userService.getTransactions(desireId).subscribe((tr: any) => {
-          if (tr && tr.length > 0) {
-            this.currentList = tr;
-            this.userService.updateTransactionsLastViewTime(this.currentCommunity.id).subscribe(_ => {
-              this.userService.updateSelf().subscribe();
-            });
-          } else {
-            // TEST
-            this.currentList = Array(30).fill({
-              remitter: {
-                username: 'testuser'
-              },
-              beneficiary: {
-                username: 'testuser'
-              },
-              amount: 100,
-              description: 'this is dummy this is dummy this is dummy this is dummy this is dummy this is dummy',
-              createdAt: new Date()
-            });
-            // --
-          }
+        this.userService.updateTransactionsLastViewTime(this.currentCommunity.id).subscribe(_ => {
+          this.userService.updateSelf().subscribe();
         });
+
+        this.currentQueryParams = {
+          communityId: this.currentCommunity.id,
+          pagination: { page: 0, size: 10, sort: 'DESC' }
+        }
+
+        this.transactionSubject.next(this.currentQueryParams);
+
+        // this.userService.getTransactions(desireId).subscribe((tr: any) => {
+        //   if (tr && tr.length > 0) {
+        //     this.currentList = tr;
+        //     this.userService.updateTransactionsLastViewTime(this.currentCommunity.id).subscribe(_ => {
+        //       this.userService.updateSelf().subscribe();
+        //     });
+        //   } else {
+        //     // TEST
+        //     this.currentList = Array(30).fill({
+        //       remitter: {
+        //         username: 'testuser'
+        //       },
+        //       beneficiary: {
+        //         username: 'testuser'
+        //       },
+        //       amount: 100,
+        //       description: 'this is dummy this is dummy this is dummy this is dummy this is dummy this is dummy',
+        //       createdAt: new Date()
+        //     });
+        //     // --
+        //   }
+        // });
       });
 
     this.fbtnRef.nativeElement.opacity = 0;
@@ -123,5 +158,11 @@ export class PointLogComponent implements OnInit, AfterViewInit {
     } else {
       return n.toString();
     }
+  }
+
+  moreLog() {
+    const nextPageParams: any = Object.assign({}, this.currentQueryParams);
+    nextPageParams.pagination.page = nextPageParams.pagination.page + 1;
+    this.transactionSubject.next(nextPageParams);
   }
 }

@@ -44,6 +44,18 @@
         </StackLayout>
       </ng-template>
 
+      <StackLayout class="p-x-10 bg-theme-secondary">
+        <FlexboxLayout
+          flexDirection="column"
+          justifyContent="space-around"
+          alignItems="center"
+          height="90">
+          <Button *ngIf="currentList.length > 0 && currentQueryParams?.pagination?.lastPage > currentQueryParams?.pagination?.page"
+            class="btn btn-rounded-lg btn-primary btn-black" width="40%" text="さらに読む"
+            (tap)="moreResult()"></Button>
+        </FlexboxLayout>
+      </StackLayout>
+
     </StackLayout>
   </ScrollView>
 

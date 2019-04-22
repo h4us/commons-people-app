@@ -33,6 +33,7 @@ export class AppComponent {
     firebase.init({
       showNotificationsWhenInForeground: true,
       onMessageReceivedCallback(message) {
+        // console.log('push notification comming -> ', message);
         LocalNotifications.schedule(
           [{
             // id: 1,

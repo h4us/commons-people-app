@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, Vie
 import { ActivatedRoute, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { RouterExtensions } from 'nativescript-angular/router';
 
-import { Subscription, Subject, of, from } from 'rxjs';
+import { Subscription, Subject, of, from, timer } from 'rxjs';
 import { switchMap, mergeMap } from 'rxjs/operators'
 
 import { map } from 'rxjs/operators';
@@ -25,9 +25,11 @@ export class TopicSearchComponent implements OnInit, AfterViewInit {
 
   currentCommunity: any;
   currentList: any[] = [];
+  currentQueryParams: any;
+  loadingRetired: boolean = true;
 
   // private _subs: Subscription;
-  // private _sub = new Subject<any>();
+  private topicSubject = new Subject<any>();
 
   @ViewChild('sizeAnchor') anchorRef: ElementRef;
   anchor: StackLayout;
@@ -44,33 +46,49 @@ export class TopicSearchComponent implements OnInit, AfterViewInit {
   //
   ngOnInit() {
     this.anchor = <StackLayout>this.anchorRef.nativeElement;
+
+    this.currentCommunity = this.userService.getCommunity();
+
+    this.currentQueryParams = {
+      communityId: this.userService.currentCommunityId,
+      pagination: { page: 0, size: 10, sort: 'DESC' }
+    }
+
+    from(this.topicSubject).pipe(
+      switchMap((data: any) => {
+        this.currentQueryParams = Object.assign(this.currentQueryParams, data);
+        return this.userService.getTopics(data);
+      })
+    ).subscribe((data: any) => {
+      if (this.currentList.length == 0) {
+        this.currentList = data.adList;
+      } else {
+        const _data: any = data.adList.filter((el: any) => this.currentList.find((iel: any) => iel.id != el.id));
+        this.currentList = this.currentList.concat(_data);
+      }
+
+      if (data && data.pagination) {
+        this.currentQueryParams = Object.assign(this.currentQueryParams, { pagination: data.pagination });
+      }
+
+      timer(3000).subscribe(_ => this.loadingRetired = true);
+    });
   }
 
   ngOnDestroy() {
   }
 
   ngAfterViewInit() {
-    // setTimeout(() => {
-    //   const aH = this.anchor.getMeasuredHeight() / screen.mainScreen.scale;
-    //   const aW = this.anchor.getMeasuredWidth() / screen.mainScreen.scale;
-    //   const eW = this.fbtnEl.getMeasuredWidth() / screen.mainScreen.scale;
-    //   const eH = this.fbtnEl.getMeasuredHeight() / screen.mainScreen.scale;
-    //   AbsoluteLayout.setLeft(this.fbtnEl, aW - eW - (eW * 0.33));
-    //   AbsoluteLayout.setTop(this.fbtnEl, aH - eH - (eH * 0.33));
-    // }, 100);
   }
 
   onItemTap(args: ListViewEventData) {
     const tItem = args.view.bindingContext;
 
-    // this.routerExt.navigateByUrl(`/user;clearHistory=true/(userpage:community/topic/${tItem.id})`);
-    // ..
     this.routerExt.navigate([{
       outlets: {
         userpage: (['community', 'topic', tItem.id])
       }
     }], { relativeTo: this.aRoute.parent });
-    //
   }
 
   cancelAction() {
@@ -79,10 +97,20 @@ export class TopicSearchComponent implements OnInit, AfterViewInit {
 
   searchAction(e: any) {
     if (e.search) {
-      this.userService.getTopics(this.userService.currentCommunityId, encodeURI(e.search)).subscribe((data: any) => {
-        console.log(data);
-        this.currentList = data;
+      this.currentList = [];
+      this.loadingRetired = false;
+
+      this.topicSubject.next({
+        communityId: this.userService.currentCommunityId,
+        query: encodeURI(e.search),
+        pagination: { page: 0, size: 10, sort: 'DESC' }
       });
     }
+  }
+
+  moreSearchResult() {
+    const nextPageParams: any = Object.assign({}, this.currentQueryParams);
+    nextPageParams.pagination.page = nextPageParams.pagination.page + 1;
+    this.topicSubject.next(nextPageParams);
   }
 }

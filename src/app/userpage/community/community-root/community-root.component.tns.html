@@ -135,10 +135,16 @@ The order of route configuration matters. The router accepts the first route tha
 
       </StackLayout>
 
-      <StackLayout class="p-10 bg-theme-secondary" style="{{ isPreview ? 'margin-bottom:90;' : '' }}">
-        <Button *ngIf="(currentTab == 'topics' && topics?.length && topics?.length > 0 && currentTotalTopics > topics?.length) || (currentTab == 'news' && news?.length % pagingConfig.news.size == 0 && news?.length > 0)"
-          class="btn btn-rounded-lg btn-primary btn-black" width="40%" text="さらに読む"
-          (tap)="onMoreReadTap()"></Button>
+      <StackLayout class="bg-theme-secondary" style="{{ isPreview ? 'margin-bottom:90;' : '' }}">
+        <FlexboxLayout
+          flexDirection="column"
+          justifyContent="space-around"
+          alignItems="center"
+          height="90">
+          <Button visibility="{{ (currentTab == 'topics' && topics?.length > 0 && currentPageSize.topics >= currentPaging.topics) || (currentTab == 'news' && news?.length % pagingConfig.news.size == 0 && news?.length > 0) ? 'visible' : 'collapsed' }}"
+            class="btn btn-rounded-lg btn-primary btn-black btn-m-y-0" width="40%" text="さらに読む"
+            (tap)="onMoreReadTap()"></Button>
+        </FlexboxLayout>
       </StackLayout>
 
     </StackLayout>

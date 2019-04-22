@@ -270,48 +270,57 @@ export class UserService {
     return this.http.get(`${this.apiUrl}users/${id}`);
   }
 
-  searchUsers(targetCommunity?:number, query?:string): any {
-    const t: number = targetCommunity || this._currentCommunityId;
-    let q: string = query || '';
+  searchUsers(options: any = { communityId: this._currentCommunityId, query: '' }): Observable<any> {
+    let params = [];
+    let { communityId, query, pagination } = options;
 
-    if (q == '') {
-      const hParam: string = [
-        `communityId=${t}`,
-        `q=`,
-        // `pagination[page]=0&pagenation[size]=10&pagenation[sort]=ASC`
-      ].join('&');
+    if (typeof query == 'undefined') {
+      query = '';
+    }
 
-      return this.http.get(`${this.apiUrl}users?${hParam}`).pipe(
-        map((res: any) => res.userList ? res.userList : res)
-      );
-    } else {
-      const hParams: string[] = [];
-      let sQuery: string[];
+    params.push(`communityId=${communityId}`)
 
-      if(q.split(',').length > 1) {
-        sQuery = q.split(',').map((c) => `q=${c}`);
-      } else {
-        sQuery = [`q=${q}`];
+    if (pagination) {
+      if (pagination.page || pagination.page === 0) {
+        params.push(`pagination[page]=${pagination.page}`)
       }
+      if (pagination.size) {
+        params.push(`pagination[size]=${pagination.size}`)
+      }
+      if (pagination.sort) {
+        params.push(`pagination[sort]=${pagination.sort}`)
+      }
+    }
+    // else {}
 
-      for (const ql of sQuery) {
-        hParams.push(
+    if (query == '' || query.split(',').length == 1) {
+      params.push(`q=${query}`);
+      return this.http.get(`${this.apiUrl}users?${params.join('&')}`);
+    } else if (query.split(',').length > 1) {
+      // TODO: multiple user search
+      // - this case, pagination not support..
+      const multiParams: string[] = [];
+      let multiQuery: string[] = query.split(',').map((c) => `q=${c}`);
+
+      for (const ql of multiQuery) {
+        multiParams.push(
           [
-            `communityId=${t}`,
+            `communityId=${communityId}`,
             ql,
-            // TODO: paging??
-            // `pagination[page]=0&pagenation[size]=10&pagenation[sort]=ASC`
+            // 'pagination[page]=0&pagination[size]=10&pagination[sort]=ASC'
           ].join('&')
         );
       }
 
-      return from(hParams).pipe(
+      // MEMO: return as stream (not complete array)
+      return from(multiParams).pipe(
         concatMap((hp: any) => this.http.get(`${this.apiUrl}users?${hp}`)),
-        map((res: any) => res.userList ? res.userList : res),
-        concatAll(),
-        distinct((el: any) => el.id),
-        toArray()
+        // map((res: any) => res.userList ? res.userList : res),
+        // concatAll(),
+        // distinct((el: any) => el.id),
+        // toArray()
       );
+      // --
     }
   }
 
@@ -420,61 +429,30 @@ export class UserService {
   /*
    * topics
    */
-  getTopics(targetCommunity?: number, query?: string, paging?: any): Observable<any> {
+  getTopics(options: any = { communityId: this._currentCommunityId }): Observable<any> {
     let params = [];
-    let ret: Observable<any> = of([]);
-    let _paging: any = Object.assign({} , this.defaultPaging.topics);
+    let { communityId, query, pagination } = options;
 
-    if (targetCommunity) {
-      params.push(`communityId=${targetCommunity}`)
-    } else {
-      params.push(`communityId=${this._currentCommunityId}`)
-    }
+    params.push(`communityId=${communityId}`)
 
     if (query && query.length > 0 && params.length > 0) {
       params.push(`filter=${query}`)
     }
 
-    if (paging != 'FETCH_ALL') {
-      if (paging) {
-        _paging.page = paging.page || _paging.page;
-        _paging.size = paging.size || _paging.size;
-        _paging.sort = paging.sort || _paging.sort;
+    if (pagination) {
+      if (pagination.page || pagination.page === 0) {
+        params.push(`pagination[page]=${pagination.page}`)
       }
-
-      params.push(`pagination[page]=${_paging.page}&pagination[size]=${_paging.size}&pagination[sort]=${_paging.sort}`);
+      if (pagination.size) {
+        params.push(`pagination[size]=${pagination.size}`)
+      }
+      if (pagination.sort) {
+        params.push(`pagination[sort]=${pagination.sort}`)
+      }
     }
+    // else {}
 
-    // if (params.length > 0) {
-    //   // TODO: rxjs issue
-    //   // SEE: https://github.com/ReactiveX/rxjs/issues/3989
-
-    //   // let observableFuncParams = [
-    //   //   map((res: any) => res.adList ? res.adList : res),
-    //   //   map((res: any) => res.sort((a, b) => (new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime()) ? -1 : 1)),
-    //   //   map((res: any) => res.filter((el, i) => i < 1)),
-    //   // ];
-
-    //   if (paging && paging.size) {
-    //     ret = this.http.get(`${this.apiUrl}ads?${params.join('&')}`).pipe(
-    //       map((res: any) => res.adList ? res.adList : res),
-    //       map((res: any) => res.sort((a, b) => (new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime()) ? -1 : 1)),
-    //       map((res: any) => res.filter((el, i) => i < paging.size))
-    //     );
-
-    //   } else {
-    //     ret = this.http.get(`${this.apiUrl}ads?${params.join('&')}`).pipe(
-    //       map((res: any) => res.adList ? res.adList : res),
-    //       map((res: any) => res.sort((a, b) => (new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime()) ? -1 : 1))
-    //     );
-    //   }
-    // }
-
-    ret = this.http.get(`${this.apiUrl}ads?${params.join('&')}`).pipe(
-      map((res: any) => res.adList ? res.adList : res)
-    );
-
-    return ret;
+    return this.http.get(`${this.apiUrl}ads?${params.join('&')}`);
   }
 
   getTopic(id: number): Observable<any> {
@@ -638,50 +616,32 @@ export class UserService {
     return ret;
   }
 
-  getTransactions(targetCommunity?: number, paging?: any): Observable<any> {
-    const params = [];
-    const t: number = targetCommunity || this._currentCommunityId;
-    let _paging: any = {
-      page: 0,
-      size: 10,
-      sort: 'DESC'
-    };
-    let ret: Observable<any>;
 
-    params.push(`communityId=${t}`);
+  getTransactions(options: any = { communityId: this._currentCommunityId }): Observable<any> {
+    let params = [];
+    let { communityId, pagination } = options;
 
-    ret = this.http.get(`${this.apiUrl}transactions?${params.join('&')}`).pipe(
-      map((res: any) => res.transactionList ? res.transactionList : res),
-      // TODO | TEST: missing...?
-      map((res: any) => res.map((el) => { el['communityId'] = t; return el; }))
-      // --
-    );
+    params.push(`communityId=${communityId}`)
 
-    // TODO: pagination by serve
-    if (paging) {
-      _paging.page = paging.page || _paging.page;
-      _paging.size = paging.size || _paging.size;
-      _paging.sort = paging.sort || _paging.sort;
-
-      params.push(`pagination[page]=${_paging.page}&pagination[size]=${_paging.size}&pagination[sort]=${_paging.sort}`);
-
-      if (paging.size) {
-        ret = this.http.get(`${this.apiUrl}transactions?${params.join('&')}`).pipe(
-          map((res: any) => res.transactionList ? res.transactionList : res),
-          // TODO | TEST: missing...?
-          map((res: any) => res.map((el) => { el['communityId'] = t; return el; })),
-          // --
-          map((res: any) => res.filter((el, i) => i < paging.size))
-        );
-      } else {
-        ret = this.http.get(`${this.apiUrl}transactions?${params.join('&')}`).pipe(
-          map((res: any) => res.transactionList ? res.transactionList : res),
-          map((res: any) => res.map((el) => { el['communityId'] = t; return el; }))
-        );
+    if (pagination) {
+      if (pagination.page || pagination.page === 0) {
+        params.push(`pagination[page]=${pagination.page}`)
+      }
+      if (pagination.size) {
+        params.push(`pagination[size]=${pagination.size}`)
+      }
+      if (pagination.sort) {
+        params.push(`pagination[sort]=${pagination.sort}`)
       }
     }
 
-    return ret;
+    // MEMO:
+    // return this.http.get(`${this.apiUrl}transactions?${params.join('&')}`).pipe(
+    //   map((res: any) => res.transactionList ? res.transactionList : res),
+    //   map((res: any) => res.map((el) => { el['communityId'] = t; return el; }))
+    // );
+
+    return this.http.get(`${this.apiUrl}transactions?${params.join('&')}`);
   }
 
   createTransactions(data: any): Observable<any> {

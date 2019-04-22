@@ -156,7 +156,6 @@ export class UserpageRootComponent implements OnInit, OnDestroy, AfterViewInit {
       this.userService.sendNotifictationToken().subscribe();
     });
 
-
     if (this.userService.getCommunities().length > 0) {
       this.routerExt.navigate([{
         outlets: {

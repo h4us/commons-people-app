@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Observable, from } from 'rxjs';
-import { distinct, toArray } from 'rxjs/operators';
+import { Observable, Subject, from } from 'rxjs';
+import { distinct, toArray, switchMap } from 'rxjs/operators';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterExtensions } from 'nativescript-angular/router';
@@ -31,6 +31,9 @@ export class MessageEditorComponent implements OnInit {
   isSearchMode: boolean = false;
   editorContext: string = 'new';
 
+  currentQueryParams: any;
+  private userSubject = new Subject<any>();
+
   constructor(
     private page: Page,
     private router: Router,
@@ -54,10 +57,33 @@ export class MessageEditorComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userService.searchUsers(this.inCommunity > -1 ?  this.inCommunity : this.userService.currentCommunityId)
-      .subscribe((data: any) => {
-        this.currentList = data;
-      });
+
+    from(this.userSubject).pipe(
+      switchMap((data: any) => {
+        this.currentQueryParams = Object.assign(this.currentQueryParams, data);
+        return this.userService.searchUsers(data);
+      })
+    ).subscribe((data: any) => {
+      if (this.currentList.length == 0) {
+        this.currentList = data.userList;
+      } else {
+        const _data: any = data.userList.filter((el: any) => this.currentList.find((iel: any) => iel.id != el.id));
+        this.currentList = this.currentList.concat(_data);
+      }
+
+      if (data && data.pagination) {
+        this.currentQueryParams = Object.assign(this.currentQueryParams, { pagination: data.pagination });
+      }
+
+      // timer(3000).subscribe(_ => this.loadingRetired = true);
+    });
+
+    this.currentQueryParams = {
+      communityId: this.inCommunity > -1 ?  this.inCommunity : this.userService.currentCommunityId,
+      pagination: { page: 0, size: 10, sort: 'ASC' }
+    }
+
+    this.userSubject.next(this.currentQueryParams);
   }
 
   closeModal(layout: AbsoluteLayout | DockLayout) {
@@ -121,9 +147,21 @@ export class MessageEditorComponent implements OnInit {
   }
 
   searchAction(e: any) {
-    this.userService.searchUsers(this.inCommunity > -1 ?  this.inCommunity : this.userService.currentCommunityId, e.search)
-      .subscribe((data: any) => {
-        this.currentList = data;
+    if (e && e.search) {
+      this.currentList = [];
+      // this.loadingRetired = false;
+
+      this.userSubject.next({
+        communityId: this.inCommunity > -1 ?  this.inCommunity : this.userService.currentCommunityId,
+        query: encodeURI(e.search),
+        pagination: { page: 0, size: 10, sort: 'ASC' }
       });
+    }
+  }
+
+  moreResult() {
+    const nextPageParams: any = Object.assign({}, this.currentQueryParams);
+    nextPageParams.pagination.page = nextPageParams.pagination.page + 1;
+    this.userSubject.next(nextPageParams);
   }
 }
