@@ -1,9 +1,0 @@
-<GridLayout #demoroot rows="*"
-  (tap)="onFabTap()">
-  <Image src="~/assets/splash1125.png" stretch="aspectFill"></Image>
-  <LottieView #lottieView
-    [visibility]="lottie ? 'visible' : 'collapse'"
-    [width]="ltCalcWidth"
-    [src]="srcData" [loop]="true" [autoPlay]="true"></LottieView>
-  <StackLayout #lottieViewContainer width="100%" height="100%" verticalAlignment="center" horizontalAlignment="center"></StackLayout>
-</GridLayout>
